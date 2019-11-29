@@ -28,6 +28,11 @@
             <version>${simbest.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.simbest.boot</groupId>
+            <artifactId>simbest-boot-wf</artifactId>
+            <version>${simbest.version}</version>
+        </dependency>
+        <dependency>
             <groupId>net.bull.javamelody</groupId>
             <artifactId>javamelody-spring-boot-starter</artifactId>
             <version>1.76.0</version>
