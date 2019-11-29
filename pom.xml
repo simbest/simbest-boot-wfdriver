@@ -1,0 +1,136 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.simbest.boot</groupId>
+        <artifactId>simbest-boot-parent</artifactId>
+        <version>0.1</version>
+        <relativePath>../simbest-boot-parent</relativePath>
+    </parent>
+
+    <groupId>com.simbest.boot</groupId>
+    <artifactId>simbest-boot-wfdriver</artifactId>
+    <version>0.1</version>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>连接应用与流程引擎的驱动</description>
+
+    <properties>
+        <simbest.version>0.1</simbest.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.simbest.boot</groupId>
+            <artifactId>simbest-boot-cores</artifactId>
+            <version>${simbest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.bull.javamelody</groupId>
+            <artifactId>javamelody-spring-boot-starter</artifactId>
+            <version>1.76.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!--GITHUB 公网-->
+    <!--
+    <repositories>
+        <repository>
+            <id>aliyun-repo</id>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>simbest-boot-parent-mvn-repo</id>
+            <url>https://raw.github.com/simbest/simbest-boot-parent/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>simbest-boot-orguser-mvn-repo</id>
+            <url>https://raw.github.com/simbest/simbest-boot-orguser/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>simbest-boot-cores-mvn-repo</id>
+            <url>https://raw.github.com/simbest/simbest-boot-cores/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>simbest-boot-wxmp-mvn-repo</id>
+            <url>https://raw.github.com/simbest/simbest-boot-wxmp/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>simbest-boot-wf-mvn-repo</id>
+            <url>https://raw.github.com/simbest/simbest-boot-wf/mvn-repo/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>simbest-maven-repo1</id>
+            <url>https://raw.github.com/simbest/simbest-maven-repo/master/repository/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>simbest-maven-repo2</id>
+            <url>https://github.com/simbest/simbest-maven-repo/tree/master/repository/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+    -->
+
+    <!--Nexus 私服-->
+    <repositories>
+        <repository>
+            <id>thirdparty</id>
+            <url>http://10.87.41.250:8081/nexus/content/repositories/thirdparty</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <url>http://10.87.41.250:8081/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>http://10.87.41.250:8081/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+</project>
