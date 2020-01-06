@@ -37,25 +37,25 @@ import java.util.Date;
 public class ActCommentModel extends LogicModel {
 
     @Id
-    @Column ( name = "id", length = 40 )
+    @Column (length = 40 )
     @GeneratedValue ( generator = "snowFlakeId" )
     @GenericGenerator ( name = "snowFlakeId", strategy = "com.simbest.boot.util.distribution.id.SnowflakeId" )
     @EntityIdPrefix ( prefix = "FAC" ) //主键前缀，此为可选项注解
     protected String id;
 
-    @Column ( name = "currentUserCode", length = 40 )
+    @Column (length = 40 )
 	private String currentUserCode;//办理人
 
-    @Column ( name = "comment", length = 4000 )
-	private String comment;//内容
+    @Column (length = 4000 )
+	private String content;//内容
 
-    @Column ( name = "processInstId", length = 40 )
+    @Column (length = 40 )
 	private String processInstId;//实例id
 
-    @Column ( name = "taskId", length = 40 )
+    @Column (length = 40 )
 	private String taskId; //任务id
 
-    @Column ( name = "businessKey", length = 100)
+    @Column (length = 100)
     private String businessKey;//单据id
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
