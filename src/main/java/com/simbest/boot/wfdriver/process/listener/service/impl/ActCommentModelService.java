@@ -48,7 +48,7 @@ public class ActCommentModelService extends LogicService<ActCommentModel,String>
 
                 ActCommentModel actCommentModel = new ActCommentModel();
                 actCommentModel.setCurrentUserCode(currentUserCode);
-                actCommentModel.setComment(comment);
+                actCommentModel.setContent(comment);
                 actCommentModel.setProcessInstId(processInstId);
                 actCommentModel.setTaskId(taskId);
                 actCommentModel.setBusinessKey(businessKey);

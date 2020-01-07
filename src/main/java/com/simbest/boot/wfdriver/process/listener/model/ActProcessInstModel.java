@@ -25,7 +25,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table( name = "flowable_act_process_inst_model",
+@Table( name = "flowable_process_inst_model",
         indexes = {
                 @Index(columnList = "processInstanceId",name = "IDX_PROINST_INSTID"),
                 @Index(columnList = "processDefinitionKey",name = "IDX_PROINST_DEFKEY_STATE"),

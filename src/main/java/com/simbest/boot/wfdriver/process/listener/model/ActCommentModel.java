@@ -4,10 +4,7 @@ package com.simbest.boot.wfdriver.process.listener.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.simbest.boot.base.annotations.EntityIdPrefix;
 import com.simbest.boot.base.model.LogicModel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -22,12 +19,13 @@ import java.util.Date;
  *@Date 2019/12/01 16:03
  *@Version 1.0
  **/
+@Builder
 @Data
 @EqualsAndHashCode (callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table( name = "flowable_act_comment_model",
+@Table( name = "flowable_comment_model",
         indexes = {
                 @Index(columnList = "processInstId",name = "IDX_COMMENT_PROCESSINSTID"),
                 @Index(columnList = "taskId",name = "IDX_COMMENT_TASKIDID"),
