@@ -2,6 +2,7 @@ package com.simbest.boot.wfdriver.task.todo;
 
 
 import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
+import com.simbest.boot.wfdriver.process.listener.model.ActTaskInstModel;
 
 /**
  * <strong>Title : TodoCloseInterface</strong><br>
@@ -20,8 +21,8 @@ public interface TodoCloseInterface {
 
     /**
      * 核销统一代办
-     * @param businessStatus     业务流程操作对象
+     * @param actTaskInstModel     业务流程操作对象
      * @param userName           审批人
      */
-    void execution(ActBusinessStatus businessStatus, String userName);
+    void execution( ActBusinessStatus actBusinessStatus,ActTaskInstModel actTaskInstModel, String userName);
 }

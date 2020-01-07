@@ -3,6 +3,7 @@ package com.simbest.boot.wfdriver.task;
 import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.wfdriver.exceptions.WorkFlowBusinessRuntimeException;
 import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
+import com.simbest.boot.wfdriver.process.listener.model.ActTaskInstModel;
 import com.simbest.boot.wfdriver.task.model.TaskCallbackLog;
 import com.simbest.boot.wfdriver.task.model.TaskCallbackRetry;
 import com.simbest.boot.wfdriver.task.service.ITaskCallBackLogService;
@@ -51,18 +52,18 @@ public class UserTaskSubmit {
 
     /**
      * 推送统一代办
-     * @param businessStatus     业务流程操作对象
+     * @param actTaskInstModel     业务流程操作对象
      * @param userName           审批人
      */
-    public void submitTodoOpen(ActBusinessStatus businessStatus, String userName){
+    public void submitTodoOpen( ActBusinessStatus actBusinessStatus,ActTaskInstModel actTaskInstModel, String userName){
         LocalDateTime callbackStartDate = LocalDateTime.now();
         Boolean callbackResult = true;
         String callbackError = null;
         try {
-            if ( businessStatus == null ){
+            if ( actTaskInstModel == null ){
                 throw new WorkFlowBusinessRuntimeException( userName + " Submit Open Todo Is Null!");
             }
-            todoOpenInterface.execution( businessStatus,userName );
+            todoOpenInterface.execution( actBusinessStatus,actTaskInstModel,userName );
         }catch ( WorkFlowBusinessRuntimeException e ){
             log.error( "UserTaskSubmit submitTodoOpen Error>>>>" + Exceptions.getStackTraceAsString(e) );
             TaskCallbackRetry taskCallbackRetry = new TaskCallbackRetry();
@@ -70,7 +71,7 @@ public class UserTaskSubmit {
             taskCallbackRetry.setExecuteTimes(1);
             taskCallbackRetry.setLastExecuteDate( LocalDateTime.now() );
             taskCallbackRetry.setCallbackType("openTodoCallback");
-            taskCallbackRetry.setActBusinessStatusId(businessStatus.getId());
+            taskCallbackRetry.setActBusinessStatusId(actTaskInstModel.getProcessInstId());
             taskCallbackRetry.setUserName(userName);
             log.debug( "UserTaskSubmit submitTodoOpen Error>>>>taskCallBackRetyService>>>>" + taskCallBackRetyService );
             taskCallbackRetry = taskCallBackRetyService.insert(taskCallbackRetry);
@@ -79,7 +80,7 @@ public class UserTaskSubmit {
             callbackError = StringUtils.substring( Exceptions.getStackTraceAsString(e), 0, 1999 );
         }finally {
             TaskCallbackLog taskCallbackLog = new TaskCallbackLog();
-            taskCallbackLog.setActBusinessStatusId(businessStatus.getId());
+            taskCallbackLog.setActBusinessStatusId(actTaskInstModel.getProcessInstId());
             taskCallbackLog.setCallbackType("openTodoCallback");
             taskCallbackLog.setCallbackStartDate(callbackStartDate);
             taskCallbackLog.setCallbackEndDate(LocalDateTime.now());
@@ -95,18 +96,18 @@ public class UserTaskSubmit {
 
     /**
      * 核销统一代办
-     * @param businessStatus     业务流程操作对象
+     * @param actTaskInstModel     业务流程操作对象
      * @param userName           审批人
      */
-    public void submitTodoClose( ActBusinessStatus businessStatus, String userName){
+    public void submitTodoClose( ActBusinessStatus actBusinessStatus,ActTaskInstModel actTaskInstModel, String userName){
         LocalDateTime callbackStartDate = LocalDateTime.now();
         Boolean callbackResult = true;
         String callbackError = null;
         try {
-            if ( businessStatus == null ){
+            if ( actTaskInstModel == null ){
                 throw new WorkFlowBusinessRuntimeException( userName + " Submit Close Todo Is Null!");
             }
-            todoCloseInterface.execution( businessStatus,userName );
+            todoCloseInterface.execution( actBusinessStatus,actTaskInstModel,userName );
         }catch ( Exception e ){
             log.error( "UserTaskSubmit submitTodoClose  Error>>>>" + Exceptions.getStackTraceAsString(e) );
             TaskCallbackRetry taskCallbackRetry = new TaskCallbackRetry();
@@ -114,7 +115,7 @@ public class UserTaskSubmit {
             taskCallbackRetry.setExecuteTimes(1);
             taskCallbackRetry.setLastExecuteDate( LocalDateTime.now() );
             taskCallbackRetry.setCallbackType("closeTodoCallback");
-            taskCallbackRetry.setActBusinessStatusId(businessStatus.getId());
+            taskCallbackRetry.setActBusinessStatusId(actTaskInstModel.getProcessInstId());
             taskCallbackRetry.setUserName(userName);
             log.debug( "UserTaskSubmit submitTodoOpen Error>>>>taskCallBackRetyService>>>>" + taskCallBackRetyService );
             taskCallbackRetry = taskCallBackRetyService.insert(taskCallbackRetry);
@@ -123,7 +124,7 @@ public class UserTaskSubmit {
             callbackError = StringUtils.substring( Exceptions.getStackTraceAsString(e), 0, 1999 );
         }finally {
             TaskCallbackLog taskCallbackLog = new TaskCallbackLog();
-            taskCallbackLog.setActBusinessStatusId(businessStatus.getId());
+            taskCallbackLog.setActBusinessStatusId(actTaskInstModel.getProcessInstId());
             taskCallbackLog.setCallbackType("closeTodoCallback");
             taskCallbackLog.setCallbackStartDate(callbackStartDate);
             taskCallbackLog.setCallbackEndDate(LocalDateTime.now());

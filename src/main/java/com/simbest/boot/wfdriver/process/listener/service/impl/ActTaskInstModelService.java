@@ -2,10 +2,13 @@ package com.simbest.boot.wfdriver.process.listener.service.impl;
 
 import com.simbest.boot.base.service.impl.LogicService;
 import com.simbest.boot.util.DateUtil;
+import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
+import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
 import com.simbest.boot.wfdriver.process.listener.mapper.ActTaskInstModelMapper;
 import com.simbest.boot.wfdriver.process.listener.model.ActTaskInstModel;
 import com.simbest.boot.wfdriver.process.listener.service.IActProcessInstModelService;
 import com.simbest.boot.wfdriver.process.listener.service.IActTaskInstModelService;
+import com.simbest.boot.wfdriver.task.UserTaskSubmit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +38,12 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
 	private ActTaskInstModelMapper actTaskInstModelMapper;
 
     @Autowired
+    private UserTaskSubmit userTaskSubmit;
+
+    @Autowired
+    private IActBusinessStatusService actBusinessStatusService;
+
+    @Autowired
     private IActProcessInstModelService actProcessInstModelService;
 
 	@Autowired
@@ -51,7 +60,9 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
             actTaskInstModel.setEnabled(true);
             actTaskInstModel.setCreator( actTaskInstModel.getAssignee() );
             actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
-            actTaskInstModelMapper.save(actTaskInstModel);
+            actTaskInstModel = actTaskInstModelMapper.save(actTaskInstModel);
+            ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
+            userTaskSubmit.submitTodoOpen( actBusinessStatus,actTaskInstModel, actTaskInstModel.getAssignee());
             ret = 1;
         }catch (Exception e){
             ret = 0;
@@ -68,6 +79,8 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
             actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
             actTaskInstModel.setModifiedTime(DateUtil.date2LocalDateTime(new Date()));
             actTaskInstModelMapper.updateByTaskId(actTaskInstModel);
+            ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
+            userTaskSubmit.submitTodoClose( actBusinessStatus,actTaskInstModel, actTaskInstModel.getAssignee());
             ret = 1;
         }catch (Exception e){
             ret = 0;
