@@ -46,9 +46,9 @@ public class AutoDeployResources {
         if(autoDeploy!=null && autoDeploy==true){
             resourcePatternResolver = new PathMatchingResourcePatternResolver();
             List<Resource> result = new ArrayList<>();
-            Collections.addAll(result, resourcePatternResolver.getResources("classpath*:/processes/**.bpmn"));
-            Collections.addAll(result, resourcePatternResolver.getResources("classpath*:/processes/**.bpmn20.xml"));
-            Collections.addAll(result, resourcePatternResolver.getResources("classpath*:/processes/**.zip"));
+            Collections.addAll(result, resourcePatternResolver.getResources("classpath*:/processes/**/**.bpmn"));
+            Collections.addAll(result, resourcePatternResolver.getResources("classpath*:/processes/**/**.bpmn20.xml"));
+            Collections.addAll(result, resourcePatternResolver.getResources("classpath*:/processes/**/**.zip"));
             if(result!=null && result.size()>0){
                 for(Resource r : result){
                     callFlowableProcessApi.deployments_Add(r.getFile(), r.getFilename(),DEPLOYMENTNAMEHINT,null);
