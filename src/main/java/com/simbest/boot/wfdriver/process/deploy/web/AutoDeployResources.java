@@ -51,7 +51,12 @@ public class AutoDeployResources {
             Collections.addAll(result, resourcePatternResolver.getResources("classpath*:/processes/**/**.zip"));
             if(result!=null && result.size()>0){
                 for(Resource r : result){
-                    callFlowableProcessApi.deployments_Add(r.getFile(), r.getFilename(),DEPLOYMENTNAMEHINT,null);
+                    try {
+                        callFlowableProcessApi.deployments_Add(r.getFile(), r.getFilename(),DEPLOYMENTNAMEHINT,null);
+                    }catch (Exception e){
+                        log.error("################################################ERROR#######################################");
+                        log.error("##ERROR流程部署异常，请检查环境配置或者流程配置"+e.getMessage());
+                    }
                 }
             }
         }else{
