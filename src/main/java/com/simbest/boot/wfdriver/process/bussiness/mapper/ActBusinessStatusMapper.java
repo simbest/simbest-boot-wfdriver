@@ -83,6 +83,44 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
 
 
     /**
+     *  获取指定 userName 下面所有的待办数据  公文使用
+     * @param participant    参与者
+     * @return
+     */
+    String sql8 = "SELECT act.id, act.business_key as businessKey, act.create_org_code as createOrgCode, act.create_org_name as createOrgName,act.create_user_name as createUserName,  " +
+            "       act.current_state as currentState, to_char(act.end_time,'yyyy-MM-dd HH24:mi:ss') as endTime, act.parent_process_inst_id as parentProInstId, act.pm_inst_type as pmInstType, act.previous_assistant as previousAssistant,  " +
+            "       act.previous_assistant_date as previousAssistantDate, act.previous_assistant_name as previousAssistantName , act.previous_assistant_org_code as previousAssistantOrgCode, act.previous_assistant_org_name as previousAssistantOrgName,  " +
+            "       act.process_def_key as processDefKey, act.process_inst_id as processInstId, act.receipt_title as receiptTile,act.receipt_code as receiptCode,to_char(act.start_time,'yyyy-MM-dd HH24:mi:ss') as startTime,task.task_Id as taskId,task.name as taskName, " +
+            "       task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee,ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder" +
+            "  FROM us_bo_process_definition ubpd" +
+            "    join us_bo_process_instance ubi" +
+            "     on ubpd.id = ubi.bo_porcess_def_id" +
+            "    join act_business_status act" +
+            "     on ubi.pm_ins_id = act.business_key" +
+            "    join flowable_task_inst_model task" +
+            "     on act.process_inst_id = task.process_Inst_Id" +
+            "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
+            "     AND task.end_Time is null" +
+            "     AND act.enabled = 1" +
+            "     AND task.assignee = :participant" +
+            " ORDER BY ubpd.global_display_order asc,task.created_Time desc";
+    String sql8Count = "SELECT count(1)" +
+            "  FROM us_bo_process_definition ubpd" +
+            "    join us_bo_process_instance ubi" +
+            "     on ubpd.id = ubi.bo_porcess_def_id" +
+            "    join act_business_status act" +
+            "     on ubi.pm_ins_id = act.business_key" +
+            "    join flowable_task_inst_model task" +
+            "     on act.process_inst_id = task.process_Inst_Id" +
+            "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
+            "     AND task.end_Time is null" +
+            "     AND act.enabled = 1" +
+            "     AND task.assignee = :participant";
+    @Query(value = sql8,countQuery = sql8Count,nativeQuery = true)
+    Page<Map<String,Object>> getAnddocTodoByUserPage(@Param(value = "participant") String participant, @Param(value = "dynamicWhere") String dynamicWhere, Pageable pageable);
+
+
+    /**
      *  获取指定 userName 下面所有的已办数据
      * @param assistant     完成人
      * @return
@@ -113,6 +151,43 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
     @Query(value = sql5,countQuery = sql5Count,nativeQuery = true)
     Page<Map<String,Object>> getByAreadyDoneAssistantPage(@Param(value = "assistant") String assistant, @Param(value = "dynamicWhere") String dynamicWhere, Pageable pageable);
 
+
+    /**
+     *  获取指定 userName 下面所有的已办数据
+     * @param assistant     完成人
+     * @return
+     */
+    String sql10 = "SELECT act.id, act.business_key as businessKey, act.create_org_code as createOrgCode, act.create_org_name as createOrgName,act.create_user_name as createUserName,  " +
+            "       act.current_state as currentState, to_char(act.end_time,'yyyy-MM-dd HH24:mi:ss') as endTime, act.parent_process_inst_id as parentProInstId, act.pm_inst_type as pmInstType, act.previous_assistant as previousAssistant,  " +
+            "       act.previous_assistant_date as previousAssistantDate, act.previous_assistant_name as previousAssistantName , act.previous_assistant_org_code as previousAssistantOrgCode, act.previous_assistant_org_name as previousAssistantOrgName,  " +
+            "       act.process_def_key as processDefKey, act.process_inst_id as processInstId, act.receipt_title as receiptTile,act.receipt_code as receiptCode,to_char(act.start_time,'yyyy-MM-dd HH24:mi:ss') as startTime,task.task_Id as taskId,task.name as taskName, " +
+            "       task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee,ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder" +
+            "  FROM us_bo_process_definition ubpd" +
+            "    join us_bo_process_instance ubi" +
+            "     on ubpd.id = ubi.bo_porcess_def_id" +
+            "    join act_business_status act" +
+            "     on ubi.pm_ins_id = act.business_key" +
+            "    join flowable_task_inst_model task" +
+            "     on act.process_inst_id = task.process_Inst_Id" +
+            "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
+            "     AND task.end_Time is not null" +
+            "     AND act.enabled = 1" +
+            "     AND task.assignee = :participant" +
+            " ORDER BY ubpd.global_display_order asc,task.created_Time desc";
+    String sql10Count = "SELECT count(1)" +
+            "  FROM us_bo_process_definition ubpd" +
+            "    join us_bo_process_instance ubi" +
+            "     on ubpd.id = ubi.bo_porcess_def_id" +
+            "    join act_business_status act" +
+            "     on ubi.pm_ins_id = act.business_key" +
+            "    join flowable_task_inst_model task" +
+            "     on act.process_inst_id = task.process_Inst_Id" +
+            "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
+            "     AND task.end_Time is not null" +
+            "     AND act.enabled = 1" +
+            "     AND task.assignee = :participant";
+    @Query(value = sql10,countQuery = sql10Count,nativeQuery = true)
+    Page<Map<String,Object>> getAnddocDoneAssistantPage(@Param(value = "assistant") String assistant, @Param(value = "dynamicWhere") String dynamicWhere, Pageable pageable);
 
     /**
      * 获取指定 userName 下面所有的创建的工单数据

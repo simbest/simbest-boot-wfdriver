@@ -69,7 +69,7 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             actBusinessStatus.setEnabled(true);
             actBusinessStatus.setRemoved(false);
             actBusinessStatus.setReceiptTitle(receipTitle);
-            actBusinessStatus.setCode(code);
+            actBusinessStatus.setReceiptCode(code);
             actBusinessStatus.setIscg(iscg);
             actBusinessStatus.setBusinessKey(receiptId);
             actBusinessStatus.setProcessInstId(processInstanceId);

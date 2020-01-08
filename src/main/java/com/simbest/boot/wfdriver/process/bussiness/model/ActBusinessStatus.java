@@ -49,7 +49,7 @@ public class ActBusinessStatus extends GenericModel {
 
     private String receiptTitle; //单据标题
 
-    private String code;
+    private String receiptCode; //单据编码
 
     @Column(columnDefinition = "int default 0")
     protected Boolean iscg;
