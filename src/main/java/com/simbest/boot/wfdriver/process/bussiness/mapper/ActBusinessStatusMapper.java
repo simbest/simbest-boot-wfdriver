@@ -62,7 +62,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
                             "       task.task_Definition_Key     as taskDefKey,"+
                             "       task.assignee as taskAssignee"+
                             "  FROM act_business_status act,"+
-                            "       flowable_act_task_inst_model      task"+
+                            "       flowable_task_inst_model      task"+
                             " WHERE act.process_inst_id = task.process_Inst_Id"+
                             "   AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')"+
                             "   AND task.end_Time is null " +
@@ -71,7 +71,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
                             " ORDER BY task.created_Time desc";
     String sql4Count = "SELECT count(1)"+
                             "  FROM act_business_status act,"+
-                            "       flowable_act_task_inst_model      task"+
+                            "       flowable_task_inst_model      task"+
                             " WHERE act.process_inst_id = task.process_Inst_Id"+
                             "   AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')"+
                             "   AND task.end_Time is null " +
@@ -93,7 +93,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
                     "task.assignee as taskAssignee " +
                     "FROM " +
                     "act_business_status act, " +
-                    "flowable_act_task_inst_model task "+
+                    "flowable_task_inst_model task "+
                     "WHERE act.process_inst_id = task.process_Inst_Id " +
                     "AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%') " +
                     "AND task.end_Time is not null " +
@@ -103,7 +103,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
     String sql5Count = "SELECT count(1)" +
                     "FROM " +
                     "act_business_status act, " +
-                    "flowable_act_task_inst_model task "+
+                    "flowable_task_inst_model task "+
                     "WHERE act.process_inst_id = task.process_Inst_Id " +
                     "AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%') " +
                     "AND task.end_Time is not null " +
