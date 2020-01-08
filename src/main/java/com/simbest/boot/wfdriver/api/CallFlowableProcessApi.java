@@ -53,7 +53,7 @@ public class CallFlowableProcessApi {
         if(map!=null){
             if(map.get("state").equals(ConstantsUtils.FAILE)){
                 log.error("Flowable-Engine接口异常:"+map.get("message") );
-                throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:");
+                throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:"+map.get("message") );
             }
             data = (Map<String, Object>) map.get("data");
         }
@@ -76,7 +76,7 @@ public class CallFlowableProcessApi {
         if(map!=null){
             if(map.get("state").equals(ConstantsUtils.FAILE)){
                 log.error("Flowable-Engine接口异常:"+map.get("message") );
-                throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:");
+                throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:"+map.get("message") );
             }
             data = (Map<String, Object>) map.get("data");
         }
@@ -101,7 +101,7 @@ public class CallFlowableProcessApi {
         if(map!=null){
             if(map.get("state").equals(ConstantsUtils.FAILE)){
                 log.error("Flowable-Engine接口异常:"+map.get("message") );
-                throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:");
+                throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:"+map.get("message") );
             }
             data = (Map<String, Object>) map.get("data");
         }
@@ -126,7 +126,7 @@ public class CallFlowableProcessApi {
         if(map!=null){
             if(map.get("state").equals(ConstantsUtils.FAILE)){
                 log.error("Flowable-Engine接口异常:"+map.get("message") );
-                throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:");
+                throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:"+map.get("message") );
             }
             data = (Map<String, Object>) map.get("data");
         }
@@ -145,7 +145,7 @@ public class CallFlowableProcessApi {
         if(map!=null){
             if(map.get("state").equals(ConstantsUtils.FAILE)){
                 log.error("Flowable-Engine接口异常:"+map.get("message") );
-                throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:");
+                throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:"+map.get("message") );
             }
             data = (List<Map<String, Object>>) map.get("data");
         }
@@ -162,7 +162,7 @@ public class CallFlowableProcessApi {
         Map<String,Object> map = wqqueryHttpService.callInterfaceString(ConstansURL.TASKS_ADD_COMMENT,variables);
         if(map.get("state").equals(ConstantsUtils.FAILE)){
             log.error("Flowable-Engine接口异常:"+map.get("message") );
-            throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:");
+            throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:"+map.get("message") );
         }
         return map;
     }
@@ -181,7 +181,7 @@ public class CallFlowableProcessApi {
         Map<String,Object> map = wqqueryHttpService.callInterfaceString(ConstansURL.TASKS_COMPLETE,para);
         if(map.get("state").equals(ConstantsUtils.FAILE)){
             log.error("Flowable-Engine接口异常:"+map.get("message") );
-            throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:");
+            throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:"+map.get("message") );
         }
         return map;
     }
