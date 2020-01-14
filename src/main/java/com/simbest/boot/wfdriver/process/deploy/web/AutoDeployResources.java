@@ -56,6 +56,7 @@ public class AutoDeployResources {
                     }catch (Exception e){
                         log.error("################################################ERROR#######################################");
                         log.error("##ERROR流程部署异常，请检查环境配置或者流程配置"+e.getMessage());
+                        break;
                     }
                 }
             }
