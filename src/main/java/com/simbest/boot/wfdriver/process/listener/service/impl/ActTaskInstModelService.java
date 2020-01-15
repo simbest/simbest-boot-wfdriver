@@ -1,5 +1,6 @@
 package com.simbest.boot.wfdriver.process.listener.service.impl;
 
+import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.base.service.impl.LogicService;
 import com.simbest.boot.util.DateUtil;
 import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
@@ -66,6 +67,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
             ret = 1;
         }catch (Exception e){
             ret = 0;
+            log.error(Exceptions.getStackTraceAsString(e));
         }
 		return ret;
 	}
@@ -84,6 +86,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
             ret = 1;
         }catch (Exception e){
             ret = 0;
+            log.error(Exceptions.getStackTraceAsString(e));
         }
         return ret;
 	}

@@ -1,5 +1,6 @@
 package com.simbest.boot.wfdriver.process.listener.service.impl;
 
+import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.base.service.impl.LogicService;
 import com.simbest.boot.util.DateUtil;
 import com.simbest.boot.uums.api.user.UumsSysUserinfoApi;
@@ -55,6 +56,7 @@ public class ActProcessInstModelService extends LogicService<ActProcessInstModel
             ret = 1;
         }catch (Exception e){
             ret = 0;
+            log.error(Exceptions.getStackTraceAsString(e));
         }
         return ret;
 	}
@@ -73,6 +75,7 @@ public class ActProcessInstModelService extends LogicService<ActProcessInstModel
             ret = 1;
         }catch (Exception e){
             ret = 0;
+            log.error(Exceptions.getStackTraceAsString(e));
         }
         return ret;
     }
