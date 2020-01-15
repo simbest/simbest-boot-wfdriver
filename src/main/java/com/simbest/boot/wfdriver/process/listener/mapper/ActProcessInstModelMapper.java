@@ -59,7 +59,7 @@ public interface ActProcessInstModelMapper extends LogicRepository<ActProcessIns
      * @param processInstanceId     流程实例ID
      * @return
      */
-    @Query(value = "SELECT * FROM flowable_act_process_inst_model WHERE PROCESS_INST_ID = ?1",nativeQuery = true)
+    @Query(value = "SELECT * FROM flowable_process_inst_model WHERE PROCESS_INST_ID = ?1",nativeQuery = true)
     ActProcessInstModel getByProcessInstanceId(String processInstanceId);
 
 

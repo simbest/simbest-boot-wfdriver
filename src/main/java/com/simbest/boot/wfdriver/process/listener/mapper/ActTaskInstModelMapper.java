@@ -58,7 +58,7 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
      * @param workItemID      工作项ID
      * @return
      */
-    String selectSql1 = "SELECT * FROM flowable_act_task_inst_model WHERE processInstId = :processInstId and taskId = :taskId and enabled='1'";
+    String selectSql1 = "SELECT * FROM flowable_task_inst_model WHERE processInstId = :processInstId and taskId = :taskId and enabled='1'";
     @Query(value = selectSql1,nativeQuery = true)
     ActTaskInstModel getByProcessInstIdAndTaskId(@Param(value = "processInstId") String processInstId, @Param(value = "taskId") String taskId);
 
@@ -67,14 +67,14 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
      * @param workItemID      工作项ID
      * @return
      */
-    String selectSql9 = "SELECT * FROM flowable_act_task_inst_model WHERE taskId = :taskId and enabled='1'";
+    String selectSql9 = "SELECT * FROM flowable_task_inst_model WHERE taskId = :taskId and enabled='1'";
     @Query(value = selectSql9,nativeQuery = true)
     ActTaskInstModel getByTaskId(@Param(value = "taskId") String taskId);
 
     /**
      * 根据流程实例ID，流程活动定义ID，查询流程工作项信息
      */
-    String selectSql2 = "SELECT * FROM (SELECT * FROM flowable_act_task_inst_model WHERE enabled = '1' AND PROCESS_INST_ID =  ?1 AND ACTIVITY_DEF_ID = ?2 order by create_time desc) WHERE rownum=1";
+    String selectSql2 = "SELECT * FROM flowable_task_inst_model WHERE enabled = 1 AND PROCESS_INST_ID =  ?1 AND TASK_DEFINITION_KEY = ?2 order by task_create_time desc";
     @Query(value = selectSql2,nativeQuery = true)
     List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey(String processInstId, String taskDefinitionKey);
 
@@ -83,7 +83,7 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
      * @param processInstId    流程实例ID
      * @return
      */
-    String deleteSql1 = "update flowable_act_task_inst_model set enabled=0 where processInstId = :processInstId";
+    String deleteSql1 = "update flowable_task_inst_model set enabled=0 where processInstId = :processInstId";
     @Transactional
     @Modifying
     @Query(value = deleteSql1,nativeQuery = true)

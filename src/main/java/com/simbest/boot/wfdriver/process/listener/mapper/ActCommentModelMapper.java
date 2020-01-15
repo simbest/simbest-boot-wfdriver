@@ -25,7 +25,7 @@ public interface ActCommentModelMapper extends LogicRepository<ActCommentModel, 
      */
     @Transactional
     @Modifying
-    @Query(value = "update flowable_act_comment_model set ENABLED = 0 where processInstId = ?1",nativeQuery = true)
+    @Query(value = "update flowable_comment_model set ENABLED = 0 where processInstId = ?1",nativeQuery = true)
     int deleteByInstID(String processInstId);
 
     /**
@@ -34,7 +34,7 @@ public interface ActCommentModelMapper extends LogicRepository<ActCommentModel, 
      * @param taskId    任务ID
      * @return
      */
-    String selectSql = "select * from flowable_act_comment_model where processInstId = ?1 and ENABLED = 1 and taskId = ?2";
+    String selectSql = "select * from flowable_comment_model where processInstId = ?1 and ENABLED = 1 and taskId = ?2";
     @Query(value = selectSql,nativeQuery = true)
     ActCommentModel getOneData(String processInstId, String taskId);
 
