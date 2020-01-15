@@ -174,7 +174,7 @@ public class CallFlowableProcessApi {
      * @return
      * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
      */
-    public Map<String,Object> tasksComplete(String taskId,Map<String,String> variables) throws WorkFlowBusinessRuntimeException{
+    public Map<String,Object> tasksComplete(String taskId,Map<String,Object> variables) throws WorkFlowBusinessRuntimeException{
         Map<String,String> para = new HashMap<String,String>();
         para.put("taskId",taskId);
         para.put("stringJson",JacksonUtils.obj2json(variables));

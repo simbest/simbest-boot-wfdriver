@@ -139,7 +139,7 @@ public class WfProcessManager implements IProcessInstanceService {
                 /**
                  * 完成起草环节
                  */
-                Map<String,String> tasksCompleteMap = Maps.newHashMap();
+                Map<String,Object> tasksCompleteMap = Maps.newHashMap();
                 tasksCompleteMap.put( "outcome",outcome );
                 tasksCompleteMap.put( "inputUserId",nextUser );
                 callFlowableProcessApi.tasksComplete((String) firstTask.get("id"),tasksCompleteMap);

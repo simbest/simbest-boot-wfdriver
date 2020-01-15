@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -59,9 +60,16 @@ public class WorkTaskManager implements IWorkItemService {
         String message = (String)param.get( "message" );
         String processInstId = (String)param.get( "processInstId" );
         String inputUserId = null;
+        List<String> inputUserIds = null;
         if(param.get( "nextUser" )!=null && !"".equals(param.get( "nextUser" ))){
              String[] approverUsers= ((String)param.get( "nextUser" )).split( "," );
-            inputUserId = approverUsers[0];
+            if(approverUsers!=null && approverUsers.length == 1){
+                inputUserId = approverUsers[0];
+                /*会签节点在遍历的时候会遍历变量inputUserIds，不会用inputUserId，所以当审批人只有一个人的时候，建议inputUserIds也赋值，具体用不用看流程图怎么画了*/
+                inputUserIds =  Arrays.asList(approverUsers);
+            } if(approverUsers!=null && approverUsers.length > 1){
+                inputUserIds =  Arrays.asList(approverUsers);;
+            }
         }
 
         try {
@@ -77,14 +85,22 @@ public class WorkTaskManager implements IWorkItemService {
             /**
              * 完成任务
              */
-            Map<String,String> tasksCompleteMap = Maps.newHashMap();
+            Map<String,Object> tasksCompleteMap = Maps.newHashMap();
             tasksCompleteMap.put( "outcome",outcome );
-            tasksCompleteMap.put( "inputUserId",inputUserId );
+            if(inputUserId!=null){
+                tasksCompleteMap.put( "inputUserId",inputUserId );
+            }
+            if(inputUserIds!=null){
+                /*多人会签，建议流程图中collection使用变量inputUserIds，迭代使用inputUserId和其他保持一直*/
+                tasksCompleteMap.put( "inputUserIds",inputUserIds );
+            }
+
+
             callFlowableProcessApi.tasksComplete(taskId,tasksCompleteMap);
 
             actCommentModelService.create(currentUserCode,message,processInstId,taskId,null);
 
-            actBusinessStatusService.updateActBusinessStatusData( processInstId,inputUserId );
+            actBusinessStatusService.updateActBusinessStatusData( processInstId,currentUserCode );
             ret = 1;
         }catch ( Exception e){
             FlowableDriverBusinessException.printException( e );
