@@ -102,4 +102,17 @@ public class SysAppDecision extends LogicModel{
     @Getter
     @Setter
     private String decisionType;
+
+    @Column(name = "multi", nullable = false, columnDefinition = "int default 0")
+    private Integer multi;//该决策项是否支持多选人，0不支持，1支持。默认为0
+
+    /**根据决策项字段来判断，如果multi是1，就进行判断，是0忽略*/
+    @Column(name="minimum",nullable=true,columnDefinition="int default 0")
+    private Integer minimum;//决策项支撑多人审批时，至少要选几个
+
+    /**根据决策项字段来判断，如果multi是1，就进行判断，是0忽略*/
+    @Column(name="biggest",nullable=true,columnDefinition="int default 0")
+    private Integer biggest;//决策项支撑多人审批时，最多可以选多少个
+
+
 }
