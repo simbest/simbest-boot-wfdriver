@@ -13,4 +13,9 @@ public class WfBackActivityManager implements IActivityManagerService {
     public boolean backProcessActivityByWorkItemId ( Long processInstId, Long currWorkItemID, Long destWorkItemID, String rollBackStrategy ) {
         return false;
     }
+
+    @Override
+    public boolean undoProcessByByWorkItemId ( Long processInstId, Long currWorkItemID ) {
+        return false;
+    }
 }
