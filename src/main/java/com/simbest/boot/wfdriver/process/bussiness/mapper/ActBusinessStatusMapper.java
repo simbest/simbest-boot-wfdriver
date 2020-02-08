@@ -172,7 +172,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
             "     AND task.end_Time is not null" +
             "     AND act.enabled = 1" +
-            "     AND task.assignee = :participant" +
+            "     AND task.assignee = :assistant" +
             " ORDER BY ubpd.global_display_order asc,task.created_Time desc";
     String sql10Count = "SELECT count(1)" +
             "  FROM us_bo_process_definition ubpd" +
@@ -185,7 +185,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
             "     AND task.end_Time is not null" +
             "     AND act.enabled = 1" +
-            "     AND task.assignee = :participant";
+            "     AND task.assignee = :assistant";
     @Query(value = sql10,countQuery = sql10Count,nativeQuery = true)
     Page<Map<String,Object>> getAnddocDoneAssistantPage(@Param(value = "assistant") String assistant, @Param(value = "dynamicWhere") String dynamicWhere, Pageable pageable);
 
