@@ -59,5 +59,4 @@ public class ActCommentModel extends LogicModel {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @Column(nullable = false)
     private Date time;
-
 }

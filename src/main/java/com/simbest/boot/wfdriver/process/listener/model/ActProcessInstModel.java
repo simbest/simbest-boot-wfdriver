@@ -3,6 +3,7 @@ package com.simbest.boot.wfdriver.process.listener.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.simbest.boot.base.annotations.EntityIdPrefix;
 import com.simbest.boot.base.model.LogicModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -64,4 +65,8 @@ public class ActProcessInstModel extends LogicModel {
     private Date startTime;
     private String startUserId;
     private String superProcessInstanceId;
+
+    @Column(length = 500)
+    @ApiModelProperty (value = "当前工单创建人的身份标识,使用#分隔,身份串=userId#orgCode#postId")
+    private String creatorIdentity;
 }
