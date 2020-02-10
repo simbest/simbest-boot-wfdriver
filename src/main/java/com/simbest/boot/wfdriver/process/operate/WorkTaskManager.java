@@ -1,5 +1,8 @@
 package com.simbest.boot.wfdriver.process.operate;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
 import com.simbest.boot.wf.process.service.IWorkItemService;
 import com.simbest.boot.wfdriver.api.CallFlowableProcessApi;
@@ -54,24 +57,30 @@ public class WorkTaskManager implements IWorkItemService {
     @Override
     public int finishWorkTaskWithRelativeData ( Map<String, Object> param) {
         int ret = 0;
-        String currentUserCode = (String)param.get( "currentUserCode" );
-        String taskId = (String)param.get( "taskId" );
-        String outcome = (String)param.get( "outcome" );
-        String message = (String)param.get( "message" );
-        String processInstId = (String)param.get( "processInstId" );
+        String currentUserCode = MapUtil.getStr( param,"currentUserCode" );
+        String taskId = MapUtil.getStr( param, "taskId" );
+        String outcome = MapUtil.getStr( param, "outcome" );
+        String message = MapUtil.getStr( param, "message" );
+        String processInstId = MapUtil.getStr( param, "processInstId" );
+        String nextUser = MapUtil.getStr( param, "nextUser" );
+        String nextUserOrgCode = MapUtil.getStr( param, "nextUserOrgCode" );
+        String nextUserPostId =  MapUtil.getStr( param, "nextUserPostId" );
         String inputUserId = null;
         List<String> inputUserIds = null;
-        if(param.get( "nextUser" )!=null && !"".equals(param.get( "nextUser" ))){
-             String[] approverUsers= ((String)param.get( "nextUser" )).split( "," );
+        List<String> nextUserOrgCodes = null;
+        List<String> nextUserPostIds = null;
+        if( StrUtil.isNotEmpty( nextUser )){
+             String[] approverUsers= StrUtil.split( nextUser,"," );
             if(approverUsers!=null && approverUsers.length == 1){
                 inputUserId = approverUsers[0];
                 /*会签节点在遍历的时候会遍历变量inputUserIds，不会用inputUserId，所以当审批人只有一个人的时候，建议inputUserIds也赋值，具体用不用看流程图怎么画了*/
                 inputUserIds =  Arrays.asList(approverUsers);
             } if(approverUsers!=null && approverUsers.length > 1){
-                inputUserIds =  Arrays.asList(approverUsers);;
+                inputUserIds =  Arrays.asList(approverUsers);
+                nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"," ));
+                nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"," ));
             }
         }
-
         try {
             /**
              * 添加评论
@@ -87,19 +96,19 @@ public class WorkTaskManager implements IWorkItemService {
              */
             Map<String,Object> tasksCompleteMap = Maps.newHashMap();
             tasksCompleteMap.put( "outcome",outcome );
-            if(inputUserId!=null){
+            if(StrUtil.isNotEmpty( inputUserId )){
                 tasksCompleteMap.put( "inputUserId",inputUserId );
+                tasksCompleteMap.put( "nextUserOrgCode",nextUserOrgCode );
+                tasksCompleteMap.put( "nextUserPostId",nextUserPostId );
             }
-            if(inputUserIds!=null){
+            if(CollectionUtil.isNotEmpty( inputUserIds )){
                 /*多人会签，建议流程图中collection使用变量inputUserIds，迭代使用inputUserId和其他保持一直*/
                 tasksCompleteMap.put( "inputUserIds",inputUserIds );
+                tasksCompleteMap.put( "nextUserOrgCodes",nextUserOrgCodes );
+                tasksCompleteMap.put( "nextUserPostIds",nextUserPostIds );
             }
-
-
             callFlowableProcessApi.tasksComplete(taskId,tasksCompleteMap);
-
             actCommentModelService.create(currentUserCode,message,processInstId,taskId,null);
-
             actBusinessStatusService.updateActBusinessStatusData( processInstId,currentUserCode );
             ret = 1;
         }catch ( Exception e){

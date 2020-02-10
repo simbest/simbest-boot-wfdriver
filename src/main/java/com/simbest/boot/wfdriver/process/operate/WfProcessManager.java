@@ -1,5 +1,6 @@
 package com.simbest.boot.wfdriver.process.operate;
 
+import cn.hutool.core.map.MapUtil;
 import com.google.common.collect.Maps;
 import com.simbest.boot.wf.process.service.IProcessInstanceService;
 import com.simbest.boot.wfdriver.api.CallFlowableProcessApi;
@@ -82,14 +83,18 @@ public class WfProcessManager implements IProcessInstanceService {
     @Override
     public Map<String, Object> startProcessAndDeployProcessAndSetRelativeData ( Map<String, Object> startParam ) {
         Map<String,Object> processInstMap = Maps.newConcurrentMap();
-        String startProcessFlag = (String)startParam.get( "startProcessFlag" );
-        String currentUserCode = (String)startParam.get( "currentUserCode" );
-        String message = (String)startParam.get( "message" );
-        String idValue = (String)startParam.get( "idValue" );  //流程的定义ID
-        String nextUser = (String)startParam.get( "nextUser" );
-        String outcome = (String)startParam.get( "outcome");
-        String businessKey = (String)startParam.get( "businessKey" );
-        String messageNameValue = (String)startParam.get( "messageNameValue" );
+        String startProcessFlag = MapUtil.getStr( startParam,"startProcessFlag" );
+        String currentUserCode = MapUtil.getStr( startParam, "currentUserCode" );
+        String orgCode = MapUtil.getStr(startParam, "orgCode" );
+        String postId = MapUtil.getStr(startParam, "postId" );
+        String message = MapUtil.getStr( startParam, "message" );
+        String idValue = MapUtil.getStr( startParam, "idValue" );  //流程的定义ID
+        String nextUser = MapUtil.getStr( startParam, "nextUser" );
+        String nextUserOrgCode = MapUtil.getStr( startParam, "nextUserOrgCode" );
+        String nextUserPostId =  MapUtil.getStr( startParam, "nextUserPostId" );
+        String outcome = MapUtil.getStr( startParam, "outcome");
+        String businessKey = MapUtil.getStr( startParam, "businessKey" );
+        String messageNameValue = MapUtil.getStr( startParam, "messageNameValue" );
         try {
             Map<String,Object> processInstanceDataMap = null;
             String processInstanceId = null;
@@ -99,6 +104,8 @@ public class WfProcessManager implements IProcessInstanceService {
                     case "KEY":
                         variables.put( "inputUserId", currentUserCode);
                         variables.put( "businessKey", businessKey);
+                        variables.put( "orgCode", orgCode);
+                        variables.put( "postId", postId);
                         MapRemoveNullUtil.removeNullEntry(variables);
                         processInstanceDataMap =  callFlowableProcessApi.instancesStartByKey(idValue,variables);
                         break;
@@ -112,11 +119,9 @@ public class WfProcessManager implements IProcessInstanceService {
                         break;
                 }
             }
-
             if(processInstanceDataMap!=null){
-                processInstanceId = (String) processInstanceDataMap.get("processInstanceId");
+                processInstanceId = MapUtil.getStr( processInstanceDataMap,"processInstanceId" );
             }
-
             /**
              * 查询起草环节
              */
@@ -135,19 +140,17 @@ public class WfProcessManager implements IProcessInstanceService {
                 taskAddCommentMap.put("processInstanceId", (String) firstTask.get("processInstanceId"));
                 taskAddCommentMap.put("comment",message);
                 callFlowableProcessApi.tasksAddComment(taskAddCommentMap);
-
                 /**
                  * 完成起草环节
                  */
                 Map<String,Object> tasksCompleteMap = Maps.newHashMap();
                 tasksCompleteMap.put( "outcome",outcome );
                 tasksCompleteMap.put( "inputUserId",nextUser );
+                tasksCompleteMap.put( "nextUserOrgCode",nextUserOrgCode);
+                tasksCompleteMap.put( "nextUserPostId", nextUserPostId);
                 callFlowableProcessApi.tasksComplete((String) firstTask.get("id"),tasksCompleteMap);
-
                 actCommentModelService.create(currentUserCode,message,(String) firstTask.get("processInstanceId"),(String) firstTask.get("id"),businessKey);
             }
-
-
             //保存流程业务数据
             actBusinessStatusService.saveActBusinessStatusData(processInstanceId,startParam);
             return processInstMap;

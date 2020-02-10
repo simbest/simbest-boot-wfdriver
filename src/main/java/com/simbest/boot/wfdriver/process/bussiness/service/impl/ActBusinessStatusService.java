@@ -1,5 +1,7 @@
 package com.simbest.boot.wfdriver.process.bussiness.service.impl;
 
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.simbest.boot.base.service.impl.GenericService;
 import com.simbest.boot.wf.process.service.IProcessInstanceService;
 import com.simbest.boot.wf.unitfytodo.IProcessTodoDataService;
@@ -55,13 +57,15 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
         int ret = 0;
         try{
             ActBusinessStatus actBusinessStatus = new ActBusinessStatus();
-            String currentUserName = (String)startMap.get( "currentUserName" );
-            String currentUserCode = (String)startMap.get( "currentUserCode" );
-            String receipTitle = (String)startMap.get( "receipTitle" );
-            String code = (String)startMap.get( "code" );
-            Boolean iscg = (Boolean)startMap.get( "iscg" );
-            String receiptId = (String)startMap.get( "receiptId" );
-            String processDefKey = (String)startMap.get( "idValue" );
+            String currentUserName = MapUtil.getStr(startMap,"currentUserName" );
+            String currentUserCode = MapUtil.getStr(startMap,"currentUserCode" );
+            String receipTitle = MapUtil.getStr(startMap, "receipTitle" );
+            String code = MapUtil.getStr(startMap,"code" );
+            Boolean iscg = MapUtil.getBool(startMap, "iscg" );
+            String receiptId = MapUtil.getStr(startMap, "receiptId" );
+            String processDefKey = MapUtil.getStr(startMap, "idValue" );
+            String orgCode = MapUtil.getStr(startMap, "orgCode" );
+            String postId = MapUtil.getStr(startMap, "postId" );
             actBusinessStatus.setCreateUserId( currentUserCode );
             actBusinessStatus.setCreateUserName( currentUserName );
             actBusinessStatus.setPreviousAssistant(currentUserCode);
@@ -75,6 +79,7 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             actBusinessStatus.setProcessInstId(processInstanceId);
             actBusinessStatus.setStartTime(LocalDateTime.now());
             actBusinessStatus.setProcessDefKey( processDefKey );
+            actBusinessStatus.setCreatorIdentity( currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ) );
             actBusinessStatus = actBusinessStatusMapper.save(actBusinessStatus);
             if ( actBusinessStatus != null ){
                 ret = 1;
@@ -99,7 +104,7 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             boolean endFlag = processInstanceService.queryProcessInstaceEndStateByProInsIdApi( processInstanceId );
             actBusinessStatus.setPreviousAssistant(nextUser);
             actBusinessStatus.setPreviousAssistantDate(LocalDateTime.now());
-//            actBusinessStatus.setPreviousAssistantName(userObject.get( "truename" ).getAsString());
+            //actBusinessStatus.setPreviousAssistantName(userObject.get( "truename" ).getAsString());
             actBusinessStatus = actBusinessStatusMapper.save(actBusinessStatus);
             if ( actBusinessStatus != null ){
                 ret = 1;

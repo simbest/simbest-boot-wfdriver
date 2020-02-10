@@ -44,18 +44,17 @@ public class ActCommentModelService extends LogicService<ActCommentModel,String>
      */
     @Override
 	public void create( String currentUserCode, String comment,String processInstId,String taskId,  String businessKey) {
-	    try {
-
-                ActCommentModel actCommentModel = new ActCommentModel();
-                actCommentModel.setCurrentUserCode(currentUserCode);
-                actCommentModel.setContent(comment);
-                actCommentModel.setProcessInstId(processInstId);
-                actCommentModel.setTaskId(taskId);
-                actCommentModel.setBusinessKey(businessKey);
-                actCommentModel.setTime(DateUtil.getCurrent());
-                actCommentModel.setEnabled(true);
-                this.wrapCreateInfo(actCommentModel);
-                actCommentModelMapper.save(actCommentModel);
+        try {
+            ActCommentModel actCommentModel = new ActCommentModel();
+            actCommentModel.setCurrentUserCode(currentUserCode);
+            actCommentModel.setContent(comment);
+            actCommentModel.setProcessInstId(processInstId);
+            actCommentModel.setTaskId(taskId);
+            actCommentModel.setBusinessKey(businessKey);
+            actCommentModel.setTime(DateUtil.getCurrent());
+            actCommentModel.setEnabled(true);
+            this.wrapCreateInfo(actCommentModel);
+            actCommentModelMapper.save(actCommentModel);
         }catch ( Exception e ){
             FlowableDriverBusinessException.printException( e );
         }

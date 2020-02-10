@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.simbest.boot.base.annotations.EntityIdPrefix;
 import com.simbest.boot.base.model.GenericModel;
 import com.simbest.boot.constants.ApplicationConstants;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -52,6 +53,7 @@ public class ActBusinessStatus extends GenericModel {
     private String receiptCode; //单据编码
 
     @Column(columnDefinition = "int default 0")
+    @ApiModelProperty(value = "是否是草稿")
     protected Boolean iscg;
 
     private String businessKey; //业务流程主键
@@ -102,4 +104,8 @@ public class ActBusinessStatus extends GenericModel {
     private String parentProcessInstId; //父流程实例ID
 
     private String processDefKey;      //流程定义key
+
+    @Column(length = 500)
+    @ApiModelProperty (value = "当前工单创建人的身份标识,使用#分隔,身份串=userId#orgCode#postId")
+    private String creatorIdentity;
 }

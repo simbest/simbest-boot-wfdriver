@@ -58,7 +58,7 @@ public class ActTaskInstListener {
 		try{
 			ret = actTaskInstModelService.updateByTaskId(actTaskInstModel);
 			//更新上一任务办理人
-			statusService.updateActBusinessStatusData(actTaskInstModel.getProcessInstId(),actTaskInstModel.getAssignee());
+			//statusService.updateActBusinessStatusData(actTaskInstModel.getProcessInstId(),actTaskInstModel.getAssignee());
 		}catch(Exception e){
 		}
         o.put("mes", ret > 0 ? "操作成功!" : "操作失败!");

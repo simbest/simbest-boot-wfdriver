@@ -153,7 +153,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
 
 
     /**
-     *  获取指定 userName 下面所有的已办数据
+     *  获取指定 userName 下面所有的已办数据   公文使用
      * @param assistant     完成人
      * @return
      */

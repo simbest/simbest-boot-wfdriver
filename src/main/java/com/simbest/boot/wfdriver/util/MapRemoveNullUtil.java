@@ -34,7 +34,7 @@ public class MapRemoveNullUtil {
     public static void removeNullKey(Map map){
         Set set = map.keySet();
         for (Iterator iterator = set.iterator(); iterator.hasNext();) {
-            Object obj = (Object) iterator.next();
+            Object obj = iterator.next();
             remove(obj, iterator);
         }
     }
@@ -46,8 +46,8 @@ public class MapRemoveNullUtil {
     public static void removeNullValue(Map map){
         Set set = map.keySet();
         for (Iterator iterator = set.iterator(); iterator.hasNext();) {
-            Object obj = (Object) iterator.next();
-            Object value =(Object)map.get(obj);
+            Object obj = iterator.next();
+            Object value = map.get(obj);
             remove(value, iterator);
         }
     }
