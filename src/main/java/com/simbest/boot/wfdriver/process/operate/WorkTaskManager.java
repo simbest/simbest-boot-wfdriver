@@ -1,6 +1,7 @@
 package com.simbest.boot.wfdriver.process.operate;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
@@ -11,6 +12,7 @@ import com.simbest.boot.wfdriver.exceptions.WorkFlowBusinessRuntimeException;
 import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
 import com.simbest.boot.wfdriver.process.listener.service.IActCommentModelService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -73,9 +75,11 @@ public class WorkTaskManager implements IWorkItemService {
              String[] approverUsers= StrUtil.split( nextUser,"," );
             if(approverUsers!=null && approverUsers.length == 1){
                 inputUserId = approverUsers[0];
-                /*会签节点在遍历的时候会遍历变量inputUserIds，不会用inputUserId，所以当审批人只有一个人的时候，建议inputUserIds也赋值，具体用不用看流程图怎么画了*/
-                inputUserIds =  Arrays.asList(approverUsers);
-            } if(approverUsers!=null && approverUsers.length > 1){
+                //nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"," ));
+                //nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"," ));
+            }
+            /*会签节点在遍历的时候会遍历变量inputUserIds，不会用inputUserId，所以当审批人只有一个人的时候，建议inputUserIds也赋值，具体用不用看流程图怎么画了*/
+            if(approverUsers!=null && approverUsers.length > 1){
                 inputUserIds =  Arrays.asList(approverUsers);
                 nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"," ));
                 nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"," ));
@@ -96,17 +100,25 @@ public class WorkTaskManager implements IWorkItemService {
              */
             Map<String,Object> tasksCompleteMap = Maps.newHashMap();
             tasksCompleteMap.put( "outcome",outcome );
+            String participantIdentity = null;
+            List<Map<String,Object>> participantIdentitys = Lists.newArrayList();
             if(StrUtil.isNotEmpty( inputUserId )){
                 tasksCompleteMap.put( "inputUserId",inputUserId );
-                tasksCompleteMap.put( "nextUserOrgCode",nextUserOrgCode );
-                tasksCompleteMap.put( "nextUserPostId",nextUserPostId );
+                participantIdentity = inputUserId.concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
+                taskAddCommentMap.put( participantIdentity,participantIdentity );
             }
             if(CollectionUtil.isNotEmpty( inputUserIds )){
                 /*多人会签，建议流程图中collection使用变量inputUserIds，迭代使用inputUserId和其他保持一直*/
                 tasksCompleteMap.put( "inputUserIds",inputUserIds );
-                tasksCompleteMap.put( "nextUserOrgCodes",nextUserOrgCodes );
-                tasksCompleteMap.put( "nextUserPostIds",nextUserPostIds );
+                for ( int i = 0,count = inputUserIds.size();i < count;i++ ){
+                    String participantIdentityTmp = inputUserIds.get( i ).concat( "#" ).concat( nextUserOrgCodes.get( i ) ).concat( "#" ).concat( nextUserPostIds.get( i ) );
+                    Map<String,Object> map = Maps.newConcurrentMap();
+                    map.put( inputUserIds.get( i ),participantIdentityTmp );
+                    participantIdentitys.add( map );
+                }
+                taskAddCommentMap.put( "participantIdentitys",Convert.toStr( participantIdentitys ) );
             }
+            taskAddCommentMap.put( "fromTaskId",taskId );
             callFlowableProcessApi.tasksComplete(taskId,tasksCompleteMap);
             actCommentModelService.create(currentUserCode,message,processInstId,taskId,null);
             actBusinessStatusService.updateActBusinessStatusData( processInstId,currentUserCode );

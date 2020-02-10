@@ -131,12 +131,13 @@ public class WfProcessManager implements IProcessInstanceService {
             List<Map<String,Object>> taskQueryDataMap = callFlowableProcessApi.tasksQueryNoPage(taskQueryMap);
             if(taskQueryDataMap!=null){
                 Map<String,Object> firstTask = taskQueryDataMap.get(0);
+                String firstTaskId = MapUtil.getStr( firstTask,"id" );
                 /**
                  * 添加起草环节评论
                  */
                 Map<String,String> taskAddCommentMap = Maps.newHashMap();
                 taskAddCommentMap.put("currentUserCode",currentUserCode);
-                taskAddCommentMap.put("taskId", (String) firstTask.get("id"));
+                taskAddCommentMap.put("taskId", firstTaskId);
                 taskAddCommentMap.put("processInstanceId", (String) firstTask.get("processInstanceId"));
                 taskAddCommentMap.put("comment",message);
                 callFlowableProcessApi.tasksAddComment(taskAddCommentMap);
@@ -146,10 +147,11 @@ public class WfProcessManager implements IProcessInstanceService {
                 Map<String,Object> tasksCompleteMap = Maps.newHashMap();
                 tasksCompleteMap.put( "outcome",outcome );
                 tasksCompleteMap.put( "inputUserId",nextUser );
-                tasksCompleteMap.put( "nextUserOrgCode",nextUserOrgCode);
-                tasksCompleteMap.put( "nextUserPostId", nextUserPostId);
-                callFlowableProcessApi.tasksComplete((String) firstTask.get("id"),tasksCompleteMap);
-                actCommentModelService.create(currentUserCode,message,(String) firstTask.get("processInstanceId"),(String) firstTask.get("id"),businessKey);
+                String participantIdentity = nextUser.concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
+                tasksCompleteMap.put( "participantIdentity",participantIdentity);
+                taskAddCommentMap.put( "fromTaskId", firstTaskId);
+                callFlowableProcessApi.tasksComplete(firstTaskId,tasksCompleteMap);
+                actCommentModelService.create(currentUserCode,message,(String) firstTask.get("processInstanceId"),firstTaskId,businessKey);
             }
             //保存流程业务数据
             actBusinessStatusService.saveActBusinessStatusData(processInstanceId,startParam);

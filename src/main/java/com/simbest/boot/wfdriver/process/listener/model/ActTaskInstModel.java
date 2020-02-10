@@ -103,5 +103,5 @@ public class ActTaskInstModel extends LogicModel {
 
     @Column (length = 40)
     @ApiModelProperty (value = "源ID,起草环节该ID为-1 ")
-    private String fromId;
+    private String fromTaskId;
 }
