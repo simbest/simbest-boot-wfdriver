@@ -232,7 +232,8 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             if ( StringUtils.isEmpty( dynamicWhere )){
                 dynamicWhere = "";
             }
-            pages = actBusinessStatusMapper.getTodoByUserPage(participant,dynamicWhere,pageable);
+            //pages = actBusinessStatusMapper.getTodoByUserPage(participant,dynamicWhere,pageable);
+            pages = actBusinessStatusMapper.getAnddocTodoByUserPage(participant,dynamicWhere,pageable);
         }catch ( Exception e ){
             FlowableDriverBusinessException.printException( e );
         }
@@ -279,7 +280,8 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             if ( StringUtils.isEmpty( dynamicWhere )){
                 dynamicWhere = "";
             }
-            pages = actBusinessStatusMapper.getByAreadyDoneAssistantPage( assistant,dynamicWhere,pageable );
+            //pages = actBusinessStatusMapper.getByAreadyDoneAssistantPage( assistant,dynamicWhere,pageable );
+            pages = actBusinessStatusMapper.getAnddocDoneAssistantPage( assistant,dynamicWhere,pageable );
         }catch ( Exception e ){
             FlowableDriverBusinessException.printException( e );
         }
