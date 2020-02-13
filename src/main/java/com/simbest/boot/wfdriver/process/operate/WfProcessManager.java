@@ -82,7 +82,7 @@ public class WfProcessManager implements IProcessInstanceService {
      */
     @Override
     public Map<String, Object> startProcessAndDeployProcessAndSetRelativeData ( Map<String, Object> startParam ) {
-        Map<String,Object> processInstMap = Maps.newConcurrentMap();
+        Map<String,Object> processInstanceDataMap = Maps.newConcurrentMap();
         String startProcessFlag = MapUtil.getStr( startParam,"startProcessFlag" );
         String currentUserCode = MapUtil.getStr( startParam, "currentUserCode" );
         String orgCode = MapUtil.getStr(startParam, "orgCode" );
@@ -96,7 +96,6 @@ public class WfProcessManager implements IProcessInstanceService {
         String businessKey = MapUtil.getStr( startParam, "businessKey" );
         String messageNameValue = MapUtil.getStr( startParam, "messageNameValue" );
         try {
-            Map<String,Object> processInstanceDataMap = null;
             String processInstanceId = null;
             Map<String, String> variables = Maps.newConcurrentMap();
             if ( !StringUtils.isEmpty( startProcessFlag ) ){
@@ -155,7 +154,7 @@ public class WfProcessManager implements IProcessInstanceService {
             }
             //保存流程业务数据
             actBusinessStatusService.saveActBusinessStatusData(processInstanceId,startParam);
-            return processInstMap;
+            return processInstanceDataMap;
         }catch ( WorkFlowBusinessRuntimeException e){
             FlowableDriverBusinessException.printException( e );
             throw new WorkFlowBusinessRuntimeException("Exception Cause is submit workItem data failure,code:WF000001");
