@@ -3,6 +3,7 @@ package com.simbest.boot.wfdriver.process.listener.service.impl;
 import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.base.service.impl.LogicService;
 import com.simbest.boot.util.DateUtil;
+import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
 import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
 import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
 import com.simbest.boot.wfdriver.process.listener.mapper.ActTaskInstModelMapper;
@@ -12,6 +13,7 @@ import com.simbest.boot.wfdriver.process.listener.service.IActTaskInstModelServi
 import com.simbest.boot.wfdriver.task.UserTaskSubmit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +69,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
             ret = 1;
         }catch (Exception e){
             ret = 0;
-            log.error(Exceptions.getStackTraceAsString(e));
+            FlowableDriverBusinessException.printException( e );
         }
 		return ret;
 	}
@@ -86,7 +88,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
             ret = 1;
         }catch (Exception e){
             ret = 0;
-            log.error(Exceptions.getStackTraceAsString(e));
+            FlowableDriverBusinessException.printException( e );
         }
         return ret;
 	}
@@ -103,6 +105,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
 	    try {
             return actTaskInstModelMapper.getByProcessInstIdAndTaskId(processInstId,taskID);
         }catch (Exception e){
+            FlowableDriverBusinessException.printException( e );
         }
         return null;
 	}
@@ -117,6 +120,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
         try {
             return actTaskInstModelMapper.getByTaskId(taskID);
         }catch (Exception e){
+            FlowableDriverBusinessException.printException( e );
         }
         return null;
     }
@@ -132,6 +136,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
 	    try {
             ret = actTaskInstModelMapper.deleteByProcessInst(processInstId);
         }catch (Exception e){
+            FlowableDriverBusinessException.printException( e );
         }
         return ret;
 	}
@@ -146,8 +151,10 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
     @Override
     public List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey ( String processInstId, String taskDefinitionKey ) {
         try {
-            return actTaskInstModelMapper.getByProcessInstIdAndTaskDefinitionKey( processInstId,taskDefinitionKey );
+            List<ActTaskInstModel> actTaskInstModels = actTaskInstModelMapper.getByProcessInstIdAndTaskDefinitionKey( processInstId,taskDefinitionKey );
+            return actTaskInstModels;
         }catch (Exception e){
+            FlowableDriverBusinessException.printException( e );
         }
         return null;
     }
@@ -162,6 +169,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
         try {
             return actTaskInstModelMapper.queryTaskInstModelByProcessInstId( processInstId );
         }catch (Exception e){
+            FlowableDriverBusinessException.printException( e );
         }
         return null;
     }

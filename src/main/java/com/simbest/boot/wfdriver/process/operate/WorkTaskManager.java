@@ -4,16 +4,20 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.github.wenhao.jpa.Specifications;
 import com.google.common.collect.Maps;
 import com.simbest.boot.wf.process.service.IWorkItemService;
 import com.simbest.boot.wfdriver.api.CallFlowableProcessApi;
 import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
 import com.simbest.boot.wfdriver.exceptions.WorkFlowBusinessRuntimeException;
 import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
+import com.simbest.boot.wfdriver.process.listener.model.ActTaskInstModel;
 import com.simbest.boot.wfdriver.process.listener.service.IActCommentModelService;
+import com.simbest.boot.wfdriver.process.listener.service.IActTaskInstModelService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -39,6 +43,9 @@ public class WorkTaskManager implements IWorkItemService {
 
     @Autowired
     private IActCommentModelService actCommentModelService;
+
+    @Autowired
+    private IActTaskInstModelService actTaskInstModelService;
 
     /**
      * 完成指定工作项并携带流程相关数据（提交下一步）
@@ -238,6 +245,14 @@ public class WorkTaskManager implements IWorkItemService {
      */
     @Override
     public List<?> queryPorcessWorkTask ( Map<String, Object> queryParam ) {
+        try {
+            String processInstId = MapUtil.getStr( queryParam,"processInstId" );
+            String taskDefKey = MapUtil.getStr( queryParam,"value" );
+            List<ActTaskInstModel> actTaskInstModels = actTaskInstModelService.getByProcessInstIdAndTaskDefinitionKey( processInstId,taskDefKey );
+            return actTaskInstModels;
+        }catch (Exception e){
+            FlowableDriverBusinessException.printException( e );
+        }
         return null;
     }
 
