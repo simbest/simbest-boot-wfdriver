@@ -32,10 +32,14 @@ public class WfProcessManager implements IProcessInstanceService {
 
     @Autowired
     private IActBusinessStatusService actBusinessStatusService;
+
     @Autowired
     private CallFlowableProcessApi callFlowableProcessApi;
+
     @Autowired
     private IActCommentModelService actCommentModelService;
+
+    public static String creatorIdentity = "";
 
     /**
      * 启动流程并设置相关数据
@@ -95,6 +99,7 @@ public class WfProcessManager implements IProcessInstanceService {
         String outcome = MapUtil.getStr( startParam, "outcome");
         String businessKey = MapUtil.getStr( startParam, "businessKey" );
         String messageNameValue = MapUtil.getStr( startParam, "messageNameValue" );
+        creatorIdentity = currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId );
         try {
             String processInstanceId = null;
             Map<String, String> variables = Maps.newConcurrentMap();
@@ -120,6 +125,9 @@ public class WfProcessManager implements IProcessInstanceService {
             }
             if(processInstanceDataMap!=null){
                 processInstanceId = MapUtil.getStr( processInstanceDataMap,"processInstanceId" );
+
+                //保存流程业务数据
+                actBusinessStatusService.saveActBusinessStatusData(processInstanceId,startParam);
             }
             /**
              * 查询起草环节
@@ -148,12 +156,12 @@ public class WfProcessManager implements IProcessInstanceService {
                 tasksCompleteMap.put( "inputUserId",nextUser );
                 String participantIdentity = nextUser.concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
                 tasksCompleteMap.put( "participantIdentity",participantIdentity);
-                taskAddCommentMap.put( "fromTaskId", firstTaskId);
+                tasksCompleteMap.put( "fromTaskId", firstTaskId);
                 callFlowableProcessApi.tasksComplete(firstTaskId,tasksCompleteMap);
                 actCommentModelService.create(currentUserCode,message,(String) firstTask.get("processInstanceId"),firstTaskId,businessKey);
             }
-            //保存流程业务数据
-            actBusinessStatusService.saveActBusinessStatusData(processInstanceId,startParam);
+           /* //保存流程业务数据
+            actBusinessStatusService.saveActBusinessStatusData(processInstanceId,startParam);*/
             return processInstanceDataMap;
         }catch ( WorkFlowBusinessRuntimeException e){
             FlowableDriverBusinessException.printException( e );

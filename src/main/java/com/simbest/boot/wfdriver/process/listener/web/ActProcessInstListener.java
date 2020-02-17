@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Map;
 /**
@@ -35,7 +36,9 @@ public class ActProcessInstListener {
 	 * 流程启动
 	 */
 	@PostMapping(value = {"/start","/sso/start","/api/start","/anonymous/start"})
+    @ResponseBody
 	public JsonResponse start(@RequestBody ActProcessInstModel actProcessInstModel){
+        log.warn( "流程启动回调后接收的参数：【{}】",actProcessInstModel.toString() );
 		Map<String, Object> o = Maps.newHashMap();
 		int ret = 0;
 		try{
@@ -52,7 +55,9 @@ public class ActProcessInstListener {
 	 * 流程完成
 	 */
 	@PostMapping(value = {"/completed","/sso/completed","/api/completed","/anonymous/completed"})
+    @ResponseBody
 	public JsonResponse completed(@RequestBody ActProcessInstModel actProcessInstModel){
+        log.warn( "流程归档回调后接收的参数：【{}】",actProcessInstModel.toString() );
         Map<String, Object> o = Maps.newHashMap();
 		int ret = 0;
 		try{

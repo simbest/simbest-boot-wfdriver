@@ -60,4 +60,14 @@ public interface IActBusinessStatusService extends IGenericService<ActBusinessSt
      */
     int updateActBusDataByProInsId(String processInstId);
 
+    /**
+     * 功能描述:
+     * 根据流程实例ID更新流程的状态
+     * @param processInstId        流程实例ID
+     * @return
+     * @date 2020/2/15 23:50
+     * @auther ljw
+     */
+    int updatePorcessStateByProInstId(String processInstId);
+
 }

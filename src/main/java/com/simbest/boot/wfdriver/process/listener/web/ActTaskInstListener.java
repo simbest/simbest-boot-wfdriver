@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Map;
 /**
@@ -35,7 +36,9 @@ public class ActTaskInstListener {
 	 * 工作项创建完成 -- 插入
 	 */
     @PostMapping(value = {"/created","/sso/created","/api/created","/anonymous/created"})
+    @ResponseBody
 	public JsonResponse created(@RequestBody ActTaskInstModel actTaskInstModel){
+        log.warn( "流程环节创建完成回调后接收的参数：【{}】",actTaskInstModel.toString() );
         Map<String, Object> o = Maps.newHashMap();
 		int ret = 0;
 		try{
@@ -52,7 +55,9 @@ public class ActTaskInstListener {
 	 * 工作项完成后 -- 更新
 	 */
     @PostMapping(value = {"/completed","/sso/completed","/api/completed","/anonymous/completed"})
+    @ResponseBody
 	public JsonResponse completed(@RequestBody ActTaskInstModel actTaskInstModel){
+        log.warn( "流程环节完成后回调后接收的参数：【{}】",actTaskInstModel.toString() );
         Map<String, Object> o = Maps.newHashMap();
         int ret = 0;
 		try{

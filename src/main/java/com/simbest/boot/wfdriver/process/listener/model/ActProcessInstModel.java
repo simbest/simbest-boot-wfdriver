@@ -66,6 +66,8 @@ public class ActProcessInstModel extends LogicModel {
     private String startUserId;
     private String superProcessInstanceId;
 
+    private Integer currentState;//流程当前状态
+
     @Column(length = 500)
     @ApiModelProperty (value = "当前工单创建人的身份标识,使用#分隔,身份串=userId#orgCode#postId")
     private String creatorIdentity;

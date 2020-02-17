@@ -2,19 +2,21 @@ package com.simbest.boot.wfdriver.process.listener.service.impl;
 
 import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.base.service.impl.LogicService;
-import com.simbest.boot.util.DateUtil;
 import com.simbest.boot.uums.api.user.UumsSysUserinfoApi;
+import com.simbest.boot.wfdriver.enums.ProcessSateEnum;
+import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
 import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
 import com.simbest.boot.wfdriver.process.listener.mapper.ActProcessInstModelMapper;
 import com.simbest.boot.wfdriver.process.listener.model.ActProcessInstModel;
 import com.simbest.boot.wfdriver.process.listener.service.IActCommentModelService;
 import com.simbest.boot.wfdriver.process.listener.service.IActProcessInstModelService;
 import com.simbest.boot.wfdriver.process.listener.service.IActTaskInstModelService;
+import com.simbest.boot.wfdriver.process.operate.WfProcessManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 
 @Slf4j
@@ -49,8 +51,10 @@ public class ActProcessInstModelService extends LogicService<ActProcessInstModel
 	public int start(ActProcessInstModel actProcessInstMode) {
         int ret = 0;
         try {
-            actProcessInstMode.setCreator("hadmin");
-            actProcessInstMode.setModifier( "hadmin" );
+            actProcessInstMode.setCreatorIdentity( WfProcessManager.creatorIdentity );
+            actProcessInstMode.setCreator(actProcessInstMode.getStartUserId());
+            actProcessInstMode.setModifier(actProcessInstMode.getStartUserId());
+            actProcessInstMode.setCurrentState( ProcessSateEnum.RUNNING.getNum() );
             actProcessInstMode.setEnabled(true);
             actProcessInstModelMapper.save(actProcessInstMode);
             ret = 1;
@@ -69,8 +73,11 @@ public class ActProcessInstModelService extends LogicService<ActProcessInstModel
         int ret = 0;
         try {
             actProcessInstModel.setEnabled(true);
-            actProcessInstModel.setModifier( "hadmin" );
-            actProcessInstModel.setModifiedTime(DateUtil.date2LocalDateTime(new Date()));
+            actProcessInstModel.setModifier( actProcessInstModel.getStartUserId() );
+            actProcessInstModel.setModifiedTime( LocalDateTime.now());
+            actProcessInstModel.setCurrentState( ProcessSateEnum.END.getNum() );
+            //更新流程业务数据表中的流程状态
+            actBusinessStatusService.updatePorcessStateByProInstId(actProcessInstModel.getProcessInstanceId());
             actProcessInstModelMapper.updateByProcessInstanceId(actProcessInstModel);
             ret = 1;
         }catch (Exception e){

@@ -3,8 +3,12 @@ package com.simbest.boot.wfdriver.process.bussiness.service.impl;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.simbest.boot.base.service.impl.GenericService;
+import com.simbest.boot.security.IOrg;
+import com.simbest.boot.security.IUser;
+import com.simbest.boot.util.security.SecurityUtils;
 import com.simbest.boot.wf.process.service.IProcessInstanceService;
 import com.simbest.boot.wf.unitfytodo.IProcessTodoDataService;
+import com.simbest.boot.wfdriver.enums.ProcessSateEnum;
 import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
 import com.simbest.boot.wfdriver.process.bussiness.mapper.ActBusinessStatusMapper;
 import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
@@ -21,6 +25,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  *@ClassName ActBusinessStatusMapper
@@ -34,7 +39,6 @@ import java.util.Map;
 public class ActBusinessStatusService extends GenericService<ActBusinessStatus,String> implements IActBusinessStatusService,IProcessTodoDataService {
 
     private ActBusinessStatusMapper actBusinessStatusMapper;
-
 
     @Autowired
     private IProcessInstanceService processInstanceService;
@@ -57,28 +61,39 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
         int ret = 0;
         try{
             ActBusinessStatus actBusinessStatus = new ActBusinessStatus();
-            String currentUserName = MapUtil.getStr(startMap,"currentUserName" );
             String currentUserCode = MapUtil.getStr(startMap,"currentUserCode" );
             String receipTitle = MapUtil.getStr(startMap, "receipTitle" );
-            String code = MapUtil.getStr(startMap,"code" );
             Boolean iscg = MapUtil.getBool(startMap, "iscg" );
-            String receiptId = MapUtil.getStr(startMap, "receiptId" );
             String processDefKey = MapUtil.getStr(startMap, "idValue" );
             String orgCode = MapUtil.getStr(startMap, "orgCode" );
             String postId = MapUtil.getStr(startMap, "postId" );
+            String businessKey = MapUtil.getStr( startMap, "businessKey" );
+            String receiptCode = MapUtil.getStr( startMap, "receiptCode" );
+            IUser user = SecurityUtils.getCurrentUser();
+            Optional<IOrg> orgOptional = ( Optional<IOrg> ) user.getAuthOrgs().stream().
+                                    filter( org -> org.getOrgCode().equals( orgCode ) ).findFirst();
+            String createOrgName = "";
+            if ( orgOptional.isPresent() ){//如果存在
+                createOrgName = orgOptional.get().getOrgName();
+            }
             actBusinessStatus.setCreateUserId( currentUserCode );
-            actBusinessStatus.setCreateUserName( currentUserName );
+            actBusinessStatus.setCreateUserName( user.getTruename() );
             actBusinessStatus.setPreviousAssistant(currentUserCode);
-            actBusinessStatus.setPreviousAssistantName(currentUserName);
+            actBusinessStatus.setPreviousAssistantName(user.getTruename());
+            actBusinessStatus.setCreateUserId( currentUserCode );
+            actBusinessStatus.setCreateOrgCode( orgCode );
+            actBusinessStatus.setCreateOrgName( createOrgName );
             actBusinessStatus.setEnabled(true);
             actBusinessStatus.setRemoved(false);
             actBusinessStatus.setReceiptTitle(receipTitle);
-            actBusinessStatus.setReceiptCode(code);
+            actBusinessStatus.setReceiptCode(receiptCode);
             actBusinessStatus.setIscg(iscg);
-            actBusinessStatus.setBusinessKey(receiptId);
+            actBusinessStatus.setBusinessKey(businessKey);
             actBusinessStatus.setProcessInstId(processInstanceId);
             actBusinessStatus.setStartTime(LocalDateTime.now());
             actBusinessStatus.setProcessDefKey( processDefKey );
+            actBusinessStatus.setCurrentState( ProcessSateEnum.RUNNING.getNum() );
+            actBusinessStatus.setPmInstType( StrUtil.sub( receiptCode,0,1 ) );
             actBusinessStatus.setCreatorIdentity( currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ) );
             actBusinessStatus = actBusinessStatusMapper.save(actBusinessStatus);
             if ( actBusinessStatus != null ){
@@ -100,11 +115,12 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
 	public int updateActBusinessStatusData( String processInstanceId, String nextUser ) {
 		int ret = 0;
         try{
+            IUser user = SecurityUtils.getCurrentUser();
             ActBusinessStatus actBusinessStatus = getByProcessInst(processInstanceId);
             boolean endFlag = processInstanceService.queryProcessInstaceEndStateByProInsIdApi( processInstanceId );
-            actBusinessStatus.setPreviousAssistant(nextUser);
+            actBusinessStatus.setPreviousAssistant(user.getUsername());
             actBusinessStatus.setPreviousAssistantDate(LocalDateTime.now());
-            //actBusinessStatus.setPreviousAssistantName(userObject.get( "truename" ).getAsString());
+            actBusinessStatus.setPreviousAssistantName(user.getTruename());
             actBusinessStatus = actBusinessStatusMapper.save(actBusinessStatus);
             if ( actBusinessStatus != null ){
                 ret = 1;
@@ -175,6 +191,26 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             FlowableDriverBusinessException.printException( e );
         }
         return ret;
+    }
+
+    /**
+     * 功能描述:
+     * 根据流程实例ID更新流程的状态
+     * @param processInstId        流程实例ID
+     * @return
+     * @date 2020/2/15 23:50
+     * @auther ljw
+     */
+    @Override
+    public int updatePorcessStateByProInstId ( String processInstId ) {
+        try {
+            ActBusinessStatus actBusinessStatus = new ActBusinessStatus();
+            actBusinessStatus.setProcessInstId( processInstId );
+            actBusinessStatusMapper.updatePorcessStateByProInstId( actBusinessStatus );
+        }catch (Exception e){
+            FlowableDriverBusinessException.printException( e );
+        }
+        return 0;
     }
 
     /**

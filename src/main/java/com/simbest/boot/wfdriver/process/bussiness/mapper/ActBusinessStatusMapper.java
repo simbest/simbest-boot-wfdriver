@@ -90,14 +90,14 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
     String sql8 = "SELECT act.id, act.business_key as businessKey, act.create_org_code as createOrgCode, act.create_org_name as createOrgName,act.create_user_name as createUserName,  " +
             "       act.current_state as currentState, to_char(act.end_time,'yyyy-MM-dd HH24:mi:ss') as endTime, act.parent_process_inst_id as parentProInstId, act.pm_inst_type as pmInstType, act.previous_assistant as previousAssistant,  " +
             "       act.previous_assistant_date as previousAssistantDate, act.previous_assistant_name as previousAssistantName , act.previous_assistant_org_code as previousAssistantOrgCode, act.previous_assistant_org_name as previousAssistantOrgName,  " +
-            "       act.process_def_key as processDefKey, act.process_inst_id as processInstId, act.receipt_title as receiptTile,act.receipt_code as receiptCode,to_char(act.start_time,'yyyy-MM-dd HH24:mi:ss') as startTime,act.creatorIdentity" +
-            "       task.task_Id as taskId,task.participantIdentity,task.fromTaskId,task.name as taskName,task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee," +
+            "       act.process_def_key as processDefKey, act.process_inst_id as processInstId, act.receipt_title as receiptTile,act.receipt_code as receiptCode,to_char(act.start_time,'yyyy-MM-dd HH24:mi:ss') as startTime,act.CREATOR_IDENTITY as creatorIdentity, " +
+            "       task.task_Id as taskId,task.PARTICIPANT_IDENTITY as participantIdentity,task.FROM_TASK_ID as fromTaskId,task.name as taskName,task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee," +
             "       ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder" +
             "  FROM us_bo_process_definition ubpd" +
             "    join us_bo_process_instance ubi" +
             "     on ubpd.id = ubi.bo_porcess_def_id" +
             "    join act_business_status act" +
-            "     on ubi.pm_ins_id = act.business_key" +
+            "     on ubi.id = act.business_key" +
             "    join flowable_task_inst_model task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
@@ -110,7 +110,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join us_bo_process_instance ubi" +
             "     on ubpd.id = ubi.bo_porcess_def_id" +
             "    join act_business_status act" +
-            "     on ubi.pm_ins_id = act.business_key" +
+            "     on ubi.id = act.business_key" +
             "    join flowable_task_inst_model task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
@@ -161,13 +161,13 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
     String sql10 = "SELECT act.id, act.business_key as businessKey, act.create_org_code as createOrgCode, act.create_org_name as createOrgName,act.create_user_name as createUserName,  " +
             "       act.current_state as currentState, to_char(act.end_time,'yyyy-MM-dd HH24:mi:ss') as endTime, act.parent_process_inst_id as parentProInstId, act.pm_inst_type as pmInstType, act.previous_assistant as previousAssistant,  " +
             "       act.previous_assistant_date as previousAssistantDate, act.previous_assistant_name as previousAssistantName , act.previous_assistant_org_code as previousAssistantOrgCode, act.previous_assistant_org_name as previousAssistantOrgName,  " +
-            "       act.process_def_key as processDefKey, act.process_inst_id as processInstId, act.receipt_title as receiptTile,act.receipt_code as receiptCode,to_char(act.start_time,'yyyy-MM-dd HH24:mi:ss') as startTime, act.creatorIdentity" +
-            "       task.task_Id as taskId,task.participantIdentity,task.fromTaskId,task.name as taskName,task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee,ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder" +
+            "       act.process_def_key as processDefKey, act.process_inst_id as processInstId, act.receipt_title as receiptTile,act.receipt_code as receiptCode,to_char(act.start_time,'yyyy-MM-dd HH24:mi:ss') as startTime, act.CREATOR_IDENTITY as creatorIdentity," +
+            "       task.task_Id as taskId,task.PARTICIPANT_IDENTITY as participantIdentity,task.FROM_TASK_ID as fromTaskId,task.name as taskName,task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee,ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder" +
             "  FROM us_bo_process_definition ubpd" +
             "    join us_bo_process_instance ubi" +
             "     on ubpd.id = ubi.bo_porcess_def_id" +
             "    join act_business_status act" +
-            "     on ubi.pm_ins_id = act.business_key" +
+            "     on ubi.id = act.business_key" +
             "    join flowable_task_inst_model task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
@@ -180,7 +180,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join us_bo_process_instance ubi" +
             "     on ubpd.id = ubi.bo_porcess_def_id" +
             "    join act_business_status act" +
-            "     on ubi.pm_ins_id = act.business_key" +
+            "     on ubi.id = act.business_key" +
             "    join flowable_task_inst_model task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
@@ -209,4 +209,12 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             " order by act_business_status.start_Time desc";
     @Query(value = sql6,countQuery = sql6Count,nativeQuery = true)
     Page<Map<String,Object>> getMyCreateDataPage(@Param(value = "creator") String creator, @Param(value = "dynamicWhere") String dynamicWhere, Pageable pageable);
+
+    /**
+     * 根据流程实例ID更新流程状态
+     */
+    String sq20 = "update act_business_status t set currentState=7 WHERE ENABLED=1 and t.PROCESS_INST_ID = :#{#actBusinessStatus.processInstId}";
+    @Query(value = sq20,nativeQuery = true)
+    int updatePorcessStateByProInstId(ActBusinessStatus actBusinessStatus);
+
 }

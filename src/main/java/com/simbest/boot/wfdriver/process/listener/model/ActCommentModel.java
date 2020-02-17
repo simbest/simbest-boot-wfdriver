@@ -53,9 +53,6 @@ public class ActCommentModel extends LogicModel {
     @Column (length = 40 )
 	private String taskId; //任务id
 
-    @Column (length = 100)
-    private String businessKey;//单据id
-
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @Column(nullable = false)
     private Date time;
