@@ -4,6 +4,7 @@ import com.simbest.boot.base.repository.GenericRepository;
 import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -48,6 +49,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
     List<ActBusinessStatus> getActBusinessStatusByParentProcessInstId(String parentProcessInstId);
 
     String sql7 = "update act_business_status t set ENABLED=0 WHERE t.PROCESS_INST_ID = ?1";
+    @Modifying
     @Query(value = sql7,nativeQuery = true)
     int updateActBusDataByProInsId(String processInstID);
 
@@ -81,6 +83,53 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
     @Query(value = sql4,countQuery = sql4Count,nativeQuery = true)
     Page<Map<String,Object>> getTodoByUserPage(@Param(value = "participant") String participant, @Param(value = "dynamicWhere") String dynamicWhere, Pageable pageable);
 
+    /**
+     *  获取指定 userName 下面涉及的所有文种  公文使用
+     * @param participant    参与者
+     * @return
+     */
+    String sq21 = "SELECT ubpd.id as BO_PROCESS_DEFID,ubpd.bo_process_def_name as BO_PROCESS_DEFNAME" +
+            "  FROM us_bo_process_definition ubpd" +
+            "    join us_bo_process_instance ubi" +
+            "     on ubpd.id = ubi.bo_porcess_def_id" +
+            "    join act_business_status act" +
+            "     on ubi.id = act.business_key" +
+            "    join flowable_task_inst_model task" +
+            "     on act.process_inst_id = task.process_Inst_Id" +
+            "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
+            "     AND task.end_Time is null" +
+            "     AND act.enabled = 1" +
+            "     AND task.assignee = :participant" +
+            "   group by ubpd.id,ubpd.bo_process_def_name,ubpd.global_display_order" +
+            "   order by ubpd.global_display_order asc";
+    @Query(value = sq21,nativeQuery = true)
+    List<Map<String,Object>> getAnddocTodoByUserGroup(@Param(value = "participant") String participant, @Param(value = "dynamicWhere") String dynamicWhere);
+
+    /**
+     *  获取指定 userName 下面所有的待办数据无分页  公文使用
+     * @param participant    参与者
+     * @return
+     */
+    String sq22 = "SELECT act.id, act.business_key as businessKey, act.create_org_code as createOrgCode, act.create_org_name as createOrgName,act.create_user_name as createUserName,  " +
+            "       act.current_state as currentState, to_char(act.end_time,'yyyy-MM-dd HH24:mi:ss') as endTime, act.parent_process_inst_id as parentProInstId, act.pm_inst_type as pmInstType, act.previous_assistant as previousAssistant,  " +
+            "       act.previous_assistant_date as previousAssistantDate, act.previous_assistant_name as previousAssistantName , act.previous_assistant_org_code as previousAssistantOrgCode, act.previous_assistant_org_name as previousAssistantOrgName,  " +
+            "       act.process_def_key as processDefKey, act.process_inst_id as processInstId, act.receipt_title as receiptTile,act.receipt_code as receiptCode,to_char(act.start_time,'yyyy-MM-dd HH24:mi:ss') as startTime,act.CREATOR_IDENTITY as creatorIdentity, " +
+            "       task.task_Id as taskId,to_char(task.TASK_CREATE_TIME,'yyyy-MM-dd HH24:mi:ss') as taskCreateTime,task.PARTICIPANT_IDENTITY as participantIdentity,task.FROM_TASK_ID as fromTaskId,task.name as taskName,task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee," +
+            "       ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder" +
+            "  FROM us_bo_process_definition ubpd" +
+            "    join us_bo_process_instance ubi" +
+            "     on ubpd.id = ubi.bo_porcess_def_id" +
+            "    join act_business_status act" +
+            "     on ubi.id = act.business_key" +
+            "    join flowable_task_inst_model task" +
+            "     on act.process_inst_id = task.process_Inst_Id" +
+            "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
+            "     AND task.end_Time is null" +
+            "     AND act.enabled = 1" +
+            "     AND task.assignee = :participant" +
+            " ORDER BY ubpd.global_display_order asc,task.created_Time desc";
+    @Query(value = sq22,nativeQuery = true)
+    List<Map<String,Object>> getAnddocTodoByUserNoPage(@Param(value = "participant") String participant, @Param(value = "dynamicWhere") String dynamicWhere);
 
     /**
      *  获取指定 userName 下面所有的待办数据  公文使用
@@ -91,7 +140,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "       act.current_state as currentState, to_char(act.end_time,'yyyy-MM-dd HH24:mi:ss') as endTime, act.parent_process_inst_id as parentProInstId, act.pm_inst_type as pmInstType, act.previous_assistant as previousAssistant,  " +
             "       act.previous_assistant_date as previousAssistantDate, act.previous_assistant_name as previousAssistantName , act.previous_assistant_org_code as previousAssistantOrgCode, act.previous_assistant_org_name as previousAssistantOrgName,  " +
             "       act.process_def_key as processDefKey, act.process_inst_id as processInstId, act.receipt_title as receiptTile,act.receipt_code as receiptCode,to_char(act.start_time,'yyyy-MM-dd HH24:mi:ss') as startTime,act.CREATOR_IDENTITY as creatorIdentity, " +
-            "       task.task_Id as taskId,task.PARTICIPANT_IDENTITY as participantIdentity,task.FROM_TASK_ID as fromTaskId,task.name as taskName,task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee," +
+            "       task.task_Id as taskId,to_char(task.TASK_CREATE_TIME,'yyyy-MM-dd HH24:mi:ss') as taskCreateTime,task.PARTICIPANT_IDENTITY as participantIdentity,task.FROM_TASK_ID as fromTaskId,task.name as taskName,task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee," +
             "       ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder" +
             "  FROM us_bo_process_definition ubpd" +
             "    join us_bo_process_instance ubi" +
@@ -120,6 +169,54 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
     @Query(value = sql8,countQuery = sql8Count,nativeQuery = true)
     Page<Map<String,Object>> getAnddocTodoByUserPage(@Param(value = "participant") String participant, @Param(value = "dynamicWhere") String dynamicWhere, Pageable pageable);
 
+    /**
+     *  获取指定 userName 已办下面涉及的所有文种  公文使用
+     * @param participant    参与者
+     * @return
+     */
+    String sq23 = "SELECT ubpd.id as BO_PROCESS_DEFID,ubpd.bo_process_def_name as BO_PROCESS_DEFNAME" +
+            "  FROM us_bo_process_definition ubpd" +
+            "    join us_bo_process_instance ubi" +
+            "     on ubpd.id = ubi.bo_porcess_def_id" +
+            "    join act_business_status act" +
+            "     on ubi.id = act.business_key" +
+            "    join flowable_task_inst_model task" +
+            "     on act.process_inst_id = task.process_Inst_Id" +
+            "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
+            "     AND task.end_Time is null" +
+            "     AND act.enabled = 1" +
+            "     AND task.assignee = :participant" +
+            "   group by ubpd.id,ubpd.bo_process_def_name,ubpd.global_display_order" +
+            "   order by ubpd.global_display_order asc";
+    @Query(value = sq23,nativeQuery = true)
+    List<Map<String,Object>> getByAreadyDoneAssistantGroup(@Param(value = "participant") String participant, @Param(value = "dynamicWhere") String dynamicWhere);
+
+
+    /**
+     *  获取指定 userName 已办下面所有的待办数据无分页  公文使用
+     * @param participant    参与者
+     * @return
+     */
+    String sq24 = "SELECT act.id, act.business_key as businessKey, act.create_org_code as createOrgCode, act.create_org_name as createOrgName,act.create_user_name as createUserName,  " +
+            "       act.current_state as currentState, to_char(act.end_time,'yyyy-MM-dd HH24:mi:ss') as endTime, act.parent_process_inst_id as parentProInstId, act.pm_inst_type as pmInstType, act.previous_assistant as previousAssistant,  " +
+            "       act.previous_assistant_date as previousAssistantDate, act.previous_assistant_name as previousAssistantName , act.previous_assistant_org_code as previousAssistantOrgCode, act.previous_assistant_org_name as previousAssistantOrgName,  " +
+            "       act.process_def_key as processDefKey, act.process_inst_id as processInstId, act.receipt_title as receiptTile,act.receipt_code as receiptCode,to_char(act.start_time,'yyyy-MM-dd HH24:mi:ss') as startTime,act.CREATOR_IDENTITY as creatorIdentity, " +
+            "       task.task_Id as taskId,to_char(task.TASK_CREATE_TIME,'yyyy-MM-dd HH24:mi:ss') as taskCreateTime,to_char(task.END_TIME,'yyyy-MM-dd HH24:mi:ss') as taskEndTime,task.PARTICIPANT_IDENTITY as participantIdentity,task.FROM_TASK_ID as fromTaskId,task.name as taskName,task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee," +
+            "       ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder" +
+            "  FROM us_bo_process_definition ubpd" +
+            "    join us_bo_process_instance ubi" +
+            "     on ubpd.id = ubi.bo_porcess_def_id" +
+            "    join act_business_status act" +
+            "     on ubi.id = act.business_key" +
+            "    join flowable_task_inst_model task" +
+            "     on act.process_inst_id = task.process_Inst_Id" +
+            "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
+            "     AND task.end_Time is null" +
+            "     AND act.enabled = 1" +
+            "     AND task.assignee = :participant" +
+            " ORDER BY ubpd.global_display_order asc,task.created_Time desc";
+    @Query(value = sq24,nativeQuery = true)
+    List<Map<String,Object>> getByAreadyDoneAssistantNoPage(@Param(value = "participant") String participant, @Param(value = "dynamicWhere") String dynamicWhere);
 
     /**
      *  获取指定 userName 下面所有的已办数据
@@ -162,7 +259,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "       act.current_state as currentState, to_char(act.end_time,'yyyy-MM-dd HH24:mi:ss') as endTime, act.parent_process_inst_id as parentProInstId, act.pm_inst_type as pmInstType, act.previous_assistant as previousAssistant,  " +
             "       act.previous_assistant_date as previousAssistantDate, act.previous_assistant_name as previousAssistantName , act.previous_assistant_org_code as previousAssistantOrgCode, act.previous_assistant_org_name as previousAssistantOrgName,  " +
             "       act.process_def_key as processDefKey, act.process_inst_id as processInstId, act.receipt_title as receiptTile,act.receipt_code as receiptCode,to_char(act.start_time,'yyyy-MM-dd HH24:mi:ss') as startTime, act.CREATOR_IDENTITY as creatorIdentity," +
-            "       task.task_Id as taskId,task.PARTICIPANT_IDENTITY as participantIdentity,task.FROM_TASK_ID as fromTaskId,task.name as taskName,task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee,ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder" +
+            "       task.task_Id as taskId,to_char(task.TASK_CREATE_TIME,'yyyy-MM-dd HH24:mi:ss') as taskCreateTime,to_char(task.END_TIME,'yyyy-MM-dd HH24:mi:ss') as taskEndTime,task.PARTICIPANT_IDENTITY as participantIdentity,task.FROM_TASK_ID as fromTaskId,task.name as taskName,task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee,ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder" +
             "  FROM us_bo_process_definition ubpd" +
             "    join us_bo_process_instance ubi" +
             "     on ubpd.id = ubi.bo_porcess_def_id" +
@@ -213,8 +310,22 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
     /**
      * 根据流程实例ID更新流程状态
      */
-    String sq20 = "update act_business_status t set currentState=7 WHERE ENABLED=1 and t.PROCESS_INST_ID = :#{#actBusinessStatus.processInstId}";
+    String sq20 = "update act_business_status t set CURRENT_STATE=7 WHERE ENABLED=1 and t.END_TIME=sysdate and t.PROCESS_INST_ID = :#{#actBusinessStatus.processInstId}";
+    @Modifying
     @Query(value = sq20,nativeQuery = true)
     int updatePorcessStateByProInstId(ActBusinessStatus actBusinessStatus);
+
+    /**
+     * 功能描述: 更新根据ID更新主单据信息
+     *
+     * @param
+     * @return
+     * @date 2020/2/20 11:51
+     * @auther ljw
+     */
+    String sq25 = "update us_bo_process_instance t set CURRENT_STATE=:currentState WHERE ENABLED=1 and t.id = :id";
+    @Modifying
+    @Query(value = sq25,nativeQuery = true)
+    int updateBoProcessInstById(@Param(value = "id")String id,@Param(value = "currentState")String currentState);
 
 }

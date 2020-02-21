@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -50,7 +51,7 @@ public class ActCommentModelService extends LogicService<ActCommentModel,String>
             actCommentModel.setContent(comment);
             actCommentModel.setProcessInstId(processInstId);
             actCommentModel.setTaskId(taskId);
-            actCommentModel.setTime(DateUtil.getCurrent());
+            actCommentModel.setTime( LocalDateTime.now(  ));
             actCommentModel.setEnabled(true);
             this.wrapCreateInfo(actCommentModel);
             actCommentModelMapper.save(actCommentModel);

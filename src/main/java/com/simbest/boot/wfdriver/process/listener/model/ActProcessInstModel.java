@@ -1,8 +1,13 @@
 package com.simbest.boot.wfdriver.process.listener.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.simbest.boot.base.annotations.EntityIdPrefix;
 import com.simbest.boot.base.model.LogicModel;
+import com.simbest.boot.constants.ApplicationConstants;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +16,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -46,24 +52,38 @@ public class ActProcessInstModel extends LogicModel {
     private String name;
     private String description;
     private String tenantId;
-    private String businessKey;
+    //private String businessKey;
     private String callbackId;
     private String callbackType;
+
     private String deleteReason;
+
     private String deploymentId;
+
     private Long durationInMillis;
+
     private String endActivityId;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date endTime;
+
+    @JsonFormat ( pattern = ApplicationConstants.FORMAT_DATE_TIME, timezone = ApplicationConstants.FORMAT_TIME_ZONE )
+    @JsonDeserialize ( using = LocalDateTimeDeserializer.class )
+    @JsonSerialize ( using = LocalDateTimeSerializer.class )
+    private LocalDateTime endTime;
+
     private String processDefinitionId;
+
     private String processDefinitionKey;
     private String processDefinitionName;
     private Integer processDefinitionVersion;
     private Integer revision;
     private String startActivityId;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date startTime;
+
+    @JsonFormat ( pattern = ApplicationConstants.FORMAT_DATE_TIME, timezone = ApplicationConstants.FORMAT_TIME_ZONE )
+    @JsonDeserialize ( using = LocalDateTimeDeserializer.class )
+    @JsonSerialize ( using = LocalDateTimeSerializer.class )
+    private LocalDateTime startTime;
+
     private String startUserId;
+
     private String superProcessInstanceId;
 
     private Integer currentState;//流程当前状态

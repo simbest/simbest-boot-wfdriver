@@ -1,5 +1,6 @@
 package com.simbest.boot.wfdriver.process.bussiness.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.simbest.boot.base.service.impl.GenericService;
@@ -8,6 +9,7 @@ import com.simbest.boot.security.IUser;
 import com.simbest.boot.util.security.SecurityUtils;
 import com.simbest.boot.wf.process.service.IProcessInstanceService;
 import com.simbest.boot.wf.unitfytodo.IProcessTodoDataService;
+import com.simbest.boot.wfdriver.enums.BoProcessInstStateEnum;
 import com.simbest.boot.wfdriver.enums.ProcessSateEnum;
 import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
 import com.simbest.boot.wfdriver.process.bussiness.mapper.ActBusinessStatusMapper;
@@ -117,10 +119,11 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
         try{
             IUser user = SecurityUtils.getCurrentUser();
             ActBusinessStatus actBusinessStatus = getByProcessInst(processInstanceId);
-            boolean endFlag = processInstanceService.queryProcessInstaceEndStateByProInsIdApi( processInstanceId );
             actBusinessStatus.setPreviousAssistant(user.getUsername());
             actBusinessStatus.setPreviousAssistantDate(LocalDateTime.now());
             actBusinessStatus.setPreviousAssistantName(user.getTruename());
+            actBusinessStatus.setPreviousAssistantOrgCode( user.getBelongOrgCode() );
+            actBusinessStatus.setPreviousAssistantOrgName( user.getBelongOrgName() );
             actBusinessStatus = actBusinessStatusMapper.save(actBusinessStatus);
             if ( actBusinessStatus != null ){
                 ret = 1;
@@ -153,6 +156,8 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             o.setEndTime( LocalDateTime.now());
             Duration duration = Duration.between( o.getEndTime(),o.getStartTime() );
             o.setDuration(duration.toNanos());
+            o.setCurrentState( BoProcessInstStateEnum.PROCESS_INST_STATE_END.getValue() );
+            //actBusinessStatusMapper.updateBoProcessInstById( o.getBusinessKey(), BoProcessInstStateEnum.PROCESS_INST_STATE_END.getValue() );
             o = actBusinessStatusMapper.save(o);
             if ( o != null ){
                 ret = 1;
@@ -268,12 +273,61 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             if ( StringUtils.isEmpty( dynamicWhere )){
                 dynamicWhere = "";
             }
-            //pages = actBusinessStatusMapper.getTodoByUserPage(participant,dynamicWhere,pageable);
             pages = actBusinessStatusMapper.getAnddocTodoByUserPage(participant,dynamicWhere,pageable);
         }catch ( Exception e ){
             FlowableDriverBusinessException.printException( e );
         }
         return pages;
+    }
+
+    /**
+     * 功能描述:获取指定 userName 下面涉及的所有文种
+     *
+     * @param 
+     * @return 
+     * @date 2020/2/19 0:00
+     * @auther ljw
+     */
+    @Override
+    public List<Map<String, Object>> getTodoByUserIdNoPageMap ( Map<?, ?> doneUserParam ) {
+        List<Map<String, Object>> todoBoProcessDefIdList = CollectionUtil.newArrayList();
+        String participant = (String) doneUserParam.get( "participant" );
+        String dynamicWhere = (String) doneUserParam.get( "title" );
+        StringBuilder inWhere = new StringBuilder();
+        try {
+            if ( StringUtils.isEmpty( dynamicWhere )){
+                dynamicWhere = "";
+            }
+            todoBoProcessDefIdList = actBusinessStatusMapper.getAnddocTodoByUserNoPage(participant,dynamicWhere);
+        }catch ( Exception e ){
+            FlowableDriverBusinessException.printException( e );
+        }
+        return todoBoProcessDefIdList;
+    }
+
+    /**
+     * 功能描述:获取指定 userName 下面所有的待办数据无分页  公文使用
+     *
+     * @param
+     * @return
+     * @date 2020/2/19 0:01
+     * @auther ljw
+     */
+    @Override
+    public List<Map<String, Object>> getTodoByUserIdGroupMap ( Map<?, ?> doneUserParam ) {
+        List<Map<String, Object>> todoList = CollectionUtil.newArrayList();
+        String participant = (String) doneUserParam.get( "participant" );
+        String dynamicWhere = (String) doneUserParam.get( "title" );
+        StringBuilder inWhere = new StringBuilder();
+        try {
+            if ( StringUtils.isEmpty( dynamicWhere )){
+                dynamicWhere = "";
+            }
+            todoList = actBusinessStatusMapper.getAnddocTodoByUserGroup(participant,dynamicWhere);
+        }catch ( Exception e ){
+            FlowableDriverBusinessException.printException( e );
+        }
+        return todoList;
     }
 
     /**
@@ -322,6 +376,56 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             FlowableDriverBusinessException.printException( e );
         }
         return pages;
+    }
+
+    /**
+     * 功能描述:获取指定 userName 已办下面涉及的所有文种  公文使用
+     *
+     * @param 
+     * @return 
+     * @date 2020/2/19 0:01
+     * @auther ljw
+     */
+    @Override
+    public List<Map<String, Object>> getAreadyDoneByUserIdNoPageMap ( Map<?, ?> doneUserParam ) {
+        List<Map<String, Object>> doneBoProcessDefIdList = CollectionUtil.newArrayList();
+        String participant = (String) doneUserParam.get( "participant" );
+        String dynamicWhere = (String) doneUserParam.get( "title" );
+        StringBuilder inWhere = new StringBuilder();
+        try {
+            if ( StringUtils.isEmpty( dynamicWhere )){
+                dynamicWhere = "";
+            }
+            doneBoProcessDefIdList = actBusinessStatusMapper.getByAreadyDoneAssistantNoPage(participant,dynamicWhere);
+        }catch ( Exception e ){
+            FlowableDriverBusinessException.printException( e );
+        }
+        return doneBoProcessDefIdList;
+    }
+
+    /**
+     * 功能描述:获取指定 userName 已办下面所有的待办数据无分页  公文使用
+     *
+     * @param 
+     * @return 
+     * @date 2020/2/19 0:01
+     * @auther ljw
+     */
+    @Override
+    public List<Map<String, Object>> getAreadyDoneByUserIdGroupMap ( Map<?, ?> doneUserParam ) {
+        List<Map<String, Object>> doneList = CollectionUtil.newArrayList();
+        String participant = (String) doneUserParam.get( "participant" );
+        String dynamicWhere = (String) doneUserParam.get( "title" );
+        StringBuilder inWhere = new StringBuilder();
+        try {
+            if ( StringUtils.isEmpty( dynamicWhere )){
+                dynamicWhere = "";
+            }
+            doneList = actBusinessStatusMapper.getByAreadyDoneAssistantGroup(participant,dynamicWhere);
+        }catch ( Exception e ){
+            FlowableDriverBusinessException.printException( e );
+        }
+        return doneList;
     }
 
     /**

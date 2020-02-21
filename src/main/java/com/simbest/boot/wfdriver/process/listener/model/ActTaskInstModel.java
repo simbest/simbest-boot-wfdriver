@@ -1,8 +1,13 @@
 package com.simbest.boot.wfdriver.process.listener.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.simbest.boot.base.annotations.EntityIdPrefix;
 import com.simbest.boot.base.model.LogicModel;
+import com.simbest.boot.constants.ApplicationConstants;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +16,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -77,11 +83,15 @@ public class ActTaskInstModel extends LogicModel {
 
     private Integer priority;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date taskCreateTime;
+    @JsonFormat ( pattern = ApplicationConstants.FORMAT_DATE_TIME, timezone = ApplicationConstants.FORMAT_TIME_ZONE )
+    @JsonDeserialize ( using = LocalDateTimeDeserializer.class )
+    @JsonSerialize ( using = LocalDateTimeSerializer.class )
+    private LocalDateTime taskCreateTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date dueDate;
+    @JsonFormat ( pattern = ApplicationConstants.FORMAT_DATE_TIME, timezone = ApplicationConstants.FORMAT_TIME_ZONE )
+    @JsonDeserialize ( using = LocalDateTimeDeserializer.class )
+    @JsonSerialize ( using = LocalDateTimeSerializer.class )
+    private LocalDateTime dueDate;
 
     private String category;
 
@@ -91,11 +101,15 @@ public class ActTaskInstModel extends LogicModel {
 
     private String formKey;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date claimTime;
+    @JsonFormat ( pattern = ApplicationConstants.FORMAT_DATE_TIME, timezone = ApplicationConstants.FORMAT_TIME_ZONE )
+    @JsonDeserialize ( using = LocalDateTimeDeserializer.class )
+    @JsonSerialize ( using = LocalDateTimeSerializer.class )
+    private LocalDateTime claimTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date endTime;
+    @JsonFormat ( pattern = ApplicationConstants.FORMAT_DATE_TIME, timezone = ApplicationConstants.FORMAT_TIME_ZONE )
+    @JsonDeserialize ( using = LocalDateTimeDeserializer.class )
+    @JsonSerialize ( using = LocalDateTimeSerializer.class )
+    private LocalDateTime endTime;
 
     @Column(length = 500)
     @ApiModelProperty (value = "当前工单办理人的身份标识,使用#分隔,身份串=userId#orgCode#postId")

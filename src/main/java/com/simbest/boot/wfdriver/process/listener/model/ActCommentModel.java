@@ -2,12 +2,18 @@ package com.simbest.boot.wfdriver.process.listener.model;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.simbest.boot.base.annotations.EntityIdPrefix;
 import com.simbest.boot.base.model.LogicModel;
+import com.simbest.boot.constants.ApplicationConstants;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -53,7 +59,9 @@ public class ActCommentModel extends LogicModel {
     @Column (length = 40 )
 	private String taskId; //任务id
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat ( pattern = ApplicationConstants.FORMAT_DATE_TIME, timezone = ApplicationConstants.FORMAT_TIME_ZONE )
+    @JsonDeserialize ( using = LocalDateTimeDeserializer.class )
+    @JsonSerialize ( using = LocalDateTimeSerializer.class )
     @Column(nullable = false)
-    private Date time;
+    private LocalDateTime time;
 }

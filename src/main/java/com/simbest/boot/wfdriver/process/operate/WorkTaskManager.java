@@ -78,7 +78,7 @@ public class WorkTaskManager implements IWorkItemService {
         List<String> inputUserIds = null;
         List<String> nextUserOrgCodes = null;
         List<String> nextUserPostIds = null;
-        if( StrUtil.isNotEmpty( nextUser )){
+        //if( StrUtil.isNotEmpty( nextUser )){
              String[] approverUsers= StrUtil.split( nextUser,"," );
             if(approverUsers!=null && approverUsers.length == 1){
                 inputUserId = approverUsers[0];
@@ -91,17 +91,13 @@ public class WorkTaskManager implements IWorkItemService {
                 nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"," ));
                 nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"," ));
             }
-        }
+        //}
         try {
-            /**
-             * 添加评论
-             */
             Map<String,String> taskAddCommentMap = Maps.newHashMap();
             taskAddCommentMap.put("currentUserCode",currentUserCode);
             taskAddCommentMap.put("taskId",  taskId);
             taskAddCommentMap.put("processInstanceId", processInstId);
             taskAddCommentMap.put("comment",message);
-            callFlowableProcessApi.tasksAddComment(taskAddCommentMap);
             /**
              * 完成任务
              */
@@ -112,7 +108,7 @@ public class WorkTaskManager implements IWorkItemService {
             if(StrUtil.isNotEmpty( inputUserId )){
                 tasksCompleteMap.put( "inputUserId",inputUserId );
                 participantIdentity = inputUserId.concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
-                taskAddCommentMap.put( participantIdentity,participantIdentity );
+                tasksCompleteMap.put( "participantIdentity",participantIdentity );
             }
             if(CollectionUtil.isNotEmpty( inputUserIds )){
                 /*多人会签，建议流程图中collection使用变量inputUserIds，迭代使用inputUserId和其他保持一直*/
@@ -123,11 +119,15 @@ public class WorkTaskManager implements IWorkItemService {
                     map.put( inputUserIds.get( i ),participantIdentityTmp );
                     participantIdentitys.add( map );
                 }
-                taskAddCommentMap.put( "participantIdentitys",Convert.toStr( participantIdentitys ) );
+                tasksCompleteMap.put( "participantIdentitys",Convert.toStr( participantIdentitys ) );
             }
-            taskAddCommentMap.put( "fromTaskId",taskId );
+            tasksCompleteMap.put( "fromTaskId",taskId );
+            //保存流程审批意见
+            if ( StrUtil.isNotEmpty( message ) ){   //审批意见不为空时调用流程api接口
+                callFlowableProcessApi.tasksAddComment(taskAddCommentMap);
+                actCommentModelService.create(currentUserCode,message,processInstId,taskId,null);
+            }
             callFlowableProcessApi.tasksComplete(taskId,tasksCompleteMap);
-            actCommentModelService.create(currentUserCode,message,processInstId,taskId,null);
             actBusinessStatusService.updateActBusinessStatusData( processInstId,currentUserCode );
             ret = 1;
         }catch ( Exception e){

@@ -19,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -67,9 +68,12 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
 	            actTaskInstModel.setParticipantIdentity( WfProcessManager.creatorIdentity );
             }
             actTaskInstModel.setEnabled(true);
-            actTaskInstModel.setFromTaskId( "-1" );
-            actTaskInstModel.setCreator( actTaskInstModel.getAssignee() );
-            actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
+	        if ( StrUtil.isEmpty( actTaskInstModel.getFromTaskId() ) ){
+                actTaskInstModel.setFromTaskId( "-1" );
+            }
+            //actTaskInstModel.setCreator( actTaskInstModel.getAssignee() );
+            //actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
+            wrapCreateInfo( actTaskInstModel );
             actTaskInstModel = actTaskInstModelMapper.save(actTaskInstModel);
             //以下是推送统一待办
             //ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
@@ -86,10 +90,11 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
 	public int updateByTaskId(ActTaskInstModel actTaskInstModel) {
         int ret = 0;
         try {
-            actTaskInstModel.setEndTime(DateUtil.getCurrent());
+            actTaskInstModel.setEndTime( LocalDateTime.now());
             actTaskInstModel.setEnabled(true);
-            actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
-            actTaskInstModel.setModifiedTime(DateUtil.date2LocalDateTime(new Date()));
+            //actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
+            //actTaskInstModel.setModifiedTime(DateUtil.date2LocalDateTime(new Date()));
+            wrapUpdateInfo( actTaskInstModel );
             actTaskInstModelMapper.updateByTaskId(actTaskInstModel);
             //以下是推送统一待办
             //ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
