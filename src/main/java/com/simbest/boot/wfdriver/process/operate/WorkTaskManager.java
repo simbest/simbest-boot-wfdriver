@@ -195,6 +195,17 @@ public class WorkTaskManager implements IWorkItemService {
         return actTaskInstModelService.queryTaskInstModelByProcessInstId(processInsId+"");
     }
 
+    /**
+     * 根据流程实例ID查询工作项信息  流程跟踪   (Flowable共用)
+     * @param processInsId        流程实例ID
+     * @return
+     */
+    @Override
+    public List<?> queryWorkTtemDataByProInsId ( Object processInsId ) {
+        List<ActTaskInstModel> actTaskInstModels = actTaskInstModelService.queryTaskInstModelByProcessInstId((String)processInsId);
+        return actTaskInstModels;
+    }
+
     @Override
     public List<?> queryWorkItems ( long processInstId, long workItemId ) {
         return null;

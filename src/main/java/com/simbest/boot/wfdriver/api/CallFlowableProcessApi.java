@@ -195,7 +195,6 @@ public class CallFlowableProcessApi {
      * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
      */
     public InputStream getDiagramByProcessInstanceId(String processDefinitionId,String processInstanceId) throws WorkFlowBusinessRuntimeException{
-
         Map<String,String> para = new HashMap<String,String>();
         para.put("processInstanceId",processInstanceId);
         para.put("processDefinitionId",processDefinitionId);
