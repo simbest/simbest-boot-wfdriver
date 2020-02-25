@@ -170,7 +170,7 @@ public class WorkTaskManager implements IWorkItemService {
      */
     @Override
     public List<?> queryWorkTtemDataByProInsId ( long processInsId ) {
-        return null;
+        return actTaskInstModelService.queryTaskInstModelByProcessInstId(processInsId+"");
     }
 
     @Override

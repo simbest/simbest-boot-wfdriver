@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -186,5 +187,27 @@ public class CallFlowableProcessApi {
         return map;
     }
 
+    /**
+     * 6.获取流程图
+     * @param processDefinitionId
+     * @param processInstanceId
+     * @return
+     * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
+     */
+    public InputStream getDiagramByProcessInstanceId(String processDefinitionId,String processInstanceId) throws WorkFlowBusinessRuntimeException{
 
+        Map<String,String> para = new HashMap<String,String>();
+        para.put("processInstanceId",processInstanceId);
+        para.put("processDefinitionId",processDefinitionId);
+        Map<String,Object> map = wqqueryHttpService.callInterfaceString(ConstansURL.GET_DIAGRAM_BY_PROCESS_INSTANCEID,para);
+        InputStream data = null;
+        if(map!=null){
+            if(map.get("state").equals(ConstantsUtils.FAILE)){
+                log.error("Flowable-Engine接口异常:"+map.get("message") );
+                throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:"+map.get("message") );
+            }
+            data = (InputStream) map.get("data");
+        }
+        return data;
+    }
 }
