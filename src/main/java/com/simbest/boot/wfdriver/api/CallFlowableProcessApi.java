@@ -3,6 +3,9 @@ package com.simbest.boot.wfdriver.api;/**
  * @create 2019/12/5 17:09.
  */
 
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.map.MapUtil;
+import com.google.common.reflect.TypeToken;
 import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.wfdriver.exceptions.WorkFlowBusinessRuntimeException;
 import com.simbest.boot.wfdriver.http.utils.ConstansURL;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -202,10 +206,12 @@ public class CallFlowableProcessApi {
         InputStream data = null;
         if(map!=null){
             if(map.get("state").equals(ConstantsUtils.FAILE)){
-                log.error("Flowable-Engine接口异常:"+map.get("message") );
+                log.error("Flowable-Engine接口异常:"+ MapUtil.getStr(map,"message") );
                 throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:"+map.get("message") );
             }
-            data = (InputStream) map.get("data");
+            //data = (InputStream) map.get("data");
+            //data = IoUtil.toStream( MapUtil.getStr( map,"data" ), Charset.defaultCharset() );
+            data = IoUtil.toStream( MapUtil.getStr( map,"data" ), Charset.defaultCharset()  );
         }
         return data;
     }
