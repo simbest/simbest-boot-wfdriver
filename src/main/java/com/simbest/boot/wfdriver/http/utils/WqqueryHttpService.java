@@ -1,6 +1,7 @@
 package com.simbest.boot.wfdriver.http.utils;
 
 import com.mzlion.easyokhttp.HttpClient;
+import com.mzlion.easyokhttp.response.HttpResponse;
 import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.util.DateUtil;
 import com.simbest.boot.util.json.JacksonUtils;
@@ -161,5 +162,34 @@ public class WqqueryHttpService {
             log.error(Exceptions.getStackTraceAsString(e));
         }
         return map;
+    }
+
+    /**
+     * 普通字符传参数调用
+     * @param url 接口url
+     * @throws BadCallException
+     */
+    public HttpResponse callInterfaceOutPut(String url, String processDefinitionId, String processInstanceId) {
+        Date date = DateUtil.getCurrent();
+        String SUBMITDATE = DateUtil.getTimestamp(date);
+        String TIMESTAMP = String.valueOf(date.getTime()/1000);
+        String ACCESSTOKEN = Md5Token.MD5(token+TIMESTAMP);
+
+        HttpResponse httpResponse = null;
+        try {
+            httpResponse = HttpClient.get(wfengineHost+url)
+                    .header("TIMESTAMP",TIMESTAMP)
+                    .header("ACCESSTOKEN",ACCESSTOKEN)
+                    .queryString("SUBMITDATE",SUBMITDATE)
+                    .queryString("SOURCESYSTEMID",SOURCESYSTEMID)
+                    .queryString("SOURCESYSTEMNAME",SOURCESYSTEMNAME)
+                    .queryString("processInstanceId",processInstanceId)
+                    .queryString("processDefinitionId",processDefinitionId)
+                    .execute();
+
+        }catch(Exception e){
+            log.error(Exceptions.getStackTraceAsString(e));
+        }
+        return httpResponse;
     }
 }

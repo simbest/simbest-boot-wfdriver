@@ -3,6 +3,7 @@ package com.simbest.boot.wfdriver.api;/**
  * @create 2019/12/5 17:09.
  */
 
+import com.mzlion.easyokhttp.response.HttpResponse;
 import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.wfdriver.exceptions.WorkFlowBusinessRuntimeException;
 import com.simbest.boot.wfdriver.http.utils.ConstansURL;
@@ -10,11 +11,14 @@ import com.simbest.boot.wfdriver.http.utils.ConstantsUtils;
 import com.simbest.boot.wfdriver.http.utils.HttpConfig;
 import com.simbest.boot.wfdriver.http.utils.WqqueryHttpService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -200,14 +204,33 @@ public class CallFlowableProcessApi {
         para.put("processInstanceId",processInstanceId);
         para.put("processDefinitionId",processDefinitionId);
         Map<String,Object> map = wqqueryHttpService.callInterfaceString(ConstansURL.GET_DIAGRAM_BY_PROCESS_INSTANCEID,para);
-        InputStream data = null;
+        String data = null;
         if(map!=null){
             if(map.get("state").equals(ConstantsUtils.FAILE)){
                 log.error("Flowable-Engine接口异常:"+map.get("message") );
                 throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:"+map.get("message") );
             }
-            data = (InputStream) map.get("data");
+            data = (String) map.get("data");
+            InputStream targetStream = null;
+            try {
+                targetStream = IOUtils.toInputStream(data, StandardCharsets.UTF_8.name());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return targetStream;
         }
-        return data;
+        return null;
+    }
+
+    /**
+     * 6.获取流程图
+     * @param processDefinitionId
+     * @param processInstanceId
+     * @return
+     * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
+     */
+    public HttpResponse getDiagramByProcessInstanceIdOutPut(String processDefinitionId, String processInstanceId) {
+        HttpResponse httpResponse = wqqueryHttpService.callInterfaceOutPut(ConstansURL.GET_DIAGRAM_BY_PROCESS_INSTANCEID,processDefinitionId,processInstanceId);
+        return httpResponse;
     }
 }

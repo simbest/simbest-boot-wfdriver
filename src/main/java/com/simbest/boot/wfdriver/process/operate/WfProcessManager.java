@@ -252,8 +252,8 @@ public class WfProcessManager implements IProcessInstanceService {
      */
     @Override
     public InputStream getDiagram ( String processInstanceId ) {
-        InputStream inputStream = callFlowableProcessApi.getDiagramByProcessInstanceId(null,processInstanceId);
-        return inputStream;
+//        InputStream inputStream = callFlowableProcessApi.getDiagramByProcessInstanceId(null,processInstanceId);
+        return null;
     }
 
     @Override
