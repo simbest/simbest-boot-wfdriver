@@ -3,6 +3,7 @@ package com.simbest.boot.wfdriver.api;/**
  * @create 2019/12/5 17:09.
  */
 
+import cn.hutool.core.map.MapUtil;
 import com.mzlion.easyokhttp.response.HttpResponse;
 import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.wfdriver.exceptions.WorkFlowBusinessRuntimeException;
@@ -199,7 +200,6 @@ public class CallFlowableProcessApi {
      * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
      */
     public InputStream getDiagramByProcessInstanceId(String processDefinitionId,String processInstanceId) throws WorkFlowBusinessRuntimeException{
-
         Map<String,String> para = new HashMap<String,String>();
         para.put("processInstanceId",processInstanceId);
         para.put("processDefinitionId",processDefinitionId);
@@ -207,9 +207,10 @@ public class CallFlowableProcessApi {
         String data = null;
         if(map!=null){
             if(map.get("state").equals(ConstantsUtils.FAILE)){
-                log.error("Flowable-Engine接口异常:"+map.get("message") );
+                log.error("Flowable-Engine接口异常:"+ MapUtil.getStr(map,"message") );
                 throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:"+map.get("message") );
             }
+
             data = (String) map.get("data");
             InputStream targetStream = null;
             try {
@@ -218,6 +219,11 @@ public class CallFlowableProcessApi {
                 e.printStackTrace();
             }
             return targetStream;
+
+            //data = (InputStream) map.get("data");
+            //data = IoUtil.toStream( MapUtil.getStr( map,"data" ), Charset.defaultCharset() );
+//            data = IoUtil.toStream( MapUtil.getStr( map,"data" ), Charset.defaultCharset()  );
+
         }
         return null;
     }

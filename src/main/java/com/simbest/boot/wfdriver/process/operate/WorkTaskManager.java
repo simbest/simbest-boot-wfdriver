@@ -6,6 +6,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.wenhao.jpa.Specifications;
 import com.google.common.collect.Maps;
+import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.wf.process.service.IWorkItemService;
 import com.simbest.boot.wfdriver.api.CallFlowableProcessApi;
 import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
@@ -78,55 +79,76 @@ public class WorkTaskManager implements IWorkItemService {
         List<String> inputUserIds = null;
         List<String> nextUserOrgCodes = null;
         List<String> nextUserPostIds = null;
-        //if( StrUtil.isNotEmpty( nextUser )){
-             String[] approverUsers= StrUtil.split( nextUser,"," );
-            if(approverUsers!=null && approverUsers.length == 1){
-                inputUserId = approverUsers[0];
-                //nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"," ));
-                //nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"," ));
-            }
-            /*会签节点在遍历的时候会遍历变量inputUserIds，不会用inputUserId，所以当审批人只有一个人的时候，建议inputUserIds也赋值，具体用不用看流程图怎么画了*/
-            if(approverUsers!=null && approverUsers.length > 1){
-                inputUserIds =  Arrays.asList(approverUsers);
-                nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"," ));
-                nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"," ));
-            }
-        //}
         try {
             Map<String,String> taskAddCommentMap = Maps.newHashMap();
             taskAddCommentMap.put("currentUserCode",currentUserCode);
             taskAddCommentMap.put("taskId",  taskId);
             taskAddCommentMap.put("processInstanceId", processInstId);
             taskAddCommentMap.put("comment",message);
-            /**
-             * 完成任务
-             */
-            Map<String,Object> tasksCompleteMap = Maps.newHashMap();
-            tasksCompleteMap.put( "outcome",outcome );
-            String participantIdentity = null;
-            List<Map<String,Object>> participantIdentitys = Lists.newArrayList();
-            if(StrUtil.isNotEmpty( inputUserId )){
-                tasksCompleteMap.put( "inputUserId",inputUserId );
-                participantIdentity = inputUserId.concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
-                tasksCompleteMap.put( "participantIdentity",participantIdentity );
-            }
-            if(CollectionUtil.isNotEmpty( inputUserIds )){
-                /*多人会签，建议流程图中collection使用变量inputUserIds，迭代使用inputUserId和其他保持一直*/
-                tasksCompleteMap.put( "inputUserIds",inputUserIds );
-                for ( int i = 0,count = inputUserIds.size();i < count;i++ ){
-                    String participantIdentityTmp = inputUserIds.get( i ).concat( "#" ).concat( nextUserOrgCodes.get( i ) ).concat( "#" ).concat( nextUserPostIds.get( i ) );
-                    Map<String,Object> map = Maps.newConcurrentMap();
-                    map.put( inputUserIds.get( i ),participantIdentityTmp );
-                    participantIdentitys.add( map );
-                }
-                tasksCompleteMap.put( "participantIdentitys",Convert.toStr( participantIdentitys ) );
-            }
-            tasksCompleteMap.put( "fromTaskId",taskId );
             //保存流程审批意见
             if ( StrUtil.isNotEmpty( message ) ){   //审批意见不为空时调用流程api接口
                 callFlowableProcessApi.tasksAddComment(taskAddCommentMap);
                 actCommentModelService.create(currentUserCode,message,processInstId,taskId,null);
             }
+            Map<String,Object> tasksCompleteMap = Maps.newHashMap();
+            String[] outcomes = StrUtil.split( outcome,"#" );
+            String[] nextUsers = StrUtil.split( nextUser,"#" );
+            if ( !StrUtil.isBlankIfStr( outcomes ) && outcomes.length > 1 ){  //多任务
+                String participantIdentity = null;
+                if ( !StrUtil.isBlankIfStr( outcomes ) && nextUsers.length == 1 ){
+                    for(int i = 0,count = outcomes.length;i < count;i++){
+                        tasksCompleteMap.put( "outcome_" + i,outcomes[i] );
+                        tasksCompleteMap.put( "inputUserId_" + i, nextUsers[0]);
+                    }
+                    participantIdentity = nextUsers[0].concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
+                    tasksCompleteMap.put( "participantIdentity",participantIdentity );
+                }
+                if ( !StrUtil.isBlankIfStr( outcomes ) && nextUsers.length > 1 ){
+                    for(int i = 0,count = outcomes.length;i < count;i++){
+                        tasksCompleteMap.put( "outcome_" + i,outcomes[i] );
+
+                        List<String> nextUserItems = StrUtil.splitTrim( nextUsers[i],"," );
+                        if ( CollectionUtil.isNotEmpty( nextUserItems ) && nextUserItems.size() > 1 ){
+                            tasksCompleteMap.put( "inputUserIds_" + i, nextUserItems);
+                        }else{
+                            tasksCompleteMap.put( "inputUserId_" + i, nextUsers[i]);
+                        }
+                    }
+                    List<Map<String,Object>> participantIdentitys = Lists.newArrayList();
+                    nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"#" ));
+                    nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"#" ));
+                    for ( int i = 0,count = nextUsers.length;i < count;i++ ){
+                        String participantIdentityTmp = nextUsers[i].concat( "#" ).concat( nextUserOrgCodes.get( i ) ).concat( "#" ).concat( nextUserPostIds.get( i ) );
+                        Map<String,Object> map = Maps.newConcurrentMap();
+                        map.put( nextUsers[i],participantIdentityTmp );
+                        participantIdentitys.add( map );
+                    }
+                    tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
+                }
+            } else {  //单任务，单人单任务，多人单任务
+                tasksCompleteMap.put( "outcome",outcomes[0] );
+                String participantIdentity = null;
+                if ( !StrUtil.isBlankIfStr( outcomes ) && nextUsers.length == 1 ){
+                    tasksCompleteMap.put( "inputUserId", nextUsers[0]);
+                    participantIdentity = nextUsers[0].concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
+                    tasksCompleteMap.put( "participantIdentity",participantIdentity );
+                }
+                /*多人会签，建议流程图中collection使用变量inputUserIds，迭代使用inputUserId和其他保持一直*/
+                if ( !StrUtil.isBlankIfStr( outcomes ) && nextUsers.length > 1 ){
+                    tasksCompleteMap.put( "inputUserIds", Arrays.asList(nextUsers));
+                    List<Map<String,Object>> participantIdentitys = Lists.newArrayList();
+                    nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"#" ));
+                    nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"#" ));
+                    for ( int i = 0,count = nextUsers.length;i < count;i++ ){
+                        String participantIdentityTmp = nextUsers[i].concat( "#" ).concat( nextUserOrgCodes.get( i ) ).concat( "#" ).concat( nextUserPostIds.get( i ) );
+                        Map<String,Object> map = Maps.newConcurrentMap();
+                        map.put( nextUsers[i],participantIdentityTmp );
+                        participantIdentitys.add( map );
+                    }
+                    tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
+                }
+            }
+            tasksCompleteMap.put( "fromTaskId",taskId );
             callFlowableProcessApi.tasksComplete(taskId,tasksCompleteMap);
             actBusinessStatusService.updateActBusinessStatusData( processInstId,currentUserCode );
             ret = 1;
@@ -171,6 +193,17 @@ public class WorkTaskManager implements IWorkItemService {
     @Override
     public List<?> queryWorkTtemDataByProInsId ( long processInsId ) {
         return actTaskInstModelService.queryTaskInstModelByProcessInstId(processInsId+"");
+    }
+
+    /**
+     * 根据流程实例ID查询工作项信息  流程跟踪   (Flowable共用)
+     * @param processInsId        流程实例ID
+     * @return
+     */
+    @Override
+    public List<?> queryWorkTtemDataByProInsId ( Object processInsId ) {
+        List<ActTaskInstModel> actTaskInstModels = actTaskInstModelService.queryTaskInstModelByProcessInstId((String)processInsId);
+        return actTaskInstModels;
     }
 
     @Override
