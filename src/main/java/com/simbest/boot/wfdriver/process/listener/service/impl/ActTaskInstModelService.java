@@ -71,9 +71,9 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
 	        if ( StrUtil.isEmpty( actTaskInstModel.getFromTaskId() ) ){
                 actTaskInstModel.setFromTaskId( "-1" );
             }
-            //actTaskInstModel.setCreator( actTaskInstModel.getAssignee() );
-            //actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
-            wrapCreateInfo( actTaskInstModel );
+            actTaskInstModel.setCreator( actTaskInstModel.getAssignee() );
+            actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
+            //wrapCreateInfo( actTaskInstModel );
             actTaskInstModel = actTaskInstModelMapper.save(actTaskInstModel);
             //以下是推送统一待办
             //ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
@@ -92,9 +92,9 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
         try {
             actTaskInstModel.setEndTime( LocalDateTime.now());
             actTaskInstModel.setEnabled(true);
-            //actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
-            //actTaskInstModel.setModifiedTime(DateUtil.date2LocalDateTime(new Date()));
-            wrapUpdateInfo( actTaskInstModel );
+            actTaskInstModel.setModifier(actTaskInstModel.getAssignee() );
+            actTaskInstModel.setModifiedTime(LocalDateTime.now());
+            //wrapUpdateInfo( actTaskInstModel );
             actTaskInstModelMapper.updateByTaskId(actTaskInstModel);
             //以下是推送统一待办
             //ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
