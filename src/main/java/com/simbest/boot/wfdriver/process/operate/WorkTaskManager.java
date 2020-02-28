@@ -91,62 +91,58 @@ public class WorkTaskManager implements IWorkItemService {
                 actCommentModelService.create(currentUserCode,message,processInstId,taskId,null);
             }
             Map<String,Object> tasksCompleteMap = Maps.newHashMap();
-            String[] outcomes = StrUtil.split( outcome,"#" );
             String[] nextUsers = StrUtil.split( nextUser,"#" );
-            if ( !StrUtil.isBlankIfStr( outcomes ) && outcomes.length > 1 ){  //多任务
+            tasksCompleteMap.put( "outcome",outcome );
+            if ( !StrUtil.isBlankIfStr( nextUsers ) && nextUsers.length == 1 ){
+                String inputUserParams = MapUtil.getStr( param,"inputUserParams" );
+                List<String> nextUserItems = StrUtil.splitTrim( nextUsers[0],"," );
                 String participantIdentity = null;
-                if ( !StrUtil.isBlankIfStr( outcomes ) && nextUsers.length == 1 ){
-                    for(int i = 0,count = outcomes.length;i < count;i++){
-                        tasksCompleteMap.put( "outcome_" + i,outcomes[i] );
-                        tasksCompleteMap.put( "inputUserId_" + i, nextUsers[0]);
-                    }
-                    participantIdentity = nextUsers[0].concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
-                    tasksCompleteMap.put( "participantIdentity",participantIdentity );
-                }
-                if ( !StrUtil.isBlankIfStr( outcomes ) && nextUsers.length > 1 ){
-                    for(int i = 0,count = outcomes.length;i < count;i++){
-                        tasksCompleteMap.put( "outcome_" + i,outcomes[i] );
+                if ( CollectionUtil.isNotEmpty( nextUserItems ) && nextUserItems.size() > 1 ){
+                    tasksCompleteMap.put( inputUserParams,nextUserItems);
 
-                        List<String> nextUserItems = StrUtil.splitTrim( nextUsers[i],"," );
-                        if ( CollectionUtil.isNotEmpty( nextUserItems ) && nextUserItems.size() > 1 ){
-                            tasksCompleteMap.put( "inputUserIds_" + i, nextUserItems);
-                        }else{
-                            tasksCompleteMap.put( "inputUserId_" + i, nextUsers[i]);
-                        }
-                    }
                     List<Map<String,Object>> participantIdentitys = Lists.newArrayList();
-                    nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"#" ));
-                    nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"#" ));
-                    for ( int i = 0,count = nextUsers.length;i < count;i++ ){
-                        String participantIdentityTmp = nextUsers[i].concat( "#" ).concat( nextUserOrgCodes.get( i ) ).concat( "#" ).concat( nextUserPostIds.get( i ) );
+                    nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"," ));
+                    nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"," ));
+                    for ( int i = 0,count = nextUserItems.size();i < count;i++ ){
+                        String participantIdentityTmp = nextUserItems.get( i ).concat( "#" ).concat( nextUserOrgCodes.get( i ) ).concat( "#" ).concat( nextUserPostIds.get( i) );
                         Map<String,Object> map = Maps.newConcurrentMap();
-                        map.put( nextUsers[i],participantIdentityTmp );
+                        map.put( nextUserItems.get( i ),participantIdentityTmp );
                         participantIdentitys.add( map );
                     }
                     tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
-                }
-            } else {  //单任务，单人单任务，多人单任务
-                tasksCompleteMap.put( "outcome",outcomes[0] );
-                String participantIdentity = null;
-                if ( !StrUtil.isBlankIfStr( outcomes ) && nextUsers.length == 1 ){
-                    tasksCompleteMap.put( "inputUserId", nextUsers[0]);
+                }else{
+                    tasksCompleteMap.put( inputUserParams,nextUsers[0]);
+
                     participantIdentity = nextUsers[0].concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
                     tasksCompleteMap.put( "participantIdentity",participantIdentity );
                 }
-                /*多人会签，建议流程图中collection使用变量inputUserIds，迭代使用inputUserId和其他保持一直*/
-                if ( !StrUtil.isBlankIfStr( outcomes ) && nextUsers.length > 1 ){
-                    tasksCompleteMap.put( "inputUserIds", Arrays.asList(nextUsers));
-                    List<Map<String,Object>> participantIdentitys = Lists.newArrayList();
-                    nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"#" ));
-                    nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"#" ));
-                    for ( int i = 0,count = nextUsers.length;i < count;i++ ){
-                        String participantIdentityTmp = nextUsers[i].concat( "#" ).concat( nextUserOrgCodes.get( i ) ).concat( "#" ).concat( nextUserPostIds.get( i ) );
+            }
+            if ( !StrUtil.isBlankIfStr( nextUsers ) && nextUsers.length > 1 ){
+                String[] inputUserParams = StrUtil.split( MapUtil.getStr( param,"inputUserParams" ),"#" );
+                for(int i = 0,count = nextUsers.length;i < count;i++){
+                    List<String> nextUserItems = StrUtil.splitTrim( nextUsers[i],"," );
+                    /*if ( CollectionUtil.isNotEmpty( nextUserItems ) && nextUserItems.size() > 1 ){
+                        tasksCompleteMap.put( inputUserParams[i], nextUserItems);
+                    }else{
+                        tasksCompleteMap.put( inputUserParams[i], nextUsers[i]);
+                    }*/
+                    tasksCompleteMap.put( inputUserParams[i], nextUserItems);
+                }
+                List<Map<String,Object>> participantIdentitys = Lists.newArrayList();
+                nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"#" ));
+                nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"#" ));
+                for ( int i = 0,count = nextUsers.length;i < count;i++ ){
+                    List<String> nextUserItems = StrUtil.splitTrim( nextUsers[i],"," );
+                    String[] nextUserOrgCodeTmps = StrUtil.split(nextUserOrgCodes.get( i ),",");
+                    String[] nextUserPostIdTmps = StrUtil.split(nextUserPostIds.get( i ),",");
+                    for ( int k = 0,cnt = nextUserItems.size();k < cnt;k++ ){
+                        String participantIdentityTmp = nextUserItems.get( k ).concat( "#" ).concat( nextUserOrgCodeTmps[k] ).concat( "#" ).concat( nextUserPostIdTmps[k] );
                         Map<String,Object> map = Maps.newConcurrentMap();
-                        map.put( nextUsers[i],participantIdentityTmp );
+                        map.put( nextUserItems.get( k ),participantIdentityTmp );
                         participantIdentitys.add( map );
                     }
-                    tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
                 }
+                tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
             }
             tasksCompleteMap.put( "fromTaskId",taskId );
             callFlowableProcessApi.tasksComplete(taskId,tasksCompleteMap);

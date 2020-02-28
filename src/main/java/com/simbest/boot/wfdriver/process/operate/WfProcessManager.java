@@ -1,6 +1,7 @@
 package com.simbest.boot.wfdriver.process.operate;
 
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
 import com.simbest.boot.wf.process.service.IProcessInstanceService;
 import com.simbest.boot.wfdriver.api.CallFlowableProcessApi;
@@ -139,18 +140,20 @@ public class WfProcessManager implements IProcessInstanceService {
             if(taskQueryDataMap!=null){
                 Map<String,Object> firstTask = taskQueryDataMap.get(0);
                 String firstTaskId = MapUtil.getStr( firstTask,"id" );
-                /**
-                 * 添加起草环节评论
-                 */
-                Map<String,String> taskAddCommentMap = Maps.newHashMap();
-                taskAddCommentMap.put("currentUserCode",currentUserCode);
-                taskAddCommentMap.put("taskId", firstTaskId);
-                taskAddCommentMap.put("processInstanceId", (String) firstTask.get("processInstanceId"));
-                taskAddCommentMap.put("comment",message);
-                callFlowableProcessApi.tasksAddComment(taskAddCommentMap);
-                /**
-                 * 完成起草环节
-                 */
+                String processInstanceIdTmp = MapUtil.getStr( firstTask,"processInstanceId" );
+
+                //保存审批意见
+                if ( StrUtil.isNotEmpty( message ) ) {
+                    Map<String, String> taskAddCommentMap = Maps.newHashMap( );
+                    taskAddCommentMap.put( "currentUserCode", currentUserCode );
+                    taskAddCommentMap.put( "taskId", firstTaskId );
+                    taskAddCommentMap.put( "processInstanceId",  processInstanceId);
+                    taskAddCommentMap.put( "comment", message );
+                    callFlowableProcessApi.tasksAddComment( taskAddCommentMap );
+                    actCommentModelService.create( currentUserCode, message, processInstanceId, firstTaskId, businessKey );
+                }
+
+                //流转下一步
                 Map<String,Object> tasksCompleteMap = Maps.newHashMap();
                 tasksCompleteMap.put( "outcome",outcome );
                 tasksCompleteMap.put( "inputUserId",nextUser );
@@ -158,7 +161,6 @@ public class WfProcessManager implements IProcessInstanceService {
                 tasksCompleteMap.put( "participantIdentity",participantIdentity);
                 tasksCompleteMap.put( "fromTaskId", firstTaskId);
                 callFlowableProcessApi.tasksComplete(firstTaskId,tasksCompleteMap);
-                actCommentModelService.create(currentUserCode,message,(String) firstTask.get("processInstanceId"),firstTaskId,businessKey);
             }
            /* //保存流程业务数据
             actBusinessStatusService.saveActBusinessStatusData(processInstanceId,startParam);*/
