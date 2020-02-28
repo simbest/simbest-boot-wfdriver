@@ -71,7 +71,7 @@ public class WfProcessManager implements IProcessInstanceService {
     }
 
     /**
-     * 只启动流程，不进行流程第一个节点
+     * 只启动流程，不进行流转第一个节点
      * @param startParam            流程参数
      * @return
      */
