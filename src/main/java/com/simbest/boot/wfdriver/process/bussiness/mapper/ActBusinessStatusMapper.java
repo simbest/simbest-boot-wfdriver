@@ -183,7 +183,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join flowable_task_inst_model task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
-            "     AND task.end_Time is null" +
+            "     AND task.end_Time is not null" +
             "     AND act.enabled = 1" +
             "     AND task.assignee = :participant" +
             "   group by ubpd.id,ubpd.bo_process_def_name,ubpd.global_display_order" +
@@ -211,7 +211,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join flowable_task_inst_model task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
-            "     AND task.end_Time is null" +
+            "     AND task.end_Time is not null" +
             "     AND act.enabled = 1" +
             "     AND task.assignee = :participant" +
             " ORDER BY ubpd.global_display_order asc,task.created_Time desc";

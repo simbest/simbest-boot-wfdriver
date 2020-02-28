@@ -1,6 +1,7 @@
 package com.simbest.boot.wfdriver.process.operate;
 
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
 import com.simbest.boot.wf.process.service.IProcessInstanceService;
 import com.simbest.boot.wfdriver.api.CallFlowableProcessApi;
@@ -70,13 +71,59 @@ public class WfProcessManager implements IProcessInstanceService {
     }
 
     /**
-     * 启动流程并进行流程部署
+     * 只启动流程，不进行流转第一个节点
      * @param startParam            流程参数
      * @return
      */
     @Override
     public Map<String,Object> startProcessAndDeployProcessAndNoSetRelativeData ( Map<String, Object> startParam ) {
-        return null;
+        Map<String,Object> processInstanceDataMap = Maps.newConcurrentMap();
+        String startProcessFlag = MapUtil.getStr( startParam,"startProcessFlag" );
+        String currentUserCode = MapUtil.getStr( startParam, "currentUserCode" );
+        String orgCode = MapUtil.getStr(startParam, "orgCode" );
+        String postId = MapUtil.getStr(startParam, "postId" );
+        String message = MapUtil.getStr( startParam, "message" );
+        String idValue = MapUtil.getStr( startParam, "idValue" );  //流程的定义ID
+        String nextUser = MapUtil.getStr( startParam, "nextUser" );
+        String nextUserOrgCode = MapUtil.getStr( startParam, "nextUserOrgCode" );
+        String nextUserPostId =  MapUtil.getStr( startParam, "nextUserPostId" );
+        String outcome = MapUtil.getStr( startParam, "outcome");
+        String businessKey = MapUtil.getStr( startParam, "businessKey" );
+        String messageNameValue = MapUtil.getStr( startParam, "messageNameValue" );
+        creatorIdentity = currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId );
+        try {
+            String processInstanceId = null;
+            Map<String, String> variables = Maps.newConcurrentMap();
+            if ( !StringUtils.isEmpty( startProcessFlag ) ){
+                switch ( startProcessFlag ){
+                    case "KEY":
+                        variables.put( "inputUserId", currentUserCode);
+                        variables.put( "businessKey", businessKey);
+                        variables.put( "orgCode", orgCode);
+                        variables.put( "postId", postId);
+                        MapRemoveNullUtil.removeNullEntry(variables);
+                        processInstanceDataMap =  callFlowableProcessApi.instancesStartByKey(idValue,variables);
+                        break;
+                    case "MESSAGE":
+                        variables.put( "inputUserId", nextUser);
+                        variables.put( "businessKey", businessKey);
+                        MapRemoveNullUtil.removeNullEntry(variables);
+                        processInstanceDataMap = callFlowableProcessApi.instancesStartByMessage(messageNameValue,variables);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if(processInstanceDataMap!=null){
+                processInstanceId = MapUtil.getStr( processInstanceDataMap,"processInstanceId" );
+                //保存流程业务数据
+                actBusinessStatusService.saveActBusinessStatusData(processInstanceId,startParam);
+            }
+            return processInstanceDataMap;
+        }catch (Exception e){
+            FlowableDriverBusinessException.printException( e );
+            throw new WorkFlowBusinessRuntimeException("Exception Cause is submit workItem data failure,code:WF000001");
+        }
     }
 
     /**
@@ -139,18 +186,20 @@ public class WfProcessManager implements IProcessInstanceService {
             if(taskQueryDataMap!=null){
                 Map<String,Object> firstTask = taskQueryDataMap.get(0);
                 String firstTaskId = MapUtil.getStr( firstTask,"id" );
-                /**
-                 * 添加起草环节评论
-                 */
-                Map<String,String> taskAddCommentMap = Maps.newHashMap();
-                taskAddCommentMap.put("currentUserCode",currentUserCode);
-                taskAddCommentMap.put("taskId", firstTaskId);
-                taskAddCommentMap.put("processInstanceId", (String) firstTask.get("processInstanceId"));
-                taskAddCommentMap.put("comment",message);
-                callFlowableProcessApi.tasksAddComment(taskAddCommentMap);
-                /**
-                 * 完成起草环节
-                 */
+                String processInstanceIdTmp = MapUtil.getStr( firstTask,"processInstanceId" );
+
+                //保存审批意见
+                if ( StrUtil.isNotEmpty( message ) ) {
+                    Map<String, String> taskAddCommentMap = Maps.newHashMap( );
+                    taskAddCommentMap.put( "currentUserCode", currentUserCode );
+                    taskAddCommentMap.put( "taskId", firstTaskId );
+                    taskAddCommentMap.put( "processInstanceId",  processInstanceId);
+                    taskAddCommentMap.put( "comment", message );
+                    callFlowableProcessApi.tasksAddComment( taskAddCommentMap );
+                    actCommentModelService.create( currentUserCode, message, processInstanceId, firstTaskId, businessKey );
+                }
+
+                //流转下一步
                 Map<String,Object> tasksCompleteMap = Maps.newHashMap();
                 tasksCompleteMap.put( "outcome",outcome );
                 tasksCompleteMap.put( "inputUserId",nextUser );
@@ -158,7 +207,6 @@ public class WfProcessManager implements IProcessInstanceService {
                 tasksCompleteMap.put( "participantIdentity",participantIdentity);
                 tasksCompleteMap.put( "fromTaskId", firstTaskId);
                 callFlowableProcessApi.tasksComplete(firstTaskId,tasksCompleteMap);
-                actCommentModelService.create(currentUserCode,message,(String) firstTask.get("processInstanceId"),firstTaskId,businessKey);
             }
            /* //保存流程业务数据
             actBusinessStatusService.saveActBusinessStatusData(processInstanceId,startParam);*/
