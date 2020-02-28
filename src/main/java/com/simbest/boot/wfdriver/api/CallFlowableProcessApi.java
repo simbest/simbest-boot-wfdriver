@@ -67,7 +67,7 @@ public class CallFlowableProcessApi {
     }
 
     /**
-     * 根据流程定义ID启动流程实例
+     * 2.根据流程定义ID启动流程实例
      * @param processDefinitionId 流程定义ID
      * @param variables 相关参数
      * @return
@@ -115,7 +115,7 @@ public class CallFlowableProcessApi {
     }
 
     /**
-     * 根据消息启动流程实例
+     * 2.根据消息启动流程实例
      * @param message 消息
      * @param variables 相关参数
      * @return
@@ -238,5 +238,76 @@ public class CallFlowableProcessApi {
     public HttpResponse getDiagramByProcessInstanceIdOutPut(String processDefinitionId, String processInstanceId) {
         HttpResponse httpResponse = wqqueryHttpService.callInterfaceOutPut(ConstansURL.GET_DIAGRAM_BY_PROCESS_INSTANCEID,processDefinitionId,processInstanceId);
         return httpResponse;
+    }
+
+    /**
+     * 7.手动创建任务(单人)
+     * @param taskId 当前任务id
+     * @param processInstanceId 实例id
+     * @param targetNodeId 目标节点
+     * @param inputUserId 下一办理人
+     * @return
+     * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
+     */
+    public void freeFlow(String taskId,String processInstanceId,String targetNodeId,String inputUserId) {
+        Map<String,String> para = new HashMap<String,String>();
+        para.put("taskId",taskId);
+        para.put("processInstanceId",processInstanceId);
+        para.put("targetNodeId",targetNodeId);
+        para.put("inputUserId",inputUserId);
+        wqqueryHttpService.callInterfaceString(ConstansURL.FREE_FLOW,para);
+    }
+
+    /**
+     * 8.手动创建任务(多人)
+     * @param assignees 办理人
+     * @param taskName 办理环节名称
+     * @param taskDefinitionKey 办理环节key
+     * @param processInstanceId 流程实例ID
+     * @param processDefinitionId 流程定义ID
+     * @return
+     * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
+     */
+    public void createTaskEntityImpls(List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId) {
+        Map<String,Object> para = new HashMap<String,Object>();
+        para.put("assignees",assignees);
+        para.put("taskName",taskName);
+        para.put("taskDefinitionKey",taskDefinitionKey);
+        para.put("processInstanceId",processInstanceId);
+        para.put("processDefinitionId",processDefinitionId);
+        wqqueryHttpService.callInterfaceJson(ConstansURL.CREATE_TASK_ENTITYIMPLS,JacksonUtils.obj2json(para));
+    }
+
+    /**
+     * 8.手动创建任务(单人)
+     * @param assignee 办理人
+     * @param taskName 办理环节名称
+     * @param taskDefinitionKey 办理环节key
+     * @param processInstanceId 流程实例ID
+     * @param processDefinitionId 流程定义ID
+     * @return
+     * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
+     */
+    public void createTaskEntityImpl(String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId) {
+        Map<String,String> para = new HashMap<String,String>();
+        para.put("assignee",assignee);
+        para.put("taskName",taskName);
+        para.put("taskDefinitionKey",taskDefinitionKey);
+        para.put("processInstanceId",processInstanceId);
+        para.put("processDefinitionId",processDefinitionId);
+        wqqueryHttpService.callInterfaceString(ConstansURL.CREATE_TASK_ENTITYIMPL,para);
+    }
+
+    /**
+     * 9.完成当前节点，不再流程下一步
+     * 只指定多实例是可以这样完结
+     * success 成功
+     * fail 失败（单实例，请常规办理）
+     * @param taskId
+     */
+    public void finshTask(String taskId) {
+        Map<String,String> para = new HashMap<String,String>();
+        para.put("assignee",taskId);
+        wqqueryHttpService.callInterfaceString(ConstansURL.FINSH_TASK,para);
     }
 }
