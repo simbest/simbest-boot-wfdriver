@@ -194,7 +194,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
     @Override
     public List<ActTaskInstModel> queryTaskInstModelByProcessInstId ( String processInstId ) {
         try {
-            return actTaskInstModelMapper.queryTaskInstModelByProcessInstIdAndEnabledOrderByCreatedTimeAsc( processInstId,Boolean.TRUE );
+            return actTaskInstModelMapper.queryTaskInstModelByProcessInstIdAndEnabledOrderByEndTimeAsc( processInstId,Boolean.TRUE );
         }catch (Exception e){
             FlowableDriverBusinessException.printException( e );
         }
