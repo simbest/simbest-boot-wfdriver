@@ -227,11 +227,12 @@ public class WorkTaskManager implements IWorkItemService {
                     callFlowableProcessApi.createTaskEntityImpls( nextUserItems,nextActivityParamItems.get( 1 ),nextActivityParamItems.get( 0 ),processInstId,processDefinitionId,tasksCompleteMap );
                 }
             }
+            ret = 1;
         }catch (Exception e){
             FlowableDriverBusinessException.printException( e );
             throw new WorkFlowBusinessRuntimeException("Exception Cause is submit workItem data failure,code:WF000002");
         }
-        return 0;
+        return ret;
     }
 
     /**
