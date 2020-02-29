@@ -121,11 +121,6 @@ public class WorkTaskManager implements IWorkItemService {
                 String[] inputUserParams = StrUtil.split( MapUtil.getStr( param,"inputUserParams" ),"#" );
                 for(int i = 0,count = nextUsers.length;i < count;i++){
                     List<String> nextUserItems = StrUtil.splitTrim( nextUsers[i],"," );
-                    /*if ( CollectionUtil.isNotEmpty( nextUserItems ) && nextUserItems.size() > 1 ){
-                        tasksCompleteMap.put( inputUserParams[i], nextUserItems);
-                    }else{
-                        tasksCompleteMap.put( inputUserParams[i], nextUsers[i]);
-                    }*/
                     tasksCompleteMap.put( inputUserParams[i], nextUserItems);
                 }
                 List<Map<String,Object>> participantIdentitys = Lists.newArrayList();
@@ -153,6 +148,66 @@ public class WorkTaskManager implements IWorkItemService {
             throw new WorkFlowBusinessRuntimeException("Exception Cause is submit workItem data failure,code:WF000002");
         }
         return ret;
+    }
+
+    /**
+     * 功能描述:
+     *
+     * @param
+     * @return
+     * @date 2020/2/29 11:43
+     * @auther ljw
+     */
+    @Override
+    public int finshTaskWithComplete(Map<String,Object> nextParam){
+        int ret = 0;
+        String currentUserCode = MapUtil.getStr( nextParam,"currentUserCode" );
+        String taskId = MapUtil.getStr( nextParam, "taskId" );
+        String outcome = MapUtil.getStr( nextParam, "outcome" );
+        String message = MapUtil.getStr( nextParam, "message" );
+        String processInstId = MapUtil.getStr( nextParam, "processInstId" );
+        String nextUser = MapUtil.getStr( nextParam, "nextUser" );
+        String nextUserOrgCode = MapUtil.getStr( nextParam, "nextUserOrgCode" );
+        String nextUserPostId =  MapUtil.getStr( nextParam, "nextUserPostId" );
+        String nextActivityParam = MapUtil.getStr( nextParam,"nextActivityParam" );   //defid#oen/multi
+        try {
+            //保存流程审批意见
+            Map<String,String> taskAddCommentMap = Maps.newHashMap();
+            taskAddCommentMap.put("currentUserCode",currentUserCode);
+            taskAddCommentMap.put("taskId",  taskId);
+            taskAddCommentMap.put("processInstanceId", processInstId);
+            taskAddCommentMap.put("comment",message);
+            if ( StrUtil.isNotEmpty( message ) ){   //审批意见不为空时调用流程api接口
+                callFlowableProcessApi.tasksAddComment(taskAddCommentMap);
+                actCommentModelService.create(currentUserCode,message,processInstId,taskId,null);
+            }
+
+            Map<String,Object> tasksCompleteMap = Maps.newHashMap();
+            String[] nextUsers = StrUtil.split( nextUser,"#" );
+            List<String> nextActivityParams = StrUtil.splitTrim( nextActivityParam, '#' );
+            for ( int i = 0,cnt = nextActivityParams.size();i < cnt;i++ ){
+                List<String> nextActivityParamItems = StrUtil.splitTrim( nextActivityParams.get( i ), ',' );
+                if ( StrUtil.equals( nextActivityParamItems.get( 1 ),"one") ){     //单人单任务
+                    String inputUserParams = MapUtil.getStr( nextParam,"inputUserParams" );
+                    tasksCompleteMap.put( "outcome",outcome );
+                    tasksCompleteMap.put( inputUserParams,nextUsers[0]);
+                    String participantIdentity = nextUsers[0].concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
+                    tasksCompleteMap.put( "participantIdentity",participantIdentity );
+                    tasksCompleteMap.put( "fromTaskId",taskId );
+                    callFlowableProcessApi.tasksComplete(taskId,tasksCompleteMap);
+                }
+                if ( StrUtil.equals( nextActivityParamItems.get( 1 ),"multi") ){     //多人单任务
+                    //先完成当前task
+
+                    //再创建多实例的task
+
+                }
+            }
+        }catch (Exception e){
+            FlowableDriverBusinessException.printException( e );
+            throw new WorkFlowBusinessRuntimeException("Exception Cause is submit workItem data failure,code:WF000002");
+        }
+        return 0;
     }
 
     /**
