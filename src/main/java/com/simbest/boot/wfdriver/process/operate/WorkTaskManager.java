@@ -48,6 +48,8 @@ public class WorkTaskManager implements IWorkItemService {
     @Autowired
     private IActTaskInstModelService actTaskInstModelService;
 
+    public static String staticNextUserName = "";
+
     /**
      * 完成指定工作项并携带流程相关数据（提交下一步）
      * @param workItemId            工作项ID
@@ -167,10 +169,12 @@ public class WorkTaskManager implements IWorkItemService {
         String message = MapUtil.getStr( nextParam, "message" );
         String processInstId = MapUtil.getStr( nextParam, "processInstId" );
         String nextUser = MapUtil.getStr( nextParam, "nextUser" );
+        String nextUserName = MapUtil.getStr( nextParam, "nextUserName" );
         String nextUserOrgCode = MapUtil.getStr( nextParam, "nextUserOrgCode" );
         String nextUserPostId =  MapUtil.getStr( nextParam, "nextUserPostId" );
         String processDefinitionId = MapUtil.getStr( nextParam,"processDefinitionId" );
         String nextActivityParam = MapUtil.getStr( nextParam,"taskDefinitionKey" );   //每一个 defid,defname,oen/multi,
+        staticNextUserName = nextUserName;
         List<String> nextUserOrgCodes = null;
         List<String> nextUserPostIds = null;
         try {

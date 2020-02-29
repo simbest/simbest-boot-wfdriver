@@ -12,6 +12,7 @@ import com.simbest.boot.wfdriver.process.listener.model.ActTaskInstModel;
 import com.simbest.boot.wfdriver.process.listener.service.IActProcessInstModelService;
 import com.simbest.boot.wfdriver.process.listener.service.IActTaskInstModelService;
 import com.simbest.boot.wfdriver.process.operate.WfProcessManager;
+import com.simbest.boot.wfdriver.process.operate.WorkTaskManager;
 import com.simbest.boot.wfdriver.task.UserTaskSubmit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,18 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
             actTaskInstModel.setEnabled(true);
 	        if ( StrUtil.isEmpty( actTaskInstModel.getFromTaskId() ) ){
                 actTaskInstModel.setFromTaskId( "-1" );
+            }
+	        String staticNextUserName = WorkTaskManager.staticNextUserName;
+	        if ( StrUtil.isNotEmpty( staticNextUserName ) ){
+	            String[] staticNextUserNames = StrUtil.split( staticNextUserName,"#" );
+	            for ( int i = 0,cnt = staticNextUserNames.length;i > cnt;i++ ){
+                    String[] staticNextUserNameItems = StrUtil.split( staticNextUserNames[i],"," );
+                    for ( String nextTrueName:staticNextUserNameItems ){
+                        if ( StrUtil.equals( actTaskInstModel.getAssignee(),nextTrueName ) ){
+                            actTaskInstModel.setAssigneeName( nextTrueName );
+                        }
+                    }
+                }
             }
             actTaskInstModel.setCreator( actTaskInstModel.getAssignee() );
             actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
@@ -181,7 +194,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
     @Override
     public List<ActTaskInstModel> queryTaskInstModelByProcessInstId ( String processInstId ) {
         try {
-            return actTaskInstModelMapper.queryTaskInstModelByProcessInstIdAndEnabled( processInstId,Boolean.TRUE );
+            return actTaskInstModelMapper.queryTaskInstModelByProcessInstIdAndEnabledOrderByCreatedTimeAsc( processInstId,Boolean.TRUE );
         }catch (Exception e){
             FlowableDriverBusinessException.printException( e );
         }

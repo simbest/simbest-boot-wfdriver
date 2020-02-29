@@ -79,6 +79,10 @@ public class ActTaskInstModel extends LogicModel {
 
     private String assignee;
 
+    @Column (length = 100)
+    @ApiModelProperty (value = "完成人中文名称")
+    private String assigneeName;
+
     private String delegationState;
 
     private Integer priority;

@@ -94,5 +94,5 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
      * @param processInstId  流程实例ID
      * @return
      */
-    List<ActTaskInstModel> queryTaskInstModelByProcessInstIdAndEnabled(String processInstId,Boolean enabled);
+    List<ActTaskInstModel> queryTaskInstModelByProcessInstIdAndEnabledOrderByCreatedTimeAsc(String processInstId,Boolean enabled);
 }
