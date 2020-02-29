@@ -273,6 +273,7 @@ public class CallFlowableProcessApi {
         para.put("assignees",assignees);
         para.put("taskName",taskName);
         para.put("taskDefinitionKey",taskDefinitionKey);
+        para.put("processDefinitionId",processDefinitionId );
         para.put("processInstanceId",processInstanceId);
         para.put("variables",variables);
         wqqueryHttpService.callInterfaceJson(ConstansURL.CREATE_TASK_ENTITYIMPLS,JacksonUtils.obj2json(para));

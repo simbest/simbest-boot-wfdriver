@@ -170,7 +170,7 @@ public class WorkTaskManager implements IWorkItemService {
         String nextUserOrgCode = MapUtil.getStr( nextParam, "nextUserOrgCode" );
         String nextUserPostId =  MapUtil.getStr( nextParam, "nextUserPostId" );
         String processDefinitionId = MapUtil.getStr( nextParam,"processDefinitionId" );
-        String nextActivityParam = MapUtil.getStr( nextParam,"nextActivityParam" );   //每一个 defid,defname,oen/multi,
+        String nextActivityParam = MapUtil.getStr( nextParam,"taskDefinitionKey" );   //每一个 defid,defname,oen/multi,
         List<String> nextUserOrgCodes = null;
         List<String> nextUserPostIds = null;
         try {
@@ -190,22 +190,32 @@ public class WorkTaskManager implements IWorkItemService {
             Map<String,Object> tasksCompleteMap = Maps.newHashMap();
             List<Map<String,Object>> participantIdentitys = Lists.newArrayList();
             String[] nextUsers = StrUtil.split( nextUser,"#" );
-            List<String> nextActivityParams = StrUtil.splitTrim( nextActivityParam, '#' );
             String[] inputUserParams = StrUtil.split( MapUtil.getStr( nextParam,"inputUserParams" ),"#" );
+            List<String> nextActivityParams = StrUtil.splitTrim( nextActivityParam, '#' );
             Boolean taskFlag  = Boolean.TRUE;
             for ( int i = 0,cnt = nextActivityParams.size();i < cnt;i++ ){
-                List<String> nextActivityParamItems = StrUtil.splitTrim( nextActivityParams.get( i ), ',' );
+                List<String> nextActivityParamItems = StrUtil.split( nextActivityParams.get( i ), ',' );
+                if ( StrUtil.equals( nextActivityParamItems.get( 2 ),"end") ){     //结束环节
+                    tasksCompleteMap.clear();
+                    tasksCompleteMap.put( "outcome",outcome );
+                    tasksCompleteMap.put( "fromTaskId",taskId );
+                    tasksCompleteMap.put( "tenantId","anddoc" );
+                    tasksCompleteMap.put( "processDefinitionId",processDefinitionId );
+                    callFlowableProcessApi.tasksComplete(taskId,tasksCompleteMap);
+                }
                 if ( StrUtil.equals( nextActivityParamItems.get( 2 ),"one") ){     //单人单任务
-                    taskAddCommentMap.clear();
+                    tasksCompleteMap.clear();
                     tasksCompleteMap.put( "outcome",outcome );
                     tasksCompleteMap.put( inputUserParams[0],nextUsers[0]);
                     String participantIdentity = nextUsers[0].concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
                     tasksCompleteMap.put( "participantIdentity",participantIdentity );
                     tasksCompleteMap.put( "fromTaskId",taskId );
+                    tasksCompleteMap.put( "tenantId","anddoc" );
+                    tasksCompleteMap.put( "processDefinitionId",processDefinitionId );
                     callFlowableProcessApi.tasksComplete(taskId,tasksCompleteMap);
                 }
                 if ( StrUtil.equals( nextActivityParamItems.get( 2 ),"multi") ){     //多人单任务
-                    taskAddCommentMap.clear();
+                    tasksCompleteMap.clear();
                     if ( taskFlag ){
                         taskFlag = Boolean.FALSE;
                         //先完成当前task
@@ -213,6 +223,8 @@ public class WorkTaskManager implements IWorkItemService {
                     }
                     //再创建多实例的task
                     tasksCompleteMap.put( "fromTaskId",taskId );
+                    tasksCompleteMap.put( "tenantId","anddoc" );
+                    tasksCompleteMap.put( "processDefinitionId",processDefinitionId );
 
                     List<String> nextUserItems = StrUtil.splitTrim( nextUsers[i],"," );
                     String[] nextUserOrgCodeTmps = StrUtil.split(nextUserOrgCodes.get( i ),",");
@@ -390,4 +402,10 @@ public class WorkTaskManager implements IWorkItemService {
         return ret;
     }
 
+    public static void main ( String[] args ) {
+        List<String> nextActivityParams = StrUtil.splitTrim( ",,one", '#' );
+        //下面会把空 空串去掉
+        List<String> nextActivityParamItems = StrUtil.splitTrim( nextActivityParams.get( 0 ), ',' );
+        System.out.println( nextActivityParamItems.size() );
+    }
 }
