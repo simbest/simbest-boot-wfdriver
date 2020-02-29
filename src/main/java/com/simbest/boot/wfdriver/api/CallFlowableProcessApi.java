@@ -307,7 +307,7 @@ public class CallFlowableProcessApi {
      */
     public void finshTask(String taskId) {
         Map<String,String> para = new HashMap<String,String>();
-        para.put("assignee",taskId);
+        para.put("taskId",taskId);
         wqqueryHttpService.callInterfaceString(ConstansURL.FINSH_TASK,para);
     }
 }
