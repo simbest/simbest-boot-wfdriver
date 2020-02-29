@@ -268,13 +268,13 @@ public class CallFlowableProcessApi {
      * @return
      * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
      */
-    public void createTaskEntityImpls(List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId) {
+    public void createTaskEntityImpls(List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,Map<String,Object> variables) {
         Map<String,Object> para = new HashMap<String,Object>();
         para.put("assignees",assignees);
         para.put("taskName",taskName);
         para.put("taskDefinitionKey",taskDefinitionKey);
         para.put("processInstanceId",processInstanceId);
-        para.put("processDefinitionId",processDefinitionId);
+        para.put("variables",variables);
         wqqueryHttpService.callInterfaceJson(ConstansURL.CREATE_TASK_ENTITYIMPLS,JacksonUtils.obj2json(para));
     }
 
@@ -288,14 +288,15 @@ public class CallFlowableProcessApi {
      * @return
      * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
      */
-    public void createTaskEntityImpl(String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId) {
-        Map<String,String> para = new HashMap<String,String>();
+    public void createTaskEntityImpl(String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,Map<String,Object> variables) {
+        Map<String,Object> para = new HashMap<String,Object>();
         para.put("assignee",assignee);
         para.put("taskName",taskName);
         para.put("taskDefinitionKey",taskDefinitionKey);
         para.put("processInstanceId",processInstanceId);
         para.put("processDefinitionId",processDefinitionId);
-        wqqueryHttpService.callInterfaceString(ConstansURL.CREATE_TASK_ENTITYIMPL,para);
+        para.put("variables",variables);
+        wqqueryHttpService.callInterfaceJson(ConstansURL.CREATE_TASK_ENTITYIMPL,JacksonUtils.obj2json(para));
     }
 
     /**
