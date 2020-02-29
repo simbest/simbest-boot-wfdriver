@@ -151,7 +151,7 @@ public class WorkTaskManager implements IWorkItemService {
     }
 
     /**
-     * 功能描述:
+     * 功能描述:  根据环节配置的属性进行流转下一步
      *
      * @param
      * @return
@@ -169,8 +169,13 @@ public class WorkTaskManager implements IWorkItemService {
         String nextUser = MapUtil.getStr( nextParam, "nextUser" );
         String nextUserOrgCode = MapUtil.getStr( nextParam, "nextUserOrgCode" );
         String nextUserPostId =  MapUtil.getStr( nextParam, "nextUserPostId" );
-        String nextActivityParam = MapUtil.getStr( nextParam,"nextActivityParam" );   //defid#oen/multi
+        String processDefinitionId = MapUtil.getStr( nextParam,"processDefinitionId" );
+        String nextActivityParam = MapUtil.getStr( nextParam,"nextActivityParam" );   //每一个 defid,defname,oen/multi,
+        List<String> nextUserOrgCodes = null;
+        List<String> nextUserPostIds = null;
         try {
+            nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"#" ));
+            nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"#" ));
             //保存流程审批意见
             Map<String,String> taskAddCommentMap = Maps.newHashMap();
             taskAddCommentMap.put("currentUserCode",currentUserCode);
@@ -183,24 +188,43 @@ public class WorkTaskManager implements IWorkItemService {
             }
 
             Map<String,Object> tasksCompleteMap = Maps.newHashMap();
+            List<Map<String,Object>> participantIdentitys = Lists.newArrayList();
             String[] nextUsers = StrUtil.split( nextUser,"#" );
             List<String> nextActivityParams = StrUtil.splitTrim( nextActivityParam, '#' );
+            String[] inputUserParams = StrUtil.split( MapUtil.getStr( nextParam,"inputUserParams" ),"#" );
+            Boolean taskFlag  = Boolean.TRUE;
             for ( int i = 0,cnt = nextActivityParams.size();i < cnt;i++ ){
                 List<String> nextActivityParamItems = StrUtil.splitTrim( nextActivityParams.get( i ), ',' );
-                if ( StrUtil.equals( nextActivityParamItems.get( 1 ),"one") ){     //单人单任务
-                    String inputUserParams = MapUtil.getStr( nextParam,"inputUserParams" );
+                if ( StrUtil.equals( nextActivityParamItems.get( 2 ),"one") ){     //单人单任务
+                    taskAddCommentMap.clear();
                     tasksCompleteMap.put( "outcome",outcome );
-                    tasksCompleteMap.put( inputUserParams,nextUsers[0]);
+                    tasksCompleteMap.put( inputUserParams[0],nextUsers[0]);
                     String participantIdentity = nextUsers[0].concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
                     tasksCompleteMap.put( "participantIdentity",participantIdentity );
                     tasksCompleteMap.put( "fromTaskId",taskId );
                     callFlowableProcessApi.tasksComplete(taskId,tasksCompleteMap);
                 }
-                if ( StrUtil.equals( nextActivityParamItems.get( 1 ),"multi") ){     //多人单任务
-                    //先完成当前task
-
+                if ( StrUtil.equals( nextActivityParamItems.get( 2 ),"multi") ){     //多人单任务
+                    taskAddCommentMap.clear();
+                    if ( taskFlag ){
+                        taskFlag = Boolean.FALSE;
+                        //先完成当前task
+                        callFlowableProcessApi.finshTask( taskId );
+                    }
                     //再创建多实例的task
+                    tasksCompleteMap.put( "fromTaskId",taskId );
 
+                    List<String> nextUserItems = StrUtil.splitTrim( nextUsers[i],"," );
+                    String[] nextUserOrgCodeTmps = StrUtil.split(nextUserOrgCodes.get( i ),",");
+                    String[] nextUserPostIdTmps = StrUtil.split(nextUserPostIds.get( i ),",");
+                    for ( int k = 0,cnt1 = nextUserItems.size();k < cnt1;k++ ){
+                        String participantIdentityTmp = nextUserItems.get( k ).concat( "#" ).concat( nextUserOrgCodeTmps[k] ).concat( "#" ).concat( nextUserPostIdTmps[k] );
+                        Map<String,Object> map = Maps.newConcurrentMap();
+                        map.put( nextUserItems.get( k ),participantIdentityTmp );
+                        participantIdentitys.add( map );
+                    }
+                    tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
+                    callFlowableProcessApi.createTaskEntityImpls( nextUserItems,nextActivityParamItems.get( 1 ),nextActivityParamItems.get( 0 ),processInstId,processDefinitionId,tasksCompleteMap );
                 }
             }
         }catch (Exception e){
