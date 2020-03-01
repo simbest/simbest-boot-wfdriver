@@ -220,12 +220,7 @@ public class WorkTaskManager implements IWorkItemService {
                 }
                 if ( StrUtil.equals( nextActivityParamItems.get( 2 ),"multi") ){     //多人单任务
                     tasksCompleteMap.clear();
-                    if ( taskFlag ){
-                        taskFlag = Boolean.FALSE;
-                        //先完成当前task
-                        callFlowableProcessApi.finshTask( taskId );
-                    }
-                    //再创建多实例的task
+                    //先创建多实例的task
                     tasksCompleteMap.put( "fromTaskId",taskId );
                     tasksCompleteMap.put( "tenantId","anddoc" );
                     tasksCompleteMap.put( "processDefinitionId",processDefinitionId );
@@ -241,6 +236,12 @@ public class WorkTaskManager implements IWorkItemService {
                     }
                     tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
                     callFlowableProcessApi.createTaskEntityImpls( nextUserItems,nextActivityParamItems.get( 1 ),nextActivityParamItems.get( 0 ),processInstId,processDefinitionId,tasksCompleteMap );
+
+                    //再完成当前task
+                    if ( taskFlag ){
+                        taskFlag = Boolean.FALSE;
+                        callFlowableProcessApi.finshTask( taskId );
+                    }
                 }
             }
             ret = 1;
