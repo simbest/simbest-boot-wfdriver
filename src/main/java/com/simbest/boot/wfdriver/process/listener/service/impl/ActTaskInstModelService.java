@@ -86,7 +86,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
             }
             actTaskInstModel.setCreator( actTaskInstModel.getAssignee() );
             actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
-            //wrapCreateInfo( actTaskInstModel );
+
             actTaskInstModel = actTaskInstModelMapper.save(actTaskInstModel);
             //以下是推送统一待办
             //ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
@@ -103,11 +103,10 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
 	public int updateByTaskId(ActTaskInstModel actTaskInstModel) {
         int ret = 0;
         try {
-            actTaskInstModel.setEndTime( LocalDateTime.now());
+            actTaskInstModel.setEndTime(LocalDateTime.now());
             actTaskInstModel.setEnabled(true);
             actTaskInstModel.setModifier(actTaskInstModel.getAssignee() );
             actTaskInstModel.setModifiedTime(LocalDateTime.now());
-            //wrapUpdateInfo( actTaskInstModel );
             actTaskInstModelMapper.updateByTaskId(actTaskInstModel);
             //以下是推送统一待办
             //ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
