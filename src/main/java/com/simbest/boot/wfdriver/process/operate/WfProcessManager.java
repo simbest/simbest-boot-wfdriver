@@ -1,8 +1,10 @@
 package com.simbest.boot.wfdriver.process.operate;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
+import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.wf.process.service.IProcessInstanceService;
 import com.simbest.boot.wfdriver.api.CallFlowableProcessApi;
 import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
@@ -41,6 +43,8 @@ public class WfProcessManager implements IProcessInstanceService {
     private IActCommentModelService actCommentModelService;
 
     public static String creatorIdentity = "";
+
+    public static Map<String,Object> cacheStartMapParam = CollectionUtil.newHashMap();
 
     /**
      * 启动流程并设置相关数据
@@ -136,17 +140,24 @@ public class WfProcessManager implements IProcessInstanceService {
         Map<String,Object> processInstanceDataMap = Maps.newConcurrentMap();
         String startProcessFlag = MapUtil.getStr( startParam,"startProcessFlag" );
         String currentUserCode = MapUtil.getStr( startParam, "currentUserCode" );
+        String currentUserName = MapUtil.getStr( startParam, "currentUserName" );
         String orgCode = MapUtil.getStr(startParam, "orgCode" );
         String postId = MapUtil.getStr(startParam, "postId" );
         String message = MapUtil.getStr( startParam, "message" );
         String idValue = MapUtil.getStr( startParam, "idValue" );  //流程的定义ID
         String nextUser = MapUtil.getStr( startParam, "nextUser" );
+        String nextUserName = MapUtil.getStr( startParam, "nextUserName" );
         String nextUserOrgCode = MapUtil.getStr( startParam, "nextUserOrgCode" );
         String nextUserPostId =  MapUtil.getStr( startParam, "nextUserPostId" );
         String outcome = MapUtil.getStr( startParam, "outcome");
         String businessKey = MapUtil.getStr( startParam, "businessKey" );
         String messageNameValue = MapUtil.getStr( startParam, "messageNameValue" );
         creatorIdentity = currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId );
+        cacheStartMapParam.put( "staticNextUserName", nextUserName);
+        cacheStartMapParam.put( "staticNextUser",nextUser );
+        cacheStartMapParam.put( "currentUserName", currentUserName);
+        cacheStartMapParam.put( "currentUserCode",currentUserCode);
+        log.warn( "正常打印打印流程启动提交的候选中文名称：【{}】", JacksonUtils.obj2json( cacheStartMapParam ) );
         try {
             String processInstanceId = null;
             Map<String, String> variables = Maps.newConcurrentMap();

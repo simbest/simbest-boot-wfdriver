@@ -48,7 +48,7 @@ public class WorkTaskManager implements IWorkItemService {
     @Autowired
     private IActTaskInstModelService actTaskInstModelService;
 
-    public static String staticNextUserName = "";
+    public static Map<String,Object> cacheSubmitMapParam = CollectionUtil.newHashMap();
 
     /**
      * 完成指定工作项并携带流程相关数据（提交下一步）
@@ -176,7 +176,9 @@ public class WorkTaskManager implements IWorkItemService {
         String nextActivityParam = MapUtil.getStr( nextParam,"taskDefinitionKey" );   //每一个 defid,defname,oen/multi,
         Boolean isSign = MapUtil.getBool( nextParam,"isSign" );
         Boolean isFinallySign = MapUtil.getBool( nextParam,"isFinallySign" );
-        staticNextUserName = nextUserName;
+        cacheSubmitMapParam.put( "staticNextUserName",nextUserName );
+        cacheSubmitMapParam.put( "staticNextUser",nextUser );
+        log.warn( "正常打印打印流程下一步提交的候选中文名称：【{}】",JacksonUtils.obj2json( cacheSubmitMapParam ) );
         List<String> nextUserOrgCodes = null;
         List<String> nextUserPostIds = null;
         try {
