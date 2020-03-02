@@ -207,6 +207,9 @@ public class WorkTaskManager implements IWorkItemService {
                     tasksCompleteMap.put( "fromTaskId", taskId );
                     tasksCompleteMap.put( "tenantId", "anddoc" );
                     tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
+                    tasksCompleteMap.put( inputUserParams[ 0 ], nextUsers[ 0 ] );
+                    String participantIdentity = nextUsers[ 0 ].concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
+                    tasksCompleteMap.put( "participantIdentity", participantIdentity );
                     if ( isFinallySign ){
                         callFlowableProcessApi.tasksComplete( taskId, tasksCompleteMap );
                     }else{
@@ -389,7 +392,8 @@ public class WorkTaskManager implements IWorkItemService {
         try {
             String processInstId = MapUtil.getStr( queryParam,"processInstId" );
             String taskDefKey = MapUtil.getStr( queryParam,"value" );
-            List<ActTaskInstModel> actTaskInstModels = actTaskInstModelService.getByProcessInstIdAndTaskDefinitionKey( processInstId,taskDefKey );
+            String orgCode = MapUtil.getStr( queryParam,"orgCode" );
+            List<ActTaskInstModel> actTaskInstModels = actTaskInstModelService.getByProcessInstIdAndTaskDefinitionKey( processInstId,taskDefKey,orgCode );
             return actTaskInstModels;
         }catch (Exception e){
             FlowableDriverBusinessException.printException( e );

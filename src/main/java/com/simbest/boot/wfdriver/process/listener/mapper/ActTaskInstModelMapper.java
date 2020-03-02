@@ -74,9 +74,9 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
     /**
      * 根据流程实例ID，流程活动定义ID，查询流程工作项信息
      */
-    String selectSql2 = "SELECT * FROM flowable_task_inst_model WHERE enabled = 1 AND PROCESS_INST_ID =  ?1 AND TASK_DEFINITION_KEY = ?2 order by task_create_time desc";
+    String selectSql2 = "SELECT * FROM flowable_task_inst_model WHERE enabled = 1 AND PROCESS_INST_ID =  ?1 AND TASK_DEFINITION_KEY = ?2 and instr(t.participant_identity, ?3) > 0 order by task_create_time desc";
     @Query(value = selectSql2,nativeQuery = true)
-    List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey(String processInstId, String taskDefinitionKey);
+    List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey(String processInstId, String taskDefinitionKey,String orgCode);
 
     /**processInstId
      * 根据流程实例ID 删除工作项信息
@@ -104,5 +104,5 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
      * @date 2020/3/2 2:40
      * @auther ljw
      */
-    List<ActTaskInstModel> queryByProcessInstIdAndTaskDefinitionKeyAndAssigneeAndeAndEnabled(String processInstId,String taskDefKey,String assignee,Boolean enabled);
+    List<ActTaskInstModel> queryByProcessInstIdAndTaskDefinitionKeyAndAssigneeAndEnabled(String processInstId,String taskDefKey,String assignee,Boolean enabled);
 }

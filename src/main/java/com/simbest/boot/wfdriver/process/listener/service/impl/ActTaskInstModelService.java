@@ -175,9 +175,9 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
      * @return
      */
     @Override
-    public List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey ( String processInstId, String taskDefinitionKey ) {
+    public List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey ( String processInstId, String taskDefinitionKey,String orgCode ) {
         try {
-            List<ActTaskInstModel> actTaskInstModels = actTaskInstModelMapper.getByProcessInstIdAndTaskDefinitionKey( processInstId,taskDefinitionKey );
+            List<ActTaskInstModel> actTaskInstModels = actTaskInstModelMapper.getByProcessInstIdAndTaskDefinitionKey( processInstId,taskDefinitionKey,orgCode );
             return actTaskInstModels;
         }catch (Exception e){
             FlowableDriverBusinessException.printException( e );
