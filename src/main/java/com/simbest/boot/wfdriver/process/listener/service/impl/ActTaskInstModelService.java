@@ -8,6 +8,8 @@ import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.base.service.impl.LogicService;
 import com.simbest.boot.util.DateUtil;
 import com.simbest.boot.util.json.JacksonUtils;
+import com.simbest.boot.util.redis.RedisUtil;
+import com.simbest.boot.wfdriver.constants.ProcessConstants;
 import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
 import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
 import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
@@ -69,19 +71,19 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
 	public int created(ActTaskInstModel actTaskInstModel) {
 	    int ret = 0;
 	    try {
+            ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
+            Map<String,Object> cacheStartMapParam = RedisUtil.getBean( actTaskInstModel.getBusinessKey().concat(ProcessConstants.PROCESS_START_REDIS_SUFFIX),Map.class);
+            log.warn( "回调后打印流程启动提交的候选中文名称：【{}】", JacksonUtils.obj2json( cacheStartMapParam ) );
 	        String participantIdentity = actTaskInstModel.getParticipantIdentity();
 	        if ( StrUtil.isEmpty( participantIdentity ) ){
-	            actTaskInstModel.setParticipantIdentity( WfProcessManager.creatorIdentity );
+	            actTaskInstModel.setParticipantIdentity( MapUtil.getStr( cacheStartMapParam,"creatorIdentity" ) );
             }
             actTaskInstModel.setEnabled(true);
 	        if ( StrUtil.isEmpty( actTaskInstModel.getFromTaskId() ) ){
                 actTaskInstModel.setFromTaskId( "-1" );
             }
-            Map<String,Object> cacheStartMapParam = WfProcessManager.cacheStartMapParam;
-	        Map<String,Object> cacheSubmitMapParam = WorkTaskManager.cacheSubmitMapParam;
-	        log.warn( "回调后打印流程启动提交的候选中文名称：【{}】", JacksonUtils.obj2json( cacheStartMapParam ) );
-	        log.warn( "回调后打印流程下一步提交的候选中文名称：【{}】", JacksonUtils.obj2json( cacheSubmitMapParam ) );
-	        if ( CollectionUtil.isNotEmpty( cacheStartMapParam ) ){
+
+	        if ( CollectionUtil.isNotEmpty( cacheStartMapParam ) && StrUtil.equals( actTaskInstModel.getFromTaskId(),"-1" )){
 	            String[] staticNextUsers = StrUtil.split( MapUtil.getStr( cacheStartMapParam,"staticNextUser" ),"#" );
                 String[] staticNextUserNames = StrUtil.split( MapUtil.getStr( cacheStartMapParam,"staticNextUserName" ),"#" );
 	            for ( int i = 0,cnt = staticNextUsers.length;i < cnt;i++ ){
@@ -97,6 +99,8 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
                     }
                 }
             }
+            Map<String,Object> cacheSubmitMapParam = RedisUtil.getBean( actTaskInstModel.getProcessInstId().concat(ProcessConstants.PROCESS_SUBMIT_REDIS_SUFFIX),Map.class);
+            log.warn( "回调后打印流程下一步提交的候选中文名称：【{}】", JacksonUtils.obj2json( cacheSubmitMapParam ) );
             if ( CollectionUtil.isNotEmpty( cacheSubmitMapParam ) ){
                 String[] staticNextUsers = StrUtil.split( MapUtil.getStr( cacheSubmitMapParam,"staticNextUser" ),"#" );
                 String[] staticNextUserName = StrUtil.split( MapUtil.getStr( cacheSubmitMapParam,"staticNextUserName" ),"#" );
@@ -115,7 +119,6 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
             actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
             actTaskInstModel = actTaskInstModelMapper.save(actTaskInstModel);
             //以下是推送统一待办
-            //ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
             //userTaskSubmit.submitTodoOpen( actBusinessStatus,actTaskInstModel, actTaskInstModel.getAssignee());
             ret = 1;
         }catch (Exception e){

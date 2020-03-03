@@ -61,4 +61,7 @@ public final class ProcessConstants {
     public final static String EXCLUSIVE_GATEWAY = "exclusiveGatewayAndTimerBoundaryEventProcess";
 
     public final static String PROCESS_FILE_PATH = "processes/";
+
+    public final static String PROCESS_START_REDIS_SUFFIX = "_START";
+    public final static String PROCESS_SUBMIT_REDIS_SUFFIX = "_SUBMIT";
 }

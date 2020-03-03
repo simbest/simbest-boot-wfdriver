@@ -7,8 +7,10 @@ import cn.hutool.core.util.StrUtil;
 import com.github.wenhao.jpa.Specifications;
 import com.google.common.collect.Maps;
 import com.simbest.boot.util.json.JacksonUtils;
+import com.simbest.boot.util.redis.RedisUtil;
 import com.simbest.boot.wf.process.service.IWorkItemService;
 import com.simbest.boot.wfdriver.api.CallFlowableProcessApi;
+import com.simbest.boot.wfdriver.constants.ProcessConstants;
 import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
 import com.simbest.boot.wfdriver.exceptions.WorkFlowBusinessRuntimeException;
 import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
@@ -47,8 +49,6 @@ public class WorkTaskManager implements IWorkItemService {
 
     @Autowired
     private IActTaskInstModelService actTaskInstModelService;
-
-    public static Map<String,Object> cacheSubmitMapParam = CollectionUtil.newHashMap();
 
     /**
      * 完成指定工作项并携带流程相关数据（提交下一步）
@@ -163,6 +163,7 @@ public class WorkTaskManager implements IWorkItemService {
     @Override
     public int finshTaskWithComplete(Map<String,Object> nextParam){
         int ret = 0;
+        Map<String,Object> cacheSubmitMapParam = CollectionUtil.newHashMap();
         String currentUserCode = MapUtil.getStr( nextParam,"currentUserCode" );
         String taskId = MapUtil.getStr( nextParam, "taskId" );
         String outcome = MapUtil.getStr( nextParam, "outcome" );
@@ -178,6 +179,7 @@ public class WorkTaskManager implements IWorkItemService {
         Boolean isFinallySign = MapUtil.getBool( nextParam,"isFinallySign" );
         cacheSubmitMapParam.put( "staticNextUserName",nextUserName );
         cacheSubmitMapParam.put( "staticNextUser",nextUser );
+        RedisUtil.setBean( processInstId.concat( ProcessConstants.PROCESS_SUBMIT_REDIS_SUFFIX ),cacheSubmitMapParam );
         log.warn( "正常打印打印流程下一步提交的候选中文名称：【{}】",JacksonUtils.obj2json( cacheSubmitMapParam ) );
         List<String> nextUserOrgCodes = null;
         List<String> nextUserPostIds = null;

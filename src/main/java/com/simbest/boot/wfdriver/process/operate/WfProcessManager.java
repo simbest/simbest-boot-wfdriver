@@ -5,8 +5,10 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
 import com.simbest.boot.util.json.JacksonUtils;
+import com.simbest.boot.util.redis.RedisUtil;
 import com.simbest.boot.wf.process.service.IProcessInstanceService;
 import com.simbest.boot.wfdriver.api.CallFlowableProcessApi;
+import com.simbest.boot.wfdriver.constants.ProcessConstants;
 import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
 import com.simbest.boot.wfdriver.exceptions.WorkFlowBusinessRuntimeException;
 import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
@@ -41,10 +43,6 @@ public class WfProcessManager implements IProcessInstanceService {
 
     @Autowired
     private IActCommentModelService actCommentModelService;
-
-    public static String creatorIdentity = "";
-
-    public static Map<String,Object> cacheStartMapParam = CollectionUtil.newHashMap();
 
     /**
      * 启动流程并设置相关数据
@@ -81,6 +79,7 @@ public class WfProcessManager implements IProcessInstanceService {
      */
     @Override
     public Map<String,Object> startProcessAndDeployProcessAndNoSetRelativeData ( Map<String, Object> startParam ) {
+        Map<String,Object> cacheStartMapParam = CollectionUtil.newHashMap();
         Map<String,Object> processInstanceDataMap = Maps.newConcurrentMap();
         String startProcessFlag = MapUtil.getStr( startParam,"startProcessFlag" );
         String currentUserCode = MapUtil.getStr( startParam, "currentUserCode" );
@@ -94,7 +93,8 @@ public class WfProcessManager implements IProcessInstanceService {
         String outcome = MapUtil.getStr( startParam, "outcome");
         String businessKey = MapUtil.getStr( startParam, "businessKey" );
         String messageNameValue = MapUtil.getStr( startParam, "messageNameValue" );
-        creatorIdentity = currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId );
+        cacheStartMapParam.put( "creatorIdentity",currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ));
+        log.warn( "正常打印打印流程启动提交的候选中文名称：【{}】", JacksonUtils.obj2json( cacheStartMapParam ) );
         try {
             String processInstanceId = null;
             Map<String, String> variables = Maps.newConcurrentMap();
@@ -137,7 +137,8 @@ public class WfProcessManager implements IProcessInstanceService {
      */
     @Override
     public Map<String, Object> startProcessAndDeployProcessAndSetRelativeData ( Map<String, Object> startParam ) {
-        Map<String,Object> processInstanceDataMap = Maps.newConcurrentMap();
+        Map<String,Object> cacheStartMapParam = CollectionUtil.newHashMap();
+        Map<String,Object> processInstanceDataMap = CollectionUtil.newHashMap();
         String startProcessFlag = MapUtil.getStr( startParam,"startProcessFlag" );
         String currentUserCode = MapUtil.getStr( startParam, "currentUserCode" );
         String currentUserName = MapUtil.getStr( startParam, "currentUserName" );
@@ -150,14 +151,17 @@ public class WfProcessManager implements IProcessInstanceService {
         String nextUserOrgCode = MapUtil.getStr( startParam, "nextUserOrgCode" );
         String nextUserPostId =  MapUtil.getStr( startParam, "nextUserPostId" );
         String outcome = MapUtil.getStr( startParam, "outcome");
-        String businessKey = MapUtil.getStr( startParam, "businessKey" );
+        String businessKey = MapUtil.getStr( startParam, "receiptCode" );
         String messageNameValue = MapUtil.getStr( startParam, "messageNameValue" );
-        creatorIdentity = currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId );
-        cacheStartMapParam.put( "staticNextUserName", nextUserName);
+        cacheStartMapParam.put( "staticNextUserName",nextUserName );
         cacheStartMapParam.put( "staticNextUser",nextUser );
         cacheStartMapParam.put( "currentUserName", currentUserName);
         cacheStartMapParam.put( "currentUserCode",currentUserCode);
+        cacheStartMapParam.put( "creatorIdentity",currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ));
         log.warn( "正常打印打印流程启动提交的候选中文名称：【{}】", JacksonUtils.obj2json( cacheStartMapParam ) );
+        RedisUtil.setBean( businessKey.concat( ProcessConstants.PROCESS_START_REDIS_SUFFIX ),cacheStartMapParam );
+        Map<String,Object> cacheStartMapParamRedis = RedisUtil.getBean( businessKey.concat(ProcessConstants.PROCESS_START_REDIS_SUFFIX),Map.class);
+        log.warn( "获取redis中流程启动参数：【{}】",JacksonUtils.obj2json( cacheStartMapParamRedis ) );
         try {
             String processInstanceId = null;
             Map<String, String> variables = Maps.newConcurrentMap();
@@ -183,9 +187,9 @@ public class WfProcessManager implements IProcessInstanceService {
             }
             if(processInstanceDataMap!=null){
                 processInstanceId = MapUtil.getStr( processInstanceDataMap,"processInstanceId" );
-
                 //保存流程业务数据
                 actBusinessStatusService.saveActBusinessStatusData(processInstanceId,startParam);
+
             }
             /**
              * 查询起草环节
@@ -217,6 +221,10 @@ public class WfProcessManager implements IProcessInstanceService {
                 String participantIdentity = nextUser.concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
                 tasksCompleteMap.put( "participantIdentity",participantIdentity);
                 tasksCompleteMap.put( "fromTaskId", firstTaskId);
+                Map<String,Object> cacheSubmitMapParam = CollectionUtil.newHashMap();
+                cacheSubmitMapParam.put( "staticNextUserName",nextUserName );
+                cacheSubmitMapParam.put( "staticNextUser",nextUser );
+                RedisUtil.setBean( processInstanceId.concat( ProcessConstants.PROCESS_SUBMIT_REDIS_SUFFIX ),cacheSubmitMapParam );
                 callFlowableProcessApi.tasksComplete(firstTaskId,tasksCompleteMap);
             }
            /* //保存流程业务数据

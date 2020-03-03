@@ -52,7 +52,11 @@ public class ActProcessInstModel extends LogicModel {
     private String name;
     private String description;
     private String tenantId;
-    //private String businessKey;
+
+    @Column(length = 40)
+    @ApiModelProperty (value = "主单据ID，pmInstId")
+    private String businessKey;
+
     private String callbackId;
     private String callbackType;
 
