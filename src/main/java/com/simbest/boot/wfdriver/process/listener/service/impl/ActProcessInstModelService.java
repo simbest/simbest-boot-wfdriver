@@ -84,8 +84,8 @@ public class ActProcessInstModelService extends LogicService<ActProcessInstModel
             actProcessInstModel.setModifiedTime( LocalDateTime.now());
             actProcessInstModel.setCurrentState( ProcessSateEnum.END.getNum() );
             //更新流程业务数据表中的流程状态
-            actBusinessStatusService.updatePorcessStateByProInstId(actProcessInstModel.getProcessInstanceId());
             actProcessInstModelMapper.updateByProcessInstanceId(actProcessInstModel);
+            actBusinessStatusService.updatePorcessStateByProInstId(actProcessInstModel.getProcessInstanceId());
             //删除reids中生成的流程相关数据
             RedisUtil.delete( actProcessInstModel.getProcessInstanceId().concat( ProcessConstants.PROCESS_START_REDIS_SUFFIX ) );
             RedisUtil.delete( actProcessInstModel.getBusinessKey().concat( ProcessConstants.PROCESS_START_REDIS_SUFFIX ) );

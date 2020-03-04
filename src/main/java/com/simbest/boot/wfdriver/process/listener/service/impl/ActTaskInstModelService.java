@@ -205,8 +205,13 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
      */
     @Override
     public List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey ( String processInstId, String taskDefinitionKey,String orgCode ) {
+        List<ActTaskInstModel> actTaskInstModels = CollectionUtil.newArrayList();
         try {
-            List<ActTaskInstModel> actTaskInstModels = actTaskInstModelMapper.getByProcessInstIdAndTaskDefinitionKey( processInstId,taskDefinitionKey,orgCode );
+            if ( StrUtil.isEmpty( orgCode ) ){
+                actTaskInstModels = actTaskInstModelMapper.getByProcessInstIdAndTaskDefinitionKey( processInstId,taskDefinitionKey );
+            }else{
+                actTaskInstModels = actTaskInstModelMapper.getByProcessInstIdAndTaskDefinitionKey( processInstId,taskDefinitionKey,orgCode );
+            }
             return actTaskInstModels;
         }catch (Exception e){
             FlowableDriverBusinessException.printException( e );

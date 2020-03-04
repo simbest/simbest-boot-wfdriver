@@ -78,6 +78,13 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
     @Query(value = selectSql2,nativeQuery = true)
     List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey(String processInstId, String taskDefinitionKey,String orgCode);
 
+    /**
+     * 根据流程实例ID，流程活动定义ID，查询流程工作项信息
+     */
+    String selectSql3 = "SELECT * FROM flowable_task_inst_model WHERE enabled = 1 AND PROCESS_INST_ID =  ?1 AND TASK_DEFINITION_KEY = ?2  order by task_create_time desc";
+    @Query(value = selectSql3,nativeQuery = true)
+    List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey(String processInstId, String taskDefinitionKey);
+
     /**processInstId
      * 根据流程实例ID 删除工作项信息
      * @param processInstId    流程实例ID
