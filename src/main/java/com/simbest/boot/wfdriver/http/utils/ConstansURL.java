@@ -11,6 +11,8 @@ public class ConstansURL {
     public static final String CREATE_TASK_ENTITYIMPLS = "/app/provide/tasks/anonymous/createTaskEntityImpls";	//	手动创建任务（多人）
     public static final String CREATE_TASK_ENTITYIMPL = "/app/provide/tasks/anonymous/createTaskEntityImpl";	//	手动创建任务（单人）
     public static final String FINSH_TASK = "/app/provide/tasks/anonymous/finshTask";	//	完成当前节点，不再流程下一步
+    public static final String ADD_MULTI_INSTANCE_EXECUTION = "/app/provide/tasks/anonymous/addMultiInstanceExecution";	//多实例加签
+    public static final String DELETE_MULTI_INSTANCE_EXECUTION = "/app/provide/tasks/anonymous/deleteMultiInstanceExecution";	//	多实例减签
     public static final String GET_DIAGRAM_BY_PROCESS_INSTANCEID = "/app/provide/definitions/anonymous/getDiagramhttp";	//获取流程图
 
 }

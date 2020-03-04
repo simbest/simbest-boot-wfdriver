@@ -312,4 +312,29 @@ public class CallFlowableProcessApi {
         para.put("taskId",taskId);
         wqqueryHttpService.callInterfaceString(ConstansURL.FINSH_TASK,para);
     }
+
+    /**
+     * 10.多实例加签
+     * @param activityId 活动节点ID
+     * @param processInstanceId 父实例ID
+     * @param vars 变量
+     */
+    public void addMultiInstanceExecution(String activityId,String processInstanceId,Map<String,Object> vars) {
+        String stringJson = JacksonUtils.obj2json(vars);
+        Map<String,String> para = new HashMap<String,String>();
+        para.put("activityId",activityId);
+        para.put("processInstanceId",processInstanceId);
+        para.put("stringJson",stringJson);
+        wqqueryHttpService.callInterfaceString(ConstansURL.ADD_MULTI_INSTANCE_EXECUTION,para);
+    }
+
+    /**
+     * 11.多实例减签
+     * @param taskId 任务ID
+     */
+    public void deleteMultiInstanceExecution(String taskId) {
+        Map<String,String> para = new HashMap<String,String>();
+        para.put("taskId",taskId);
+        wqqueryHttpService.callInterfaceString(ConstansURL.DELETE_MULTI_INSTANCE_EXECUTION,para);
+    }
 }
