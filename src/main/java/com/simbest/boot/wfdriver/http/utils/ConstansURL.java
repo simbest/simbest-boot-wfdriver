@@ -14,5 +14,6 @@ public class ConstansURL {
     public static final String ADD_MULTI_INSTANCE_EXECUTION = "/app/provide/tasks/anonymous/addMultiInstanceExecution";	//多实例加签
     public static final String DELETE_MULTI_INSTANCE_EXECUTION = "/app/provide/tasks/anonymous/deleteMultiInstanceExecution";	//	多实例减签
     public static final String GET_DIAGRAM_BY_PROCESS_INSTANCEID = "/app/provide/definitions/anonymous/getDiagramhttp";	//获取流程图
+    public static final String DELETE_PROCESS_INSTANCE = "/app/provide/instances/anonymous/deleteProcessInstance";	//	删除流程实例
 
 }

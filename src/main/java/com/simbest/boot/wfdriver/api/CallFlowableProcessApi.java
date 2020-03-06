@@ -337,4 +337,14 @@ public class CallFlowableProcessApi {
         para.put("taskId",taskId);
         wqqueryHttpService.callInterfaceString(ConstansURL.DELETE_MULTI_INSTANCE_EXECUTION,para);
     }
+
+    /**
+     * 12.删除流程实例（已经结束的也可以删除）
+     * @param processInstanceId 实例ID
+     */
+    public void deleteProcessInstance(String processInstanceId) {
+        Map<String,String> para = new HashMap<String,String>();
+        para.put("processInstanceId",processInstanceId);
+        wqqueryHttpService.callInterfaceString(ConstansURL.DELETE_PROCESS_INSTANCE,para);
+    }
 }
