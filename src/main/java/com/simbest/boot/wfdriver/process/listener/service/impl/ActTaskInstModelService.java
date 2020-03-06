@@ -1,9 +1,15 @@
 package com.simbest.boot.wfdriver.process.listener.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Dict;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.base.service.impl.LogicService;
 import com.simbest.boot.util.DateUtil;
+import com.simbest.boot.util.json.JacksonUtils;
+import com.simbest.boot.util.redis.RedisUtil;
+import com.simbest.boot.wfdriver.constants.ProcessConstants;
 import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
 import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
 import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
@@ -23,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -64,32 +71,54 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
 	public int created(ActTaskInstModel actTaskInstModel) {
 	    int ret = 0;
 	    try {
+            ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
+            Map<String,Object> cacheStartMapParam = RedisUtil.getBean( actTaskInstModel.getBusinessKey().concat(ProcessConstants.PROCESS_START_REDIS_SUFFIX),Map.class);
+            log.warn( "回调后打印流程启动提交的候选中文名称：【{}】", JacksonUtils.obj2json( cacheStartMapParam ) );
 	        String participantIdentity = actTaskInstModel.getParticipantIdentity();
 	        if ( StrUtil.isEmpty( participantIdentity ) ){
-	            actTaskInstModel.setParticipantIdentity( WfProcessManager.creatorIdentity );
+	            actTaskInstModel.setParticipantIdentity( MapUtil.getStr( cacheStartMapParam,"creatorIdentity" ) );
             }
             actTaskInstModel.setEnabled(true);
 	        if ( StrUtil.isEmpty( actTaskInstModel.getFromTaskId() ) ){
                 actTaskInstModel.setFromTaskId( "-1" );
             }
-	        String staticNextUserName = WorkTaskManager.staticNextUserName;
-	        if ( StrUtil.isNotEmpty( staticNextUserName ) ){
-	            String[] staticNextUserNames = StrUtil.split( staticNextUserName,"#" );
-	            for ( int i = 0,cnt = staticNextUserNames.length;i > cnt;i++ ){
+
+	        if ( CollectionUtil.isNotEmpty( cacheStartMapParam ) && StrUtil.equals( actTaskInstModel.getFromTaskId(),"-1" )){
+	            String[] staticNextUsers = StrUtil.split( MapUtil.getStr( cacheStartMapParam,"staticNextUser" ),"#" );
+                String[] staticNextUserNames = StrUtil.split( MapUtil.getStr( cacheStartMapParam,"staticNextUserName" ),"#" );
+	            for ( int i = 0,cnt = staticNextUsers.length;i < cnt;i++ ){
+                    String[] staticNextUserItems = StrUtil.split( staticNextUsers[i],"," );
                     String[] staticNextUserNameItems = StrUtil.split( staticNextUserNames[i],"," );
-                    for ( String nextTrueName:staticNextUserNameItems ){
-                        if ( StrUtil.equals( actTaskInstModel.getAssignee(),nextTrueName ) ){
-                            actTaskInstModel.setAssigneeName( nextTrueName );
+                    for ( int k = 0,num = staticNextUserItems.length;k < num;k++ ){
+                        log.warn( "启动流程回调循环输出候选人中文名称Assignee：【{}】>>>>staticNextUserItems：【{}】>>>>>【{}】",actTaskInstModel.getAssignee(),staticNextUserItems[k],StrUtil.equals( actTaskInstModel.getAssignee(),staticNextUserItems[k] ) );
+                        if ( StrUtil.equals( actTaskInstModel.getAssignee(),staticNextUserItems[k] ) ){
+                            actTaskInstModel.setAssigneeName( staticNextUserNameItems[k] );
+                        }else{
+                            actTaskInstModel.setAssigneeName( MapUtil.getStr( cacheStartMapParam,"currentUserName" ) );
+                        }
+                    }
+                }
+            }
+            Map<String,Object> cacheSubmitMapParam = RedisUtil.getBean( actTaskInstModel.getProcessInstId().concat(ProcessConstants.PROCESS_SUBMIT_REDIS_SUFFIX),Map.class);
+            log.warn( "回调后打印流程下一步提交的候选中文名称：【{}】", JacksonUtils.obj2json( cacheSubmitMapParam ) );
+            if ( CollectionUtil.isNotEmpty( cacheSubmitMapParam ) ){
+                String[] staticNextUsers = StrUtil.split( MapUtil.getStr( cacheSubmitMapParam,"staticNextUser" ),"#" );
+                String[] staticNextUserName = StrUtil.split( MapUtil.getStr( cacheSubmitMapParam,"staticNextUserName" ),"#" );
+                for ( int i = 0,cnt = staticNextUsers.length;i < cnt;i++ ){
+                    String[] staticNextUserItems = StrUtil.split( staticNextUsers[i],"," );
+                    String[] staticNextUserNameItems = StrUtil.split( staticNextUserName[i],"," );
+                    for ( int k = 0,num = staticNextUserItems.length;k < num;k++ ){
+                        log.warn( "流程下一步回调循环输出候选人中文名称Assignee：【{}】>>>>staticNextUserItems：【{}】>>>>>【{}】",actTaskInstModel.getAssignee(),staticNextUserItems[k],StrUtil.equals( actTaskInstModel.getAssignee(),staticNextUserItems[k] ) );
+                        if ( StrUtil.equals( actTaskInstModel.getAssignee(),staticNextUserItems[k] ) ){
+                            actTaskInstModel.setAssigneeName( staticNextUserNameItems[k] );
                         }
                     }
                 }
             }
             actTaskInstModel.setCreator( actTaskInstModel.getAssignee() );
             actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
-            //wrapCreateInfo( actTaskInstModel );
             actTaskInstModel = actTaskInstModelMapper.save(actTaskInstModel);
             //以下是推送统一待办
-            //ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
             //userTaskSubmit.submitTodoOpen( actBusinessStatus,actTaskInstModel, actTaskInstModel.getAssignee());
             ret = 1;
         }catch (Exception e){
@@ -103,11 +132,10 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
 	public int updateByTaskId(ActTaskInstModel actTaskInstModel) {
         int ret = 0;
         try {
-            actTaskInstModel.setEndTime( LocalDateTime.now());
+            actTaskInstModel.setEndTime(LocalDateTime.now());
             actTaskInstModel.setEnabled(true);
             actTaskInstModel.setModifier(actTaskInstModel.getAssignee() );
             actTaskInstModel.setModifiedTime(LocalDateTime.now());
-            //wrapUpdateInfo( actTaskInstModel );
             actTaskInstModelMapper.updateByTaskId(actTaskInstModel);
             //以下是推送统一待办
             //ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
@@ -176,9 +204,14 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
      * @return
      */
     @Override
-    public List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey ( String processInstId, String taskDefinitionKey ) {
+    public List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey ( String processInstId, String taskDefinitionKey,String orgCode ) {
+        List<ActTaskInstModel> actTaskInstModels = CollectionUtil.newArrayList();
         try {
-            List<ActTaskInstModel> actTaskInstModels = actTaskInstModelMapper.getByProcessInstIdAndTaskDefinitionKey( processInstId,taskDefinitionKey );
+            if ( StrUtil.isEmpty( orgCode ) ){
+                actTaskInstModels = actTaskInstModelMapper.getByProcessInstIdAndTaskDefinitionKey( processInstId,taskDefinitionKey );
+            }else{
+                actTaskInstModels = actTaskInstModelMapper.getByProcessInstIdAndTaskDefinitionKey( processInstId,taskDefinitionKey,orgCode );
+            }
             return actTaskInstModels;
         }catch (Exception e){
             FlowableDriverBusinessException.printException( e );
@@ -200,5 +233,4 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
         }
         return null;
     }
-
 }

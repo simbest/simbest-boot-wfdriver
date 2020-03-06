@@ -74,8 +74,15 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
     /**
      * 根据流程实例ID，流程活动定义ID，查询流程工作项信息
      */
-    String selectSql2 = "SELECT * FROM flowable_task_inst_model WHERE enabled = 1 AND PROCESS_INST_ID =  ?1 AND TASK_DEFINITION_KEY = ?2 order by task_create_time desc";
+    String selectSql2 = "SELECT * FROM flowable_task_inst_model WHERE enabled = 1 AND PROCESS_INST_ID =  ?1 AND TASK_DEFINITION_KEY = ?2 and instr(participant_identity, ?3) > 0 order by task_create_time desc";
     @Query(value = selectSql2,nativeQuery = true)
+    List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey(String processInstId, String taskDefinitionKey,String orgCode);
+
+    /**
+     * 根据流程实例ID，流程活动定义ID，查询流程工作项信息
+     */
+    String selectSql3 = "SELECT * FROM flowable_task_inst_model WHERE enabled = 1 AND PROCESS_INST_ID =  ?1 AND TASK_DEFINITION_KEY = ?2  order by task_create_time desc";
+    @Query(value = selectSql3,nativeQuery = true)
     List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey(String processInstId, String taskDefinitionKey);
 
     /**processInstId
@@ -95,4 +102,14 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
      * @return
      */
     List<ActTaskInstModel> queryTaskInstModelByProcessInstIdAndEnabledOrderByEndTimeAsc(String processInstId,Boolean enabled);
+
+    /**
+     * 功能描述: 根据流程实例id、环节定义id、完成人和数据状态查询生成的环节实例数据
+     *
+     * @param
+     * @return
+     * @date 2020/3/2 2:40
+     * @auther ljw
+     */
+    List<ActTaskInstModel> queryByProcessInstIdAndTaskDefinitionKeyAndAssigneeAndEnabled(String processInstId,String taskDefKey,String assignee,Boolean enabled);
 }

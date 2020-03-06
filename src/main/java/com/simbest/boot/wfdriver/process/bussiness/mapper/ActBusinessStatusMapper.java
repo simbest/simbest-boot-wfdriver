@@ -28,7 +28,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
      * @param processInstID     流程实例ID
      * @return
      */
-    String sql1 = "SELECT * FROM act_business_status t WHERE t.PROCESS_INST_ID = ?1";
+    String sql1 = "SELECT * FROM act_business_status t WHERE t.PROCESS_INST_ID = ?1 and ENABLED=1";
     @Query(value = sql1,nativeQuery = true)
     ActBusinessStatus getByProcessInst(String processInstID);
 

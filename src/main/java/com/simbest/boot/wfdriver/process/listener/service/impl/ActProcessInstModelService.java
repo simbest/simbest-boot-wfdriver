@@ -1,8 +1,12 @@
 package com.simbest.boot.wfdriver.process.listener.service.impl;
 
+import cn.hutool.core.map.MapUtil;
 import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.base.service.impl.LogicService;
+import com.simbest.boot.util.json.JacksonUtils;
+import com.simbest.boot.util.redis.RedisUtil;
 import com.simbest.boot.uums.api.user.UumsSysUserinfoApi;
+import com.simbest.boot.wfdriver.constants.ProcessConstants;
 import com.simbest.boot.wfdriver.enums.ProcessSateEnum;
 import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
 import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
@@ -17,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 
 @Slf4j
@@ -51,7 +56,9 @@ public class ActProcessInstModelService extends LogicService<ActProcessInstModel
 	public int start(ActProcessInstModel actProcessInstMode) {
         int ret = 0;
         try {
-            actProcessInstMode.setCreatorIdentity( WfProcessManager.creatorIdentity );
+            Map<String,Object> cacheStartMapParam = RedisUtil.getBean( actProcessInstMode.getBusinessKey().concat( ProcessConstants.PROCESS_START_REDIS_SUFFIX),Map.class);
+            log.warn( "回调后打印流程启动设置的参数：【{}】", JacksonUtils.obj2json( cacheStartMapParam ) );
+            actProcessInstMode.setCreatorIdentity( MapUtil.getStr( cacheStartMapParam,"creatorIdentity" ) );
             actProcessInstMode.setCreator(actProcessInstMode.getStartUserId());
             actProcessInstMode.setModifier(actProcessInstMode.getStartUserId());
             actProcessInstMode.setCurrentState( ProcessSateEnum.RUNNING.getNum() );
@@ -77,8 +84,12 @@ public class ActProcessInstModelService extends LogicService<ActProcessInstModel
             actProcessInstModel.setModifiedTime( LocalDateTime.now());
             actProcessInstModel.setCurrentState( ProcessSateEnum.END.getNum() );
             //更新流程业务数据表中的流程状态
-            actBusinessStatusService.updatePorcessStateByProInstId(actProcessInstModel.getProcessInstanceId());
             actProcessInstModelMapper.updateByProcessInstanceId(actProcessInstModel);
+            actBusinessStatusService.updatePorcessStateByProInstId(actProcessInstModel.getProcessInstanceId());
+            //删除reids中生成的流程相关数据
+            RedisUtil.delete( actProcessInstModel.getProcessInstanceId().concat( ProcessConstants.PROCESS_START_REDIS_SUFFIX ) );
+            RedisUtil.delete( actProcessInstModel.getBusinessKey().concat( ProcessConstants.PROCESS_START_REDIS_SUFFIX ) );
+            RedisUtil.delete( actProcessInstModel.getProcessInstanceId().concat( ProcessConstants.PROCESS_SUBMIT_REDIS_SUFFIX) );
             ret = 1;
         }catch (Exception e){
             ret = 0;

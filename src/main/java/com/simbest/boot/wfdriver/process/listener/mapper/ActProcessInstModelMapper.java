@@ -24,7 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface ActProcessInstModelMapper extends LogicRepository<ActProcessInstModel, String> {
 
-
+    @Transactional
+    @Modifying
     @Query(value = "update ActProcessInstModel  " +
             "set processInstanceId = :#{#actProcessInstModel.processInstanceId}, " +
             "name=:#{#actProcessInstModel.name},"+
@@ -48,10 +49,9 @@ public interface ActProcessInstModelMapper extends LogicRepository<ActProcessIns
             "startUserId=:#{#actProcessInstModel.startUserId},"+
             "superProcessInstanceId=:#{#actProcessInstModel.superProcessInstanceId},"+
             "modifier = :#{#actProcessInstModel.modifier} ," +
-            "modifiedTime = :#{#actProcessInstModel.modifiedTime} " +
-            "where processInstanceId = :#{#actProcessInstModel.processInstanceId} " )
-    @Transactional
-    @Modifying
+            "modifiedTime = :#{#actProcessInstModel.modifiedTime}, " +
+            "currentState = :#{#actProcessInstModel.currentState} " +
+            " where processInstanceId = :#{#actProcessInstModel.processInstanceId} " )
     int updateByProcessInstanceId(@Param("actProcessInstModel") ActProcessInstModel actProcessInstModel);
 
     /**

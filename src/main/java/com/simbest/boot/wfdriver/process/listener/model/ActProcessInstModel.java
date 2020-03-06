@@ -52,7 +52,11 @@ public class ActProcessInstModel extends LogicModel {
     private String name;
     private String description;
     private String tenantId;
-    //private String businessKey;
+
+    @Column(length = 40)
+    @ApiModelProperty (value = "主单据ID，pmInstId")
+    private String businessKey;
+
     private String callbackId;
     private String callbackType;
 
@@ -86,7 +90,8 @@ public class ActProcessInstModel extends LogicModel {
 
     private String superProcessInstanceId;
 
-    private Integer currentState;//流程当前状态
+    @ApiModelProperty (value = "流程当前状态,2运行，7结束")
+    private Integer currentState;
 
     @Column(length = 500)
     @ApiModelProperty (value = "当前工单创建人的身份标识,使用#分隔,身份串=userId#orgCode#postId")

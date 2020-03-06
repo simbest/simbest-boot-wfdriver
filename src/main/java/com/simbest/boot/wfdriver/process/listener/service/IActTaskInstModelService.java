@@ -45,9 +45,10 @@ public interface IActTaskInstModelService extends ILogicService<ActTaskInstModel
      * 根据流程实例ID，流程活动实例ID，查询流程工作项信息
      * @param processInstId     流程实例ID
      * @param taskDefinitionKey    流程活动定义ID
+     * @param orgCode               所属组织编码
      * @return
      */
-    List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey(String processInstId, String taskDefinitionKey);
+    List<ActTaskInstModel> getByProcessInstIdAndTaskDefinitionKey(String processInstId, String taskDefinitionKey,String orgCode);
 
     /**
      * 根据流程实例ID查询工作项信息
