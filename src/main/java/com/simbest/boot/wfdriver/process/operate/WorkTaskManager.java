@@ -19,6 +19,7 @@ import com.simbest.boot.wfdriver.process.listener.service.IActCommentModelServic
 import com.simbest.boot.wfdriver.process.listener.service.IActTaskInstModelService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.Lists;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -198,7 +199,7 @@ public class WorkTaskManager implements IWorkItemService {
             }
 
             Map<String,Object> tasksCompleteMap = Maps.newHashMap();
-            List<Map<String,Object>> participantIdentitys = Lists.newArrayList();
+            List<Map<String,Object>> participantIdentitys = CollectionUtil.newArrayList();
             String[] nextUsers = StrUtil.split( nextUser,"#" );
             String[] inputUserParams = StrUtil.split( MapUtil.getStr( nextParam,"inputUserParams" ),"#" );
             List<String> nextActivityParams = StrUtil.splitTrim( nextActivityParam, '#' );
@@ -327,7 +328,23 @@ public class WorkTaskManager implements IWorkItemService {
     }
 
     @Override
-    public List<Map<String, Object>> queryWorkITtemDataMap ( Map<String, Object> paramMap ) {
+    public List<Map<String, Object>> queryWorkITtemDataMap ( Map<String, Object> paramMap ) {return null;}
+
+    /**
+     * 根据流程实例ID查询工作项信息  流程跟踪
+     * @param paramMap      参数
+     * @return
+     */
+    @Override
+    public Object queryTaskDataMap ( Map<String, Object> paramMap ) {
+        try {
+            String processInstId = MapUtil.getStr( paramMap,"processInstId" );
+            String taskId = MapUtil.getStr( paramMap,"taskId" );
+            ActTaskInstModel actTaskInstModel = actTaskInstModelService.getByProcessInstIdAndTaskId(processInstId,taskId);
+            return actTaskInstModel;
+        }catch (Exception e){
+            FlowableDriverBusinessException.printException( e );
+        }
         return null;
     }
 

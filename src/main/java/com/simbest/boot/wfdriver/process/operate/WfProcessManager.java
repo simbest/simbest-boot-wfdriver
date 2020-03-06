@@ -83,18 +83,23 @@ public class WfProcessManager implements IProcessInstanceService {
         Map<String,Object> processInstanceDataMap = Maps.newConcurrentMap();
         String startProcessFlag = MapUtil.getStr( startParam,"startProcessFlag" );
         String currentUserCode = MapUtil.getStr( startParam, "currentUserCode" );
+        String currentUserName = MapUtil.getStr( startParam, "currentUserName" );
         String orgCode = MapUtil.getStr(startParam, "orgCode" );
         String postId = MapUtil.getStr(startParam, "postId" );
         String message = MapUtil.getStr( startParam, "message" );
         String idValue = MapUtil.getStr( startParam, "idValue" );  //流程的定义ID
-        String nextUser = MapUtil.getStr( startParam, "nextUser" );
-        String nextUserOrgCode = MapUtil.getStr( startParam, "nextUserOrgCode" );
-        String nextUserPostId =  MapUtil.getStr( startParam, "nextUserPostId" );
         String outcome = MapUtil.getStr( startParam, "outcome");
-        String businessKey = MapUtil.getStr( startParam, "businessKey" );
+        String businessKey = MapUtil.getStr( startParam, "receiptCode" );
         String messageNameValue = MapUtil.getStr( startParam, "messageNameValue" );
+        cacheStartMapParam.put( "staticNextUserName",currentUserName );
+        cacheStartMapParam.put( "staticNextUser",currentUserCode );
+        cacheStartMapParam.put( "currentUserName", currentUserName);
+        cacheStartMapParam.put( "currentUserCode",currentUserCode);
         cacheStartMapParam.put( "creatorIdentity",currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ));
         log.warn( "正常打印打印流程启动提交的候选中文名称：【{}】", JacksonUtils.obj2json( cacheStartMapParam ) );
+        RedisUtil.setBean( businessKey.concat( ProcessConstants.PROCESS_START_REDIS_SUFFIX ),cacheStartMapParam );
+        Map<String,Object> cacheStartMapParamRedis = RedisUtil.getBean( businessKey.concat(ProcessConstants.PROCESS_START_REDIS_SUFFIX),Map.class);
+        log.warn( "获取redis中流程启动参数：【{}】",JacksonUtils.obj2json( cacheStartMapParamRedis ) );
         try {
             String processInstanceId = null;
             Map<String, String> variables = Maps.newConcurrentMap();
@@ -109,7 +114,7 @@ public class WfProcessManager implements IProcessInstanceService {
                         processInstanceDataMap =  callFlowableProcessApi.instancesStartByKey(idValue,variables);
                         break;
                     case "MESSAGE":
-                        variables.put( "inputUserId", nextUser);
+                        variables.put( "inputUserId", currentUserCode);
                         variables.put( "businessKey", businessKey);
                         MapRemoveNullUtil.removeNullEntry(variables);
                         processInstanceDataMap = callFlowableProcessApi.instancesStartByMessage(messageNameValue,variables);
