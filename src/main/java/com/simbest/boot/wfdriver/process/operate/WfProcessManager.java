@@ -11,8 +11,14 @@ import com.simbest.boot.wfdriver.api.CallFlowableProcessApi;
 import com.simbest.boot.wfdriver.constants.ProcessConstants;
 import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
 import com.simbest.boot.wfdriver.exceptions.WorkFlowBusinessRuntimeException;
+import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
 import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
+import com.simbest.boot.wfdriver.process.listener.model.ActCommentModel;
+import com.simbest.boot.wfdriver.process.listener.model.ActProcessInstModel;
+import com.simbest.boot.wfdriver.process.listener.model.ActTaskInstModel;
 import com.simbest.boot.wfdriver.process.listener.service.IActCommentModelService;
+import com.simbest.boot.wfdriver.process.listener.service.IActProcessInstModelService;
+import com.simbest.boot.wfdriver.process.listener.service.IActTaskInstModelService;
 import com.simbest.boot.wfdriver.util.MapRemoveNullUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +46,12 @@ public class WfProcessManager implements IProcessInstanceService {
 
     @Autowired
     private CallFlowableProcessApi callFlowableProcessApi;
+
+    @Autowired
+    private IActProcessInstModelService actProcessInstModelService;
+
+    @Autowired
+    private IActTaskInstModelService actTaskInstModelService;
 
     @Autowired
     private IActCommentModelService actCommentModelService;
@@ -268,6 +280,30 @@ public class WfProcessManager implements IProcessInstanceService {
      */
     @Override
     public int deleteProcessInstance ( Map<String, Object> delParam ) {
+        try {
+            String processInstanceId = MapUtil.getStr( delParam,"processInstanceId" );
+            //删除act
+            ActBusinessStatus actBusinessStatus = new ActBusinessStatus();
+            actBusinessStatus.setProcessInstId( processInstanceId );
+            actBusinessStatusService.deletActBusinessStatusData(actBusinessStatus);
+            //删除流程实例
+            ActProcessInstModel actProcessInstModel = new ActProcessInstModel();
+            actProcessInstModel.setProcessInstanceId( processInstanceId );
+            actProcessInstModelService.delete( actProcessInstModel );
+            //删除环节实例
+            ActTaskInstModel actTaskInstModel = new ActTaskInstModel();
+            actTaskInstModel.setProcessInstId( processInstanceId );
+            actTaskInstModelService.delete( actTaskInstModel );
+            //删除意见
+            ActCommentModel actCommentModel = new ActCommentModel();
+            actCommentModel.setProcessInstId( processInstanceId );
+            actCommentModelService.delete( actCommentModel );
+            //调用API删除流程
+            callFlowableProcessApi.deleteProcessInstance( processInstanceId );
+        }catch (Exception e){
+            FlowableDriverBusinessException.printException( e );
+            throw new WorkFlowBusinessRuntimeException("Exception Cause is delete workItem data failure,code:WF000002");
+        }
         return 0;
     }
 
