@@ -265,16 +265,18 @@ public class CallFlowableProcessApi {
      * @param taskDefinitionKey 办理环节key
      * @param processInstanceId 流程实例ID
      * @param processDefinitionId 流程定义ID
+     * @param tenantId 租户ID
      * @return
      * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
      */
-    public void createTaskEntityImpls(List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,Map<String,Object> variables) {
+    public void createTaskEntityImpls(List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables) {
         Map<String,Object> para = new HashMap<String,Object>();
         para.put("assignees",assignees);
         para.put("taskName",taskName);
         para.put("taskDefinitionKey",taskDefinitionKey);
         para.put("processDefinitionId",processDefinitionId );
         para.put("processInstanceId",processInstanceId);
+        para.put("tenantId",tenantId);
         para.put("variables",variables);
         wqqueryHttpService.callInterfaceJson(ConstansURL.CREATE_TASK_ENTITYIMPLS,JacksonUtils.obj2json(para));
     }
@@ -286,16 +288,18 @@ public class CallFlowableProcessApi {
      * @param taskDefinitionKey 办理环节key
      * @param processInstanceId 流程实例ID
      * @param processDefinitionId 流程定义ID
+     * @param tenantId 租户ID
      * @return
      * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
      */
-    public void createTaskEntityImpl(String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,Map<String,Object> variables) {
+    public void createTaskEntityImpl(String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables) {
         Map<String,Object> para = new HashMap<String,Object>();
         para.put("assignee",assignee);
         para.put("taskName",taskName);
         para.put("taskDefinitionKey",taskDefinitionKey);
         para.put("processInstanceId",processInstanceId);
         para.put("processDefinitionId",processDefinitionId);
+        para.put("tenantId",tenantId);
         para.put("variables",variables);
         wqqueryHttpService.callInterfaceJson(ConstansURL.CREATE_TASK_ENTITYIMPL,JacksonUtils.obj2json(para));
     }
