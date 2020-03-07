@@ -202,6 +202,7 @@ public class WorkTaskManager implements IWorkItemService {
             List<Map<String,Object>> participantIdentitys = CollectionUtil.newArrayList();
             String[] nextUsers = StrUtil.split( nextUser,"#" );
             String[] inputUserParams = StrUtil.split( MapUtil.getStr( nextParam,"inputUserParams" ),"#" );
+            String[] outcomes = StrUtil.split( outcome,"#" );
             List<String> nextActivityParams = StrUtil.splitTrim( nextActivityParam, '#' );
             Boolean taskFlag  = Boolean.TRUE;
             for ( int i = 0,cnt = nextActivityParams.size();i < cnt;i++ ){
@@ -223,7 +224,7 @@ public class WorkTaskManager implements IWorkItemService {
                 }else {
                     if ( StrUtil.equals( nextActivityParamItems.get( 2 ), "end" ) ) {     //结束环节
                         tasksCompleteMap.clear( );
-                        tasksCompleteMap.put( "outcome", outcome );
+                        tasksCompleteMap.put( "outcome", outcomes[i] );
                         tasksCompleteMap.put( "fromTaskId", taskId );
                         tasksCompleteMap.put( "tenantId", "anddoc" );
                         tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
@@ -231,9 +232,9 @@ public class WorkTaskManager implements IWorkItemService {
                     }
                     if ( StrUtil.equals( nextActivityParamItems.get( 2 ), "one" ) ) {     //单人单任务
                         tasksCompleteMap.clear( );
-                        tasksCompleteMap.put( "outcome", outcome );
-                        tasksCompleteMap.put( inputUserParams[ 0 ], nextUsers[ 0 ] );
-                        String participantIdentity = nextUsers[ 0 ].concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
+                        tasksCompleteMap.put( "outcome", outcomes[i] );
+                        tasksCompleteMap.put( inputUserParams[ i ], nextUsers[ i ] );
+                        String participantIdentity = nextUsers[ i ].concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
                         tasksCompleteMap.put( "participantIdentity", participantIdentity );
                         tasksCompleteMap.put( "fromTaskId", taskId );
                         tasksCompleteMap.put( "tenantId", "anddoc" );
