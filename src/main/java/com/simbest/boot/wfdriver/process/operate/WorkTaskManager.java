@@ -258,7 +258,7 @@ public class WorkTaskManager implements IWorkItemService {
                             participantIdentitys.add( map );
                         }
                         tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
-                        callFlowableProcessApi.createTaskEntityImpls( nextUserItems, nextActivityParamItems.get( 1 ), nextActivityParamItems.get( 0 ), processInstId, processDefinitionId, tasksCompleteMap );
+                        callFlowableProcessApi.createTaskEntityImpls( nextUserItems, nextActivityParamItems.get( 1 ), nextActivityParamItems.get( 0 ), processInstId, processDefinitionId,"anddoc",tasksCompleteMap );
 
                         //再完成当前task
                         if ( taskFlag ) {
