@@ -261,7 +261,7 @@ public class WorkTaskManager implements IWorkItemService {
                         callFlowableProcessApi.createTaskEntityImpls( nextUserItems, nextActivityParamItems.get( 1 ), nextActivityParamItems.get( 0 ), processInstId, processDefinitionId,"anddoc",tasksCompleteMap );
 
                         //再完成当前task
-                        if ( taskFlag ) {
+                        if ( taskFlag && !StrUtil.containsIgnoreCase( nextActivityParam,"one" )) {
                             taskFlag = Boolean.FALSE;
                             callFlowableProcessApi.finshTask( taskId );
                         }
