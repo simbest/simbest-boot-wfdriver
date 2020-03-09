@@ -281,7 +281,7 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
     }
 
     /**
-     * 功能描述:获取指定 userName 下面涉及的所有文种
+     * 功能描述:获取指定 userName 下面所有的待办数据无分页
      *
      * @param 
      * @return 
@@ -306,7 +306,7 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
     }
 
     /**
-     * 功能描述:获取指定 userName 下面所有的待办数据无分页  公文使用
+     * 功能描述:获取指定 userName 下面涉及的所有文种   公文使用
      *
      * @param
      * @return

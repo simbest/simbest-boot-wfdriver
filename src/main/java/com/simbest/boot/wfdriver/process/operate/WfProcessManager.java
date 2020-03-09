@@ -140,6 +140,22 @@ public class WfProcessManager implements IProcessInstanceService {
                 //保存流程业务数据
                 actBusinessStatusService.saveActBusinessStatusData(processInstanceId,startParam);
             }
+            /**
+             * 查询起草环节
+             */
+            String firstTaskId = "";
+            String processDefinitionId = "";
+            Map<String,String> taskQueryMap = Maps.newHashMap();
+            taskQueryMap.put("processInstanceId",processInstanceId);
+            taskQueryMap.put("assignee",currentUserCode);
+            List<Map<String,Object>> taskQueryDataMap = callFlowableProcessApi.tasksQueryNoPage(taskQueryMap);
+            if(taskQueryDataMap!=null) {
+                Map<String, Object> firstTask = taskQueryDataMap.get( 0 );
+                firstTaskId = MapUtil.getStr( firstTask, "id" );
+                processDefinitionId = MapUtil.getStr( firstTask, "processDefinitionId" );
+            }
+            processInstanceDataMap.put( "firstTaskId",firstTaskId );
+            processInstanceDataMap.put( "processDefinitionId",processDefinitionId );
             return processInstanceDataMap;
         }catch (Exception e){
             FlowableDriverBusinessException.printException( e );
