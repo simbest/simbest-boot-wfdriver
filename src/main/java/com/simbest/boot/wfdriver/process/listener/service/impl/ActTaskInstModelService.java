@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -226,8 +227,41 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
      */
     @Override
     public List<ActTaskInstModel> queryTaskInstModelByProcessInstId ( String processInstId ) {
+        List<ActTaskInstModel> actTaskInstModelList = CollectionUtil.newArrayList();
         try {
-            return actTaskInstModelMapper.queryTaskInstModelByProcessInstIdAndEnabledOrderByEndTimeAsc( processInstId,Boolean.TRUE );
+            actTaskInstModelList = actTaskInstModelMapper.queryTaskInstModelByProcessInstIdAndEnabledOrderByEndTimeAsc( processInstId,Boolean.TRUE );
+            List<ActTaskInstModel> finalActTaskInstModelList = actTaskInstModelList;
+            actTaskInstModelList.stream().forEach( actTaskInstModel -> {
+                String nextActivityName = actTaskInstModel.getName();
+                String fromTaskId = actTaskInstModel.getTaskId();
+                String nextActivityAssigneeRet = "";
+                String nextActivityNameRet = "";
+
+                List<ActTaskInstModel> actTaskInstModelList1 = finalActTaskInstModelList.stream().
+                        filter( actTaskInstModel1 -> StrUtil.equals( actTaskInstModel1.getFromTaskId(),fromTaskId ) ).
+                        collect( Collectors.toList() );
+
+                Map<String,List<String>> actTaskInstModelListGroup = actTaskInstModelList1.stream().
+                        collect(
+                            Collectors.groupingBy( ActTaskInstModel::getName,Collectors.mapping( ActTaskInstModel::getAssigneeName,Collectors.toList() ) )
+                        );
+
+                for (String key : actTaskInstModelListGroup.keySet()) {
+                    nextActivityNameRet = nextActivityNameRet.concat( key ).concat( "#" );
+                    nextActivityAssigneeRet = nextActivityAssigneeRet.concat( CollectionUtil.join(actTaskInstModelListGroup.get(key).iterator(), " ") ).concat( "#" );
+                }
+                /*actTaskInstModelListGroup.forEach( (k,v)-> {
+                    *//**
+                     * java1.8 使用只能引用标记了 final 的外层局部变量，这就是说不能在 lambda
+                     * 内部修改定义在域外的局部变量，否则会编译错误，但是可以改变对象变量和数组对象
+                     *//*
+                    k = k.concat( "#" );
+                    CollectionUtil.join(v.iterator(), " ").concat( "#" );
+                });*/
+                actTaskInstModel.setNextActivityName( StrUtil.sub( nextActivityNameRet,0,nextActivityNameRet.length()-1 ) );
+                actTaskInstModel.setNextActivityAssignee( StrUtil.sub(nextActivityAssigneeRet,0,nextActivityAssigneeRet.length()-1 ) );
+            });
+            return actTaskInstModelList;
         }catch (Exception e){
             FlowableDriverBusinessException.printException( e );
         }

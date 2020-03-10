@@ -2,6 +2,7 @@ package com.simbest.boot.wfdriver.process.operate;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.lang.Dict;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.wenhao.jpa.Specifications;
@@ -144,7 +145,9 @@ public class WorkTaskManager implements IWorkItemService {
             }
             tasksCompleteMap.put( "fromTaskId",taskId );
             callFlowableProcessApi.tasksComplete(taskId,tasksCompleteMap);
-            actBusinessStatusService.updateActBusinessStatusData( processInstId,currentUserCode );
+            Map<String,Object> nextParamMap = Dict.create()
+                    .set( "processInstanceId",processInstId );
+            actBusinessStatusService.updateActBusinessStatusData( nextParamMap );
             ret = 1;
         }catch ( Exception e){
             FlowableDriverBusinessException.printException( e );
@@ -176,6 +179,7 @@ public class WorkTaskManager implements IWorkItemService {
         String nextUserPostId =  MapUtil.getStr( nextParam, "nextUserPostId" );
         String processDefinitionId = MapUtil.getStr( nextParam,"processDefinitionId" );
         String nextActivityParam = MapUtil.getStr( nextParam,"taskDefinitionKey" );   //每一个 defid,defname,oen/multi,
+        String receipTitle = MapUtil.getStr(nextParam, "receipTitle" );
         Boolean isSign = MapUtil.getBool( nextParam,"isSign" );
         Boolean isFinallySign = MapUtil.getBool( nextParam,"isFinallySign" );
         cacheSubmitMapParam.put( "staticNextUserName",nextUserName );
@@ -268,6 +272,10 @@ public class WorkTaskManager implements IWorkItemService {
                     }
                 }
             }
+            Map<String,Object> nextParamMap = Dict.create()
+                    .set( "processInstanceId",processInstId )
+                    .set( "receipTitle",receipTitle );
+            actBusinessStatusService.updateActBusinessStatusData( nextParamMap );
             ret = 1;
         }catch (Exception e){
             FlowableDriverBusinessException.printException( e );

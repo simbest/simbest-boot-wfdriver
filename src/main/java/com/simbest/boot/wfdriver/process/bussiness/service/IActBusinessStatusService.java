@@ -28,11 +28,9 @@ public interface IActBusinessStatusService extends IGenericService<ActBusinessSt
 
     /**
      * 流程完成更新信息
-     * @param processInstanceId   流程实例ID
-     * @param nextUser            审批人
      * @return
      */
-	int updateActBusinessStatusData(String processInstanceId, String nextUser);
+	int updateActBusinessStatusData(Map<String,Object> nextParam);
 
     /**
      * 根据流程实例ID 查询业务流程操作信息

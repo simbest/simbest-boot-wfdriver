@@ -126,4 +126,10 @@ public class ActTaskInstModel extends LogicModel {
     @Column(length = 40)
     @ApiModelProperty (value = "主单据ID，pmInstId")
     private String businessKey;
+
+    @Transient
+    private String nextActivityName;
+
+    @Transient
+    private String nextActivityAssignee;
 }

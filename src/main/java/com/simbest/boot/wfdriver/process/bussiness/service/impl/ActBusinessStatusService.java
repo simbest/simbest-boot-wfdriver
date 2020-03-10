@@ -109,14 +109,14 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
 
     /**
      * 任务提交下一步更新流程状态信息
-     * @param processInstanceId   流程实例ID
-     * @param nextUser            审批人
      * @return
      */
 	@Override
-	public int updateActBusinessStatusData( String processInstanceId, String nextUser ) {
+	public int updateActBusinessStatusData( Map<String,Object> nextParam ) {
 		int ret = 0;
         try{
+            String processInstanceId = MapUtil.getStr( nextParam,"processInstanceId" );
+            String receipTitle = MapUtil.getStr( nextParam,"receipTitle" );
             IUser user = SecurityUtils.getCurrentUser();
             ActBusinessStatus actBusinessStatus = getByProcessInst(processInstanceId);
             actBusinessStatus.setPreviousAssistant(user.getUsername());
@@ -124,6 +124,7 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             actBusinessStatus.setPreviousAssistantName(user.getTruename());
             actBusinessStatus.setPreviousAssistantOrgCode( user.getBelongOrgCode() );
             actBusinessStatus.setPreviousAssistantOrgName( user.getBelongOrgName() );
+            actBusinessStatus.setReceiptTitle( receipTitle );
             actBusinessStatus = actBusinessStatusMapper.save(actBusinessStatus);
             if ( actBusinessStatus != null ){
                 ret = 1;
