@@ -11,6 +11,7 @@ import com.simbest.boot.wfdriver.http.utils.ConstansURL;
 import com.simbest.boot.wfdriver.http.utils.ConstantsUtils;
 import com.simbest.boot.wfdriver.http.utils.HttpConfig;
 import com.simbest.boot.wfdriver.http.utils.WqqueryHttpService;
+import com.simbest.boot.wfdriver.util.MapRemoveNullUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -350,5 +351,21 @@ public class CallFlowableProcessApi {
         Map<String,String> para = new HashMap<String,String>();
         para.put("processInstanceId",processInstanceId);
         wqqueryHttpService.callInterfaceString(ConstansURL.DELETE_PROCESS_INSTANCE,para);
+    }
+
+    /**
+     * 13.升级指定流程的流程定义（升级指定流程的流程定义,流程实例ID如果有多个，逗号分割；流程定义ID和版本号填一个就可以，如果都填写，以流程定义ID为准）
+     * 另外本地库中的实例表和任务表请在调用接口成功后更新流程定义ID
+     * @param processInstanceIds 实例ID
+     * @param processDefinitionId 流程定义ID
+     * @param version 版本号
+     */
+    public void upgradeProcessInstanceVersion(String processInstanceIds,String processDefinitionId,String version) {
+        Map<String,String> para = new HashMap<String,String>();
+        para.put("processInstanceIds",processInstanceIds);
+        para.put("processDefinitionId",processDefinitionId);
+        para.put("version",version);
+        MapRemoveNullUtil.removeNullEntry(para);
+        wqqueryHttpService.callInterfaceString(ConstansURL.UPGRADE_PROCESS_INSTANCE_VERSION,para);
     }
 }
