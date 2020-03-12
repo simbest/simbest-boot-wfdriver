@@ -250,16 +250,13 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
                     nextActivityNameRet = nextActivityNameRet.concat( key ).concat( "#" );
                     nextActivityAssigneeRet = nextActivityAssigneeRet.concat( CollectionUtil.join(actTaskInstModelListGroup.get(key).iterator(), " ") ).concat( "#" );
                 }
-                /*actTaskInstModelListGroup.forEach( (k,v)-> {
-                    *//**
-                     * java1.8 使用只能引用标记了 final 的外层局部变量，这就是说不能在 lambda
-                     * 内部修改定义在域外的局部变量，否则会编译错误，但是可以改变对象变量和数组对象
-                     *//*
-                    k = k.concat( "#" );
-                    CollectionUtil.join(v.iterator(), " ").concat( "#" );
-                });*/
+
                 actTaskInstModel.setNextActivityName( StrUtil.sub( nextActivityNameRet,0,nextActivityNameRet.length()-1 ) );
                 actTaskInstModel.setNextActivityAssignee( StrUtil.sub(nextActivityAssigneeRet,0,nextActivityAssigneeRet.length()-1 ) );
+                if ( StrUtil.isEmpty( nextActivityAssigneeRet ) ){
+                    actTaskInstModel.setNextActivityName( actTaskInstModel.getName() );
+                    actTaskInstModel.setNextActivityAssignee( "结束操作" );
+                }
             });
             return actTaskInstModelList;
         }catch (Exception e){
