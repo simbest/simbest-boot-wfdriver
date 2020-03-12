@@ -261,6 +261,7 @@ public class CallFlowableProcessApi {
 
     /**
      * 8.手动创建任务(多人)
+     * @param sourceTaskDefinitionKey 上一个任务办理环节 如果填错或者不填，流程图没有连线高亮
      * @param assignees 办理人
      * @param taskName 办理环节名称
      * @param taskDefinitionKey 办理环节key
@@ -270,8 +271,9 @@ public class CallFlowableProcessApi {
      * @return
      * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
      */
-    public void createTaskEntityImpls(List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables) {
+    public void createTaskEntityImpls(String sourceTaskDefinitionKey,List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables) {
         Map<String,Object> para = new HashMap<String,Object>();
+        para.put("sourceTaskDefinitionKey",sourceTaskDefinitionKey);
         para.put("assignees",assignees);
         para.put("taskName",taskName);
         para.put("taskDefinitionKey",taskDefinitionKey);
@@ -284,6 +286,7 @@ public class CallFlowableProcessApi {
 
     /**
      * 8.手动创建任务(单人)
+     * @param sourceTaskDefinitionKey 上一个任务办理环节 如果填错或者不填，流程图没有连线高亮
      * @param assignee 办理人
      * @param taskName 办理环节名称
      * @param taskDefinitionKey 办理环节key
@@ -293,8 +296,9 @@ public class CallFlowableProcessApi {
      * @return
      * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
      */
-    public void createTaskEntityImpl(String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables) {
+    public void createTaskEntityImpl(String sourceTaskDefinitionKey,String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables) {
         Map<String,Object> para = new HashMap<String,Object>();
+        para.put("sourceTaskDefinitionKey",sourceTaskDefinitionKey);
         para.put("assignee",assignee);
         para.put("taskName",taskName);
         para.put("taskDefinitionKey",taskDefinitionKey);
