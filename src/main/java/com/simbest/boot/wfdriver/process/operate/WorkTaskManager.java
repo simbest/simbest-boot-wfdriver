@@ -182,6 +182,7 @@ public class WorkTaskManager implements IWorkItemService {
         String receipTitle = MapUtil.getStr(nextParam, "receipTitle" );
         Boolean isSign = MapUtil.getBool( nextParam,"isSign" );
         Boolean isFinallySign = MapUtil.getBool( nextParam,"isFinallySign" );
+        String sourceTaskDefinitionKey = MapUtil.getStr( nextParam,"sourceTaskDefinitionId" );
         cacheSubmitMapParam.put( "staticNextUserName",nextUserName );
         cacheSubmitMapParam.put( "staticNextUser",nextUser );
         RedisUtil.setBean( processInstId.concat( ProcessConstants.PROCESS_SUBMIT_REDIS_SUFFIX ),cacheSubmitMapParam );
@@ -262,7 +263,7 @@ public class WorkTaskManager implements IWorkItemService {
                             participantIdentitys.add( map );
                         }
                         tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
-                        callFlowableProcessApi.createTaskEntityImpls( nextUserItems, nextActivityParamItems.get( 1 ), nextActivityParamItems.get( 0 ), processInstId, processDefinitionId,"anddoc",tasksCompleteMap );
+                        callFlowableProcessApi.createTaskEntityImpls( sourceTaskDefinitionKey,nextUserItems, nextActivityParamItems.get( 1 ), nextActivityParamItems.get( 0 ), processInstId, processDefinitionId,"anddoc",tasksCompleteMap );
 
                         //再完成当前task
                         if ( taskFlag && !StrUtil.containsIgnoreCase( nextActivityParam,"one" )) {
