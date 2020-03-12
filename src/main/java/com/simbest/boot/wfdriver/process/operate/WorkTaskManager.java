@@ -270,6 +270,25 @@ public class WorkTaskManager implements IWorkItemService {
                             callFlowableProcessApi.finshTask( taskId );
                         }
                     }
+                    if ( StrUtil.equals( nextActivityParamItems.get( 2 ), "sign" ) ) {    //流程会签
+                        tasksCompleteMap.put( "fromTaskId", taskId );
+                        tasksCompleteMap.put( "tenantId", "anddoc" );
+                        tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
+                        tasksCompleteMap.put( "outcome", outcomes[i] );
+
+                        List<String> nextUserItems = StrUtil.splitTrim( nextUsers[ i ], "," );
+                        tasksCompleteMap.put( inputUserParams[i], nextUserItems);
+                        String[] nextUserOrgCodeTmps = StrUtil.split( nextUserOrgCodes.get( i ), "," );
+                        String[] nextUserPostIdTmps = StrUtil.split( nextUserPostIds.get( i ), "," );
+                        for ( int k = 0, cnt1 = nextUserItems.size( ); k < cnt1; k++ ) {
+                            String participantIdentityTmp = nextUserItems.get( k ).concat( "#" ).concat( nextUserOrgCodeTmps[ k ] ).concat( "#" ).concat( nextUserPostIdTmps[ k ] );
+                            Map<String, Object> map = Maps.newConcurrentMap( );
+                            map.put( nextUserItems.get( k ), participantIdentityTmp );
+                            participantIdentitys.add( map );
+                        }
+                        tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
+                        callFlowableProcessApi.tasksComplete( taskId, tasksCompleteMap );
+                    }
                 }
             }
             Map<String,Object> nextParamMap = Dict.create()
