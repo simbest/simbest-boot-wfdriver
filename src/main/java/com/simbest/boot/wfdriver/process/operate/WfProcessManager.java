@@ -93,6 +93,7 @@ public class WfProcessManager implements IProcessInstanceService {
     public Map<String,Object> startProcessAndDeployProcessAndNoSetRelativeData ( Map<String, Object> startParam ) {
         Map<String,Object> cacheStartMapParam = CollectionUtil.newHashMap();
         Map<String,Object> processInstanceDataMap = Maps.newConcurrentMap();
+        String flowDirection = MapUtil.getStr( startParam,"flowDirection" );
         String startProcessFlag = MapUtil.getStr( startParam,"startProcessFlag" );
         String currentUserCode = MapUtil.getStr( startParam, "currentUserCode" );
         String currentUserName = MapUtil.getStr( startParam, "currentUserName" );
@@ -109,6 +110,8 @@ public class WfProcessManager implements IProcessInstanceService {
         cacheStartMapParam.put( "currentUserCode",currentUserCode);
         cacheStartMapParam.put( "creatorIdentity",currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ));
         log.warn( "正常打印打印流程启动提交的候选中文名称：【{}】", JacksonUtils.obj2json( cacheStartMapParam ) );
+        String countUserKye = flowDirection .concat( "_" ).concat( "_" ).concat( currentUserCode );
+        RedisUtil.setBean( countUserKye,1 );
         RedisUtil.setBean( businessKey.concat( ProcessConstants.PROCESS_START_REDIS_SUFFIX ),cacheStartMapParam );
         Map<String,Object> cacheStartMapParamRedis = RedisUtil.getBean( businessKey.concat(ProcessConstants.PROCESS_START_REDIS_SUFFIX),Map.class);
         log.warn( "获取redis中流程启动参数：【{}】",JacksonUtils.obj2json( cacheStartMapParamRedis ) );

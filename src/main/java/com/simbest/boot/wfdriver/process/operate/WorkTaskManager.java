@@ -168,6 +168,7 @@ public class WorkTaskManager implements IWorkItemService {
     public int finshTaskWithComplete(Map<String,Object> nextParam){
         int ret = 0;
         Map<String,Object> cacheSubmitMapParam = CollectionUtil.newHashMap();
+        String flowDirection = MapUtil.getStr( nextParam,"flowDirection" );
         String currentUserCode = MapUtil.getStr( nextParam,"currentUserCode" );
         String taskId = MapUtil.getStr( nextParam, "taskId" );
         String outcome = MapUtil.getStr( nextParam, "outcome" );
@@ -185,6 +186,8 @@ public class WorkTaskManager implements IWorkItemService {
         String sourceTaskDefinitionKey = MapUtil.getStr( nextParam,"sourceTaskDefinitionId" );
         cacheSubmitMapParam.put( "staticNextUserName",nextUserName );
         cacheSubmitMapParam.put( "staticNextUser",nextUser );
+        String countUserKye = flowDirection .concat( "_" ).concat( "_" ).concat( nextUser );
+        RedisUtil.setBean( countUserKye,1 );
         RedisUtil.setBean( processInstId.concat( ProcessConstants.PROCESS_SUBMIT_REDIS_SUFFIX ),cacheSubmitMapParam );
         log.warn( "正常打印打印流程下一步提交的候选中文名称：【{}】",JacksonUtils.obj2json( cacheSubmitMapParam ) );
         List<String> nextUserOrgCodes = null;

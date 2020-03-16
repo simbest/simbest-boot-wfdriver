@@ -58,7 +58,7 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
      * @param workItemID      工作项ID
      * @return
      */
-    String selectSql1 = "SELECT * FROM flowable_task_inst_model WHERE processInstId = :processInstId and taskId = :taskId and enabled='1'";
+    String selectSql1 = "SELECT * FROM flowable_task_inst_model WHERE PROCESS_INST_ID = :processInstId and TASK_ID = :taskId and enabled='1'";
     @Query(value = selectSql1,nativeQuery = true)
     ActTaskInstModel getByProcessInstIdAndTaskId(@Param(value = "processInstId") String processInstId, @Param(value = "taskId") String taskId);
 
@@ -67,7 +67,7 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
      * @param workItemID      工作项ID
      * @return
      */
-    String selectSql9 = "SELECT * FROM flowable_task_inst_model WHERE taskId = :taskId and enabled='1'";
+    String selectSql9 = "SELECT * FROM flowable_task_inst_model WHERE TASK_ID = :taskId and enabled='1'";
     @Query(value = selectSql9,nativeQuery = true)
     ActTaskInstModel getByTaskId(@Param(value = "taskId") String taskId);
 
@@ -90,7 +90,7 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
      * @param processInstId    流程实例ID
      * @return
      */
-    String deleteSql1 = "update flowable_task_inst_model set enabled=0 where processInstId = :processInstId";
+    String deleteSql1 = "update flowable_task_inst_model set enabled=0 where PROCESS_INST_ID = :processInstId";
     @Transactional
     @Modifying
     @Query(value = deleteSql1,nativeQuery = true)

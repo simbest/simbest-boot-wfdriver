@@ -8,6 +8,7 @@ import com.simbest.boot.util.json.JacksonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -174,10 +175,10 @@ public class WqqueryHttpService {
         String SUBMITDATE = DateUtil.getTimestamp(date);
         String TIMESTAMP = String.valueOf(date.getTime()/1000);
         String ACCESSTOKEN = Md5Token.MD5(token+TIMESTAMP);
-
         HttpResponse httpResponse = null;
         try {
             httpResponse = HttpClient.get(wfengineHost+url)
+                    .header( "Content-type", MediaType.IMAGE_PNG_VALUE )
                     .header("TIMESTAMP",TIMESTAMP)
                     .header("ACCESSTOKEN",ACCESSTOKEN)
                     .queryString("SUBMITDATE",SUBMITDATE)
