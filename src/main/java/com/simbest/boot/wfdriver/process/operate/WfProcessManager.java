@@ -110,8 +110,6 @@ public class WfProcessManager implements IProcessInstanceService {
         cacheStartMapParam.put( "currentUserCode",currentUserCode);
         cacheStartMapParam.put( "creatorIdentity",currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ));
         log.warn( "正常打印打印流程启动提交的候选中文名称：【{}】", JacksonUtils.obj2json( cacheStartMapParam ) );
-        String countUserKye = flowDirection .concat( "_" ).concat( "_" ).concat( currentUserCode );
-        RedisUtil.setBean( countUserKye,1 );
         RedisUtil.setBean( businessKey.concat( ProcessConstants.PROCESS_START_REDIS_SUFFIX ),cacheStartMapParam );
         Map<String,Object> cacheStartMapParamRedis = RedisUtil.getBean( businessKey.concat(ProcessConstants.PROCESS_START_REDIS_SUFFIX),Map.class);
         log.warn( "获取redis中流程启动参数：【{}】",JacksonUtils.obj2json( cacheStartMapParamRedis ) );
@@ -140,6 +138,9 @@ public class WfProcessManager implements IProcessInstanceService {
             }
             if(processInstanceDataMap!=null){
                 processInstanceId = MapUtil.getStr( processInstanceDataMap,"processInstanceId" );
+                StringBuilder countUserKye = new StringBuilder();
+                countUserKye.append( flowDirection ).append( "_" ).append( processInstanceId ).append( "_" ).append( currentUserCode );
+                RedisUtil.setBean( countUserKye.toString(),1 );
                 //保存流程业务数据
                 actBusinessStatusService.saveActBusinessStatusData(processInstanceId,startParam);
             }

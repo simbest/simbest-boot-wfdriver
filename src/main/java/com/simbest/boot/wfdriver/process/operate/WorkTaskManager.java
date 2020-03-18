@@ -186,8 +186,9 @@ public class WorkTaskManager implements IWorkItemService {
         String sourceTaskDefinitionKey = MapUtil.getStr( nextParam,"sourceTaskDefinitionId" );
         cacheSubmitMapParam.put( "staticNextUserName",nextUserName );
         cacheSubmitMapParam.put( "staticNextUser",nextUser );
-        String countUserKye = flowDirection .concat( "_" ).concat( "_" ).concat( nextUser );
-        RedisUtil.setBean( countUserKye,1 );
+        StringBuilder countUserKye = new StringBuilder();
+        countUserKye.append( flowDirection ).append( "_" ).append( processInstId ).append( "_" ).append( nextUser );
+        RedisUtil.setBean( countUserKye.toString(),1 );
         RedisUtil.setBean( processInstId.concat( ProcessConstants.PROCESS_SUBMIT_REDIS_SUFFIX ),cacheSubmitMapParam );
         log.warn( "正常打印打印流程下一步提交的候选中文名称：【{}】",JacksonUtils.obj2json( cacheSubmitMapParam ) );
         List<String> nextUserOrgCodes = null;
