@@ -253,7 +253,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
 
                 actTaskInstModel.setNextActivityName( StrUtil.sub( nextActivityNameRet,0,nextActivityNameRet.length()-1 ) );
                 actTaskInstModel.setNextActivityAssignee( StrUtil.sub(nextActivityAssigneeRet,0,nextActivityAssigneeRet.length()-1 ) );
-                if ( StrUtil.isEmpty( nextActivityAssigneeRet ) ){
+                if ( StrUtil.isEmpty( nextActivityAssigneeRet ) && actTaskInstModel.getEndTime() != null ){
                     actTaskInstModel.setNextActivityName( StrUtil.trimToEmpty( actTaskInstModel.getName() )  );
                     actTaskInstModel.setNextActivityAssignee( "结束操作" );
                 }
