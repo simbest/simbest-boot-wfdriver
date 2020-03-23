@@ -372,4 +372,19 @@ public class CallFlowableProcessApi {
         MapRemoveNullUtil.removeNullEntry(para);
         wqqueryHttpService.callInterfaceString(ConstansURL.UPGRADE_PROCESS_INSTANCE_VERSION,para);
     }
+
+    /**
+     * 14.根据key获得一个流程定义 ,version可以不填，如果不填，获取最新的返回。
+     * @param key 流程定义Key
+     * @param version 版本号 （version可以不填，如果不填，获取最新的返回）
+     * @param tenantId 租户ID
+     */
+    public void definitionsGetByKey(String key,String version,String  tenantId) {
+        Map<String,String> para = new HashMap<String,String>();
+        para.put("key",key);
+        para.put("version",version);
+        para.put("tenantId",tenantId);
+        MapRemoveNullUtil.removeNullEntry(para);
+        wqqueryHttpService.callInterfaceString(ConstansURL.DEFINITIONS_GETBY_KEY,para);
+    }
 }
