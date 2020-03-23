@@ -215,7 +215,8 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "     AND task.end_Time is not null" +
             "     AND act.enabled = 1" +
             "     AND task.assignee = :participant" +
-            " ORDER BY ubpd.global_display_order asc,task.created_Time desc";
+            //" ORDER BY ubpd.global_display_order asc,task.created_Time desc";
+            " ORDER BY task.end_time desc";
     @Query(value = sq24,nativeQuery = true)
     List<Map<String,Object>> getByAreadyDoneAssistantNoPage(@Param(value = "participant") String participant, @Param(value = "dynamicWhere") String dynamicWhere);
 
@@ -236,7 +237,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
                     "AND task.end_Time is not null " +
                     "AND task.assignee = :assistant "+
                     "AND act.enabled = 1 " +
-                    "ORDER BY task.created_Time desc";
+                    "ORDER BY task.end_time desc";
     String sql5Count = "SELECT count(1)" +
                     "FROM " +
                     "act_business_status act, " +
@@ -245,8 +246,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
                     "AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%') " +
                     "AND task.end_Time is not null " +
                     "AND task.assignee = :assistant "+
-                    "AND act.enabled = 1 " +
-                    "ORDER BY task.created_Time desc";
+                    "AND act.enabled = 1 ";
     @Query(value = sql5,countQuery = sql5Count,nativeQuery = true)
     Page<Map<String,Object>> getByAreadyDoneAssistantPage(@Param(value = "assistant") String assistant, @Param(value = "dynamicWhere") String dynamicWhere, Pageable pageable);
 
@@ -273,7 +273,8 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "     AND task.end_Time is not null" +
             "     AND act.enabled = 1" +
             "     AND task.assignee = :assistant" +
-            " ORDER BY ubpd.global_display_order asc,task.created_Time desc";
+            //" ORDER BY ubpd.global_display_order asc,task.created_Time desc";
+            " ORDER BY task.end_time desc";
     String sql10Count = "SELECT count(1)" +
             "  FROM us_bo_process_definition ubpd" +
             "    join us_bo_process_instance ubi" +
