@@ -4,6 +4,7 @@ package com.simbest.boot.wfdriver.api;/**
  */
 
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.mzlion.easyokhttp.response.HttpResponse;
 import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.wfdriver.exceptions.WorkFlowBusinessRuntimeException;
@@ -237,7 +238,11 @@ public class CallFlowableProcessApi {
      * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
      */
     public HttpResponse getDiagramByProcessInstanceIdOutPut(String processDefinitionId, String processInstanceId) {
+        String constantsUrl = ConstansURL.GET_DIAGRAM_BY_PROCESS_INSTANCEID;
         HttpResponse httpResponse = wqqueryHttpService.callInterfaceOutPut(ConstansURL.GET_DIAGRAM_BY_PROCESS_INSTANCEID,processDefinitionId,processInstanceId);
+        if ( StrUtil.isNotEmpty( processDefinitionId )){
+            httpResponse = wqqueryHttpService.callInterfaceOutPut(ConstansURL.GET_DIAGRAM_BY_PROCESS_KEY,processDefinitionId,processInstanceId);
+        }
         return httpResponse;
     }
 
