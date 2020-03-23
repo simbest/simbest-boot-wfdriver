@@ -115,7 +115,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "       act.previous_assistant_date as previousAssistantDate, act.previous_assistant_name as previousAssistantName , act.previous_assistant_org_code as previousAssistantOrgCode, act.previous_assistant_org_name as previousAssistantOrgName,  " +
             "       act.process_def_key as processDefKey, act.process_inst_id as processInstId, act.receipt_title as receiptTile,act.receipt_code as receiptCode,to_char(act.start_time,'yyyy-MM-dd HH24:mi:ss') as startTime,act.CREATOR_IDENTITY as creatorIdentity, " +
             "       task.task_Id as taskId,to_char(task.TASK_CREATE_TIME,'yyyy-MM-dd HH24:mi:ss') as taskCreateTime,task.PARTICIPANT_IDENTITY as participantIdentity,task.FROM_TASK_ID as fromTaskId,task.name as taskName,task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee,task.PROCESS_DEFINITION_ID as processDefintionId," +
-            "       ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder" +
+            "       ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder,ubi.FLOW_DIRECTION" +
             "  FROM us_bo_process_definition ubpd" +
             "    join us_bo_process_instance ubi" +
             "     on ubpd.id = ubi.bo_porcess_def_id" +
@@ -141,7 +141,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "       act.previous_assistant_date as previousAssistantDate, act.previous_assistant_name as previousAssistantName , act.previous_assistant_org_code as previousAssistantOrgCode, act.previous_assistant_org_name as previousAssistantOrgName,  " +
             "       act.process_def_key as processDefKey, act.process_inst_id as processInstId, act.receipt_title as receiptTile,act.receipt_code as receiptCode,to_char(act.start_time,'yyyy-MM-dd HH24:mi:ss') as startTime,act.CREATOR_IDENTITY as creatorIdentity, " +
             "       task.task_Id as taskId,to_char(task.TASK_CREATE_TIME,'yyyy-MM-dd HH24:mi:ss') as taskCreateTime,task.PARTICIPANT_IDENTITY as participantIdentity,task.FROM_TASK_ID as fromTaskId,task.name as taskName,task.task_Definition_Key as taskDefKey,task.assignee as taskAssignee,task.PROCESS_DEFINITION_ID as processDefintionId," +
-            "       ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder" +
+            "       ubpd.id as boProcessDefId,ubpd.bo_process_def_name as boProcessDefName,ubpd.global_display_order as globalDisplayOrder,ubi.FLOW_DIRECTION" +
             "  FROM us_bo_process_definition ubpd" +
             "    join us_bo_process_instance ubi" +
             "     on ubpd.id = ubi.bo_porcess_def_id" +
