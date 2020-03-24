@@ -186,6 +186,8 @@ public class WqqueryHttpService {
                     .queryString("SOURCESYSTEMNAME",SOURCESYSTEMNAME)
                     .queryString("processInstanceId",processInstanceId)
                     .queryString("processDefinitionId",processDefinitionId)
+                    .queryString("tenantId",SOURCESYSTEMID)
+                    .queryString("key",processDefinitionId)
                     .execute();
 
         }catch(Exception e){

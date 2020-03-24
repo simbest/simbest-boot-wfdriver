@@ -239,9 +239,11 @@ public class CallFlowableProcessApi {
      */
     public HttpResponse getDiagramByProcessInstanceIdOutPut(String processDefinitionId, String processInstanceId) {
         String constantsUrl = ConstansURL.GET_DIAGRAM_BY_PROCESS_INSTANCEID;
-        HttpResponse httpResponse = wqqueryHttpService.callInterfaceOutPut(ConstansURL.GET_DIAGRAM_BY_PROCESS_INSTANCEID,processDefinitionId,processInstanceId);
+        HttpResponse httpResponse;
         if ( StrUtil.isNotEmpty( processDefinitionId )){
             httpResponse = wqqueryHttpService.callInterfaceOutPut(ConstansURL.GET_DIAGRAM_BY_PROCESS_KEY,processDefinitionId,processInstanceId);
+        }else{
+            httpResponse = wqqueryHttpService.callInterfaceOutPut(ConstansURL.GET_DIAGRAM_BY_PROCESS_INSTANCEID,processDefinitionId,processInstanceId);
         }
         return httpResponse;
     }
