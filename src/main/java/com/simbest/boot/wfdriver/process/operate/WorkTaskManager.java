@@ -18,6 +18,7 @@ import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusSer
 import com.simbest.boot.wfdriver.process.listener.model.ActTaskInstModel;
 import com.simbest.boot.wfdriver.process.listener.service.IActCommentModelService;
 import com.simbest.boot.wfdriver.process.listener.service.IActTaskInstModelService;
+import com.simbest.boot.wfdriver.util.ErrorDealUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.poi.ss.formula.functions.T;
@@ -191,8 +192,9 @@ public class WorkTaskManager implements IWorkItemService {
         RedisUtil.setBean( countUserKye.toString(),1 );
         RedisUtil.setBean( processInstId.concat( ProcessConstants.PROCESS_SUBMIT_REDIS_SUFFIX ),cacheSubmitMapParam );
         log.warn( "正常打印打印流程下一步提交的候选中文名称：【{}】",JacksonUtils.obj2json( cacheSubmitMapParam ) );
-        List<String> nextUserOrgCodes = null;
-        List<String> nextUserPostIds = null;
+        List<String> nextUserOrgCodes;
+        List<String> nextUserPostIds;
+        Map<String,Object> resMap = MapUtil.newHashMap();
         try {
             nextUserOrgCodes =  Arrays.asList(StrUtil.split( nextUserOrgCode,"#" ));
             nextUserPostIds =  Arrays.asList(StrUtil.split( nextUserPostId,"#" ));
@@ -203,7 +205,10 @@ public class WorkTaskManager implements IWorkItemService {
             taskAddCommentMap.put("processInstanceId", processInstId);
             taskAddCommentMap.put("comment",message);
             if ( StrUtil.isNotEmpty( message ) ){   //审批意见不为空时调用流程api接口
-                callFlowableProcessApi.tasksAddComment(taskAddCommentMap);
+                resMap = callFlowableProcessApi.tasksAddComment(taskAddCommentMap);
+                if ( ErrorDealUtil.getErrorCode( resMap) < 0  ){
+                    return ret;
+                }
                 actCommentModelService.create(currentUserCode,message,processInstId,taskId,null);
             }
 
@@ -214,6 +219,7 @@ public class WorkTaskManager implements IWorkItemService {
             String[] outcomes = StrUtil.split( outcome,"#" );
             List<String> nextActivityParams = StrUtil.splitTrim( nextActivityParam, '#' );
             Boolean taskFlag  = Boolean.TRUE;
+
             for ( int i = 0,cnt = nextActivityParams.size();i < cnt;i++ ){
                 List<String> nextActivityParamItems = StrUtil.split( nextActivityParams.get( i ), ',' );
                 if ( isSign ){
@@ -226,7 +232,7 @@ public class WorkTaskManager implements IWorkItemService {
                     String participantIdentity = nextUsers[ 0 ].concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
                     tasksCompleteMap.put( "participantIdentity", participantIdentity );
                     if ( isFinallySign ){
-                        callFlowableProcessApi.tasksComplete( taskId, tasksCompleteMap );
+                        resMap = callFlowableProcessApi.tasksComplete( taskId, tasksCompleteMap );
                     }else{
                         callFlowableProcessApi.finshTask( taskId );
                     }
@@ -237,7 +243,7 @@ public class WorkTaskManager implements IWorkItemService {
                         tasksCompleteMap.put( "fromTaskId", taskId );
                         tasksCompleteMap.put( "tenantId", "anddoc" );
                         tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
-                        callFlowableProcessApi.tasksComplete( taskId, tasksCompleteMap );
+                        resMap = callFlowableProcessApi.tasksComplete( taskId, tasksCompleteMap );
                     }
                     if ( StrUtil.equals( nextActivityParamItems.get( 2 ), "one" ) ) {     //单人单任务
                         tasksCompleteMap.clear( );
@@ -248,7 +254,7 @@ public class WorkTaskManager implements IWorkItemService {
                         tasksCompleteMap.put( "fromTaskId", taskId );
                         tasksCompleteMap.put( "tenantId", "anddoc" );
                         tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
-                        callFlowableProcessApi.tasksComplete( taskId, tasksCompleteMap );
+                        resMap = callFlowableProcessApi.tasksComplete( taskId, tasksCompleteMap );
                     }
                     if ( StrUtil.equals( nextActivityParamItems.get( 2 ), "multi" ) ) {     //多人单任务
                         tasksCompleteMap.clear( );
@@ -292,9 +298,12 @@ public class WorkTaskManager implements IWorkItemService {
                             participantIdentitys.add( map );
                         }
                         tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
-                        callFlowableProcessApi.tasksComplete( taskId, tasksCompleteMap );
+                        resMap = callFlowableProcessApi.tasksComplete( taskId, tasksCompleteMap );
                     }
                 }
+            }
+            if ( ErrorDealUtil.getErrorCode( resMap) < 0  ){
+                return ret;
             }
             Map<String,Object> nextParamMap = Dict.create()
                     .set( "processInstanceId",processInstId )
