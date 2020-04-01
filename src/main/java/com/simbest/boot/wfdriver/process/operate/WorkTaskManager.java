@@ -281,6 +281,25 @@ public class WorkTaskManager implements IWorkItemService {
                             callFlowableProcessApi.finshTask( taskId );
                         }
                     }
+                    if ( StrUtil.equals( nextActivityParamItems.get( 2 ), "addTask" ) ) {     //多人单任务
+                        tasksCompleteMap.clear( );
+                        //先创建多实例的task
+                        tasksCompleteMap.put( "fromTaskId", taskId );
+                        tasksCompleteMap.put( "tenantId", "anddoc" );
+                        tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
+
+                        List<String> nextUserItems = StrUtil.splitTrim( nextUsers[ i ], "," );
+                        String[] nextUserOrgCodeTmps = StrUtil.split( nextUserOrgCodes.get( i ), "," );
+                        String[] nextUserPostIdTmps = StrUtil.split( nextUserPostIds.get( i ), "," );
+                        for ( int k = 0, cnt1 = nextUserItems.size( ); k < cnt1; k++ ) {
+                            String participantIdentityTmp = nextUserItems.get( k ).concat( "#" ).concat( nextUserOrgCodeTmps[ k ] ).concat( "#" ).concat( nextUserPostIdTmps[ k ] );
+                            Map<String, Object> map = Maps.newConcurrentMap( );
+                            map.put( nextUserItems.get( k ), participantIdentityTmp );
+                            participantIdentitys.add( map );
+                        }
+                        tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
+                        callFlowableProcessApi.createTaskEntityImpls( sourceTaskDefinitionKey,nextUserItems, nextActivityParamItems.get( 1 ), nextActivityParamItems.get( 0 ), processInstId, processDefinitionId,"anddoc",tasksCompleteMap );
+                    }
                     if ( StrUtil.equals( nextActivityParamItems.get( 2 ), "sign" ) ) {    //流程会签
                         tasksCompleteMap.put( "fromTaskId", taskId );
                         tasksCompleteMap.put( "tenantId", "anddoc" );
