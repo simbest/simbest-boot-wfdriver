@@ -1,10 +1,12 @@
 package com.simbest.boot.wfdriver.process.listener.web;
 
 import com.google.common.collect.Maps;
+import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.base.web.response.JsonResponse;
 import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
 import com.simbest.boot.wfdriver.process.listener.model.ActTaskInstModel;
 import com.simbest.boot.wfdriver.process.listener.service.IActTaskInstModelService;
+import com.simbest.boot.wfdriver.task.UserTaskSubmit;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,8 +30,12 @@ public class ActTaskInstListener {
 
 	@Autowired
 	private IActTaskInstModelService actTaskInstModelService;
+
 	@Autowired
 	private IActBusinessStatusService statusService;
+
+    @Autowired
+    private UserTaskSubmit userTaskSubmit;
 
 
 	/**
@@ -44,7 +50,9 @@ public class ActTaskInstListener {
 		try{
 			ret = actTaskInstModelService.created(actTaskInstModel);
 		}catch(Exception e){
-		}
+		    log.error( "回调插入流程环节实例数据异常！" );
+            Exceptions.printException( e );
+        }
         o.put("mes", ret > 0 ? "操作成功!" : "操作失败!");
         o.put("ret", ret);
         o.put("data", null);
@@ -62,10 +70,10 @@ public class ActTaskInstListener {
         int ret = 0;
 		try{
 			ret = actTaskInstModelService.updateByTaskId(actTaskInstModel);
-			//更新上一任务办理人
-			//statusService.updateActBusinessStatusData(actTaskInstModel.getProcessInstId(),actTaskInstModel.getAssignee());
 		}catch(Exception e){
-		}
+            log.error( "回调更新流程环节实例数据异常！" );
+            Exceptions.printException( e );
+        }
         o.put("mes", ret > 0 ? "操作成功!" : "操作失败!");
         o.put("ret", ret);
         o.put("data", null);

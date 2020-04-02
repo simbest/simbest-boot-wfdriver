@@ -1,6 +1,7 @@
 package com.simbest.boot.wfdriver.process.listener.web;
 
 import com.google.common.collect.Maps;
+import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.base.web.response.JsonResponse;
 import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
 import com.simbest.boot.wfdriver.process.listener.model.ActProcessInstModel;
@@ -44,7 +45,9 @@ public class ActProcessInstListener {
 		try{
 			ret = actProcessInstModelService.start(actProcessInstModel);
 		}catch(Exception e){
-		}
+            log.error( "回调插入流程实例数据异常！" );
+            Exceptions.printException( e );
+        }
         o.put("mes", ret > 0 ? "操作成功!" : "操作失败!");
         o.put("ret", ret);
         o.put("data", null);
@@ -67,7 +70,9 @@ public class ActProcessInstListener {
 			ret = statusService.updateListenerByProcess(actProcessInstModel);
 			log.debug(String.valueOf(ret));
 		}catch(Exception e){
-		}
+            log.error( "回调更新流程实例数据异常！" );
+            Exceptions.printException( e );
+        }
         o.put("mes", ret > 0 ? "操作成功!" : "操作失败!"); // 返回值兼容批量更新
         o.put("ret", ret);
         o.put("data", null);
