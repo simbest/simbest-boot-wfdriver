@@ -483,7 +483,7 @@ public class WorkTaskManager implements IWorkItemService {
         return null;
     }
 
-    /**
+    /**f
      * 根据工作任务ID结束流程    （Activity6）
      * @param processParam      参数
      */
@@ -506,6 +506,25 @@ public class WorkTaskManager implements IWorkItemService {
     public int claim ( String taskId, String userId ) {
         int ret = 0;
         return ret;
+    }
+
+    /**
+     * 功能描述:查询正在运行中的任务实例
+     *
+     * @param
+     * @return
+     * @date 2020/4/3 11:58
+     * @auther Administrator
+     */
+    @Override
+    public List<?> queryRunningTaskInstModelByProcessInstId ( Map<String, Object> processParamMap ) {
+        try {
+            String processInstId = MapUtil.getStr( processParamMap,"processInstId" );
+            List<ActTaskInstModel> actTaskInstModels = actTaskInstModelService.queryRunningTaskInstModelByProcessInstId( processInstId );
+        }catch (Exception e){
+            FlowableDriverBusinessException.printException( e );
+        }
+        return null;
     }
 
     public static void main ( String[] args ) {

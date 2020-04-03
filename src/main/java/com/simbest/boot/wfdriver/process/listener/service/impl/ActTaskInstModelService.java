@@ -264,4 +264,27 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
         }
         return null;
     }
+
+    /**
+     * 功能描述:根据流程实例ID查询正在运行中的任务
+     *
+     * @param
+     * @return
+     * @date 2020/4/3 11:48
+     * @auther Administrator
+     */
+    @Override
+    public List<ActTaskInstModel> queryRunningTaskInstModelByProcessInstId ( String processInsId ) {
+        List<ActTaskInstModel> actTaskInstModelList = CollectionUtil.newArrayList();
+        try {
+            actTaskInstModelList = actTaskInstModelMapper.queryTaskInstModelByProcessInstIdAndEnabledOrderByEndTimeAsc( processInsId,Boolean.TRUE );
+            List<ActTaskInstModel> actTaskInstModelList1 = actTaskInstModelList.stream().
+                    filter( actTaskInstModel1 -> actTaskInstModel1.getEndTime() == null ).
+                    collect( Collectors.toList() );
+            return actTaskInstModelList1;
+        }catch (Exception e){
+            FlowableDriverBusinessException.printException( e );
+        }
+        return null;
+    }
 }

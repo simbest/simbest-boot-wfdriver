@@ -57,4 +57,13 @@ public interface IActTaskInstModelService extends ILogicService<ActTaskInstModel
      */
     List<ActTaskInstModel> queryTaskInstModelByProcessInstId(String processInsId);
 
+    /**
+     * 功能描述:根据流程实例ID查询正在运行中的任务
+     *
+     * @param 
+     * @return 
+     * @date 2020/4/3 11:48
+     * @auther Administrator
+     */
+    List<ActTaskInstModel> queryRunningTaskInstModelByProcessInstId(String processInsId);
 }
