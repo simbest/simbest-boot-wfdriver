@@ -521,6 +521,7 @@ public class WorkTaskManager implements IWorkItemService {
         try {
             String processInstId = MapUtil.getStr( processParamMap,"processInstId" );
             List<ActTaskInstModel> actTaskInstModels = actTaskInstModelService.queryRunningTaskInstModelByProcessInstId( processInstId );
+            return actTaskInstModels;
         }catch (Exception e){
             FlowableDriverBusinessException.printException( e );
         }
