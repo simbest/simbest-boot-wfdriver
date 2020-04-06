@@ -101,7 +101,7 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
      * @param processInstId  流程实例ID
      * @return
      */
-    List<ActTaskInstModel> queryTaskInstModelByProcessInstIdAndEnabledOrderByEndTimeAsc(String processInstId,Boolean enabled);
+    List<ActTaskInstModel> queryTaskInstModelByProcessInstIdAndEnabledOrderByTaskCreateTimeAsc(String processInstId,Boolean enabled);
 
     /**
      * 功能描述: 根据流程实例id、环节定义id、完成人和数据状态查询生成的环节实例数据

@@ -229,7 +229,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
     public List<ActTaskInstModel> queryTaskInstModelByProcessInstId ( String processInstId ) {
         List<ActTaskInstModel> actTaskInstModelList = CollectionUtil.newArrayList();
         try {
-            actTaskInstModelList = actTaskInstModelMapper.queryTaskInstModelByProcessInstIdAndEnabledOrderByEndTimeAsc( processInstId,Boolean.TRUE );
+            actTaskInstModelList = actTaskInstModelMapper.queryTaskInstModelByProcessInstIdAndEnabledOrderByTaskCreateTimeAsc( processInstId,Boolean.TRUE );
             List<ActTaskInstModel> finalActTaskInstModelList = actTaskInstModelList;
             actTaskInstModelList.stream().forEach( actTaskInstModel -> {
                 String nextActivityName = actTaskInstModel.getName();
@@ -277,7 +277,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
     public List<ActTaskInstModel> queryRunningTaskInstModelByProcessInstId ( String processInsId ) {
         List<ActTaskInstModel> actTaskInstModelList = CollectionUtil.newArrayList();
         try {
-            actTaskInstModelList = actTaskInstModelMapper.queryTaskInstModelByProcessInstIdAndEnabledOrderByEndTimeAsc( processInsId,Boolean.TRUE );
+            actTaskInstModelList = actTaskInstModelMapper.queryTaskInstModelByProcessInstIdAndEnabledOrderByTaskCreateTimeAsc( processInsId,Boolean.TRUE );
             List<ActTaskInstModel> actTaskInstModelList1 = actTaskInstModelList.stream().
                     filter( actTaskInstModel1 -> actTaskInstModel1.getEndTime() == null ).
                     collect( Collectors.toList() );
