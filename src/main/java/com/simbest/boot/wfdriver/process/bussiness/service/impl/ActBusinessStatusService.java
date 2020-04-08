@@ -158,6 +158,7 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
      * 流程结束更新结束时间
      * @return
      */
+    @Transactional (propagation= Propagation.REQUIRES_NEW)
 	@Override
 	public int updateListenerByProcess(ActProcessInstModel actProcessInstModel) {
         int ret = 0;
@@ -168,8 +169,9 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             o.setDuration(duration.toNanos());
             o.setCurrentState( BoProcessInstStateEnum.PROCESS_INST_STATE_END.getValue() );
             //actBusinessStatusMapper.updateBoProcessInstById( o.getBusinessKey(), BoProcessInstStateEnum.PROCESS_INST_STATE_END.getValue() );
-            o = actBusinessStatusMapper.save(o);
+            o = actBusinessStatusMapper.saveAndFlush(o);
             if ( o != null ){
+                RedisUtil.delete( o.getProcessInstId().concat( "_act" ) );
                 ret = 1;
             }
         }catch(Exception e){
