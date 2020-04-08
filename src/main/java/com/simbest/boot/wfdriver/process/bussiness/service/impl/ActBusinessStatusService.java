@@ -458,7 +458,6 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
      */
     @Override
     public Page<?> getMyCreateDataPage ( Map<?, ?> userParam, Pageable pageable ) {
-
         Page<Map<String, Object>> pages = null;
         String creator = (String) userParam.get( "creator" );
         String dynamicWhere = (String) userParam.get( "title" );
@@ -526,7 +525,23 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
      */
     @Override
     public Page<Map<String, Object>> getAllTodoByManagerPage ( Map<?, ?> paramMap, Pageable pageable ) {
-        return null;
+        Page<Map<String, Object>> pages = null;
+        String participant = MapUtil.getStr( paramMap,"participant" );
+        String currentState = MapUtil.getStr( paramMap,"currentState" );
+        String dynamicWhere = MapUtil.getStr( paramMap,"title" );
+        StringBuilder inWhere = new StringBuilder();
+        try {
+            if ( StringUtils.isEmpty( dynamicWhere )){
+                dynamicWhere = "";
+            }
+            if ( StrUtil.isEmpty( currentState ) ){
+                currentState = "2";
+            }
+            pages = actBusinessStatusMapper.getAnddocAllByUserPage( participant,dynamicWhere,currentState,pageable );
+        }catch ( Exception e ){
+            FlowableDriverBusinessException.printException( e );
+        }
+        return pages;
     }
 
     /**
