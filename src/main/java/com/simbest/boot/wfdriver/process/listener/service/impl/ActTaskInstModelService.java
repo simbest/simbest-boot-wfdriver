@@ -120,6 +120,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
             actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
             actTaskInstModel = actTaskInstModelMapper.save(actTaskInstModel);
             //以下是推送统一待办
+            log.warn( "ActTaskInstModelService>>>>>>>【{}】",JacksonUtils.obj2json( actBusinessStatus ) );
             userTaskSubmit.submitTodoOpen( actBusinessStatus,actTaskInstModel, actTaskInstModel.getAssignee());
             ret = 1;
         }catch (Exception e){
