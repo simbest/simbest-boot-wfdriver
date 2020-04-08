@@ -220,6 +220,28 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
     }
 
     /**
+     * 功能描述: 根据流程实例ID更新更新标题信息
+     *
+     * @param
+     * @return
+     * @date 2020/2/20 11:51
+     * @auther ljw
+     */
+    @Override
+    public int updateTitleByProcessInstById ( Map<? extends Object, ? extends Object> paramMap ) {
+        int ret = 0;
+        try {
+            String processInstId = MapUtil.getStr( paramMap,"processInstId" );
+            String title = MapUtil.getStr( paramMap,"title" );
+            ret = actBusinessStatusMapper.updateTitleByProcessInstById( processInstId,title );
+        }catch (Exception e){
+            ret = -1;
+            FlowableDriverBusinessException.printException( e );
+        }
+        return ret;
+    }
+
+    /**
      * 分页获取所有待办数据
      * @param todoParam   查询待办参数
      * @return

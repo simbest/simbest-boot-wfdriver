@@ -331,4 +331,16 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
     @Query(value = sq25,nativeQuery = true)
     int updateBoProcessInstById(@Param(value = "id")String id,@Param(value = "currentState")String currentState);
 
+    /**
+     * 功能描述: 根据流程实例ID更新更新标题信息
+     *
+     * @param
+     * @return
+     * @date 2020/2/20 11:51
+     * @auther ljw
+     */
+    String sq26 = "update act_business_status t set RECEIPT_TITLE=:title WHERE ENABLED=1 and t.PROCESS_INST_ID = ?1";
+    @Modifying
+    @Query(value = sq26,nativeQuery = true)
+    int updateTitleByProcessInstById(String processInstId,String title);
 }

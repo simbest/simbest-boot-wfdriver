@@ -67,5 +67,4 @@ public interface IActBusinessStatusService extends IGenericService<ActBusinessSt
      * @auther ljw
      */
     int updatePorcessStateByProInstId(String processInstId);
-
 }
