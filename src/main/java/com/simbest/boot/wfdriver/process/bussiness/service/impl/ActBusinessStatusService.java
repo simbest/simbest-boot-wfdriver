@@ -6,9 +6,11 @@ import cn.hutool.core.util.StrUtil;
 import com.simbest.boot.base.service.impl.GenericService;
 import com.simbest.boot.security.IOrg;
 import com.simbest.boot.security.IUser;
+import com.simbest.boot.util.redis.RedisUtil;
 import com.simbest.boot.util.security.SecurityUtils;
 import com.simbest.boot.wf.process.service.IProcessInstanceService;
 import com.simbest.boot.wf.unitfytodo.IProcessTodoDataService;
+import com.simbest.boot.wfdriver.constants.AppConstants;
 import com.simbest.boot.wfdriver.enums.BoProcessInstStateEnum;
 import com.simbest.boot.wfdriver.enums.ProcessSateEnum;
 import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
@@ -102,6 +104,7 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             actBusinessStatus.setCreatorIdentity( currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ) );
             actBusinessStatus = actBusinessStatusMapper.saveAndFlush(actBusinessStatus);
             if ( actBusinessStatus != null ){
+                RedisUtil.setBean( processInstanceId.concat( "_act" ),actBusinessStatus );
                 ret = 1;
             }
         }catch(Exception e){
@@ -114,6 +117,7 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
      * 任务提交下一步更新流程状态信息
      * @return
      */
+    @Transactional (propagation= Propagation.REQUIRES_NEW)
 	@Override
 	public int updateActBusinessStatusData( Map<String,Object> nextParam ) {
 		int ret = 0;
@@ -128,8 +132,10 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             actBusinessStatus.setPreviousAssistantOrgCode( user.getBelongOrgCode() );
             actBusinessStatus.setPreviousAssistantOrgName( user.getBelongOrgName() );
             actBusinessStatus.setReceiptTitle( receipTitle );
-            actBusinessStatus = actBusinessStatusMapper.save(actBusinessStatus);
+            actBusinessStatus = actBusinessStatusMapper.saveAndFlush(actBusinessStatus);
             if ( actBusinessStatus != null ){
+                RedisUtil.delete( processInstanceId.concat( "_act" ) );
+                RedisUtil.setBean( processInstanceId.concat( "_act" ),actBusinessStatus );
                 ret = 1;
             }
         }catch(Exception e){
