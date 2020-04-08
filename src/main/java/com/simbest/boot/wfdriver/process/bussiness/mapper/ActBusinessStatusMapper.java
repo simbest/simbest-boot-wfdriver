@@ -228,10 +228,10 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join act_business_status act" +
             "     on ubi.id = act.business_key" +
             "     and act.enabled=1 " +
+            "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
             "    join flowable_task_inst_model task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     and task.enabled=1 " +
-            "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
             "     AND task.end_Time is not null" +
             "     AND task.assignee = :participant" +
             //" ORDER BY ubpd.global_display_order asc,task.created_Time desc";
