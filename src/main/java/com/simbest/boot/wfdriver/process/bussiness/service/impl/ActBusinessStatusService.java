@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -58,6 +60,7 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
      * @param startMap   相关参数
      * @return
      */
+    @Transactional (propagation= Propagation.REQUIRES_NEW)
     @Override
 	public int saveActBusinessStatusData(String processInstanceId, Map<String, Object> startMap ) {
         int ret = 0;
@@ -97,7 +100,7 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             actBusinessStatus.setCurrentState( ProcessSateEnum.RUNNING.getNum() );
             actBusinessStatus.setPmInstType( StrUtil.sub( receiptCode,0,1 ) );
             actBusinessStatus.setCreatorIdentity( currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ) );
-            actBusinessStatus = actBusinessStatusMapper.save(actBusinessStatus);
+            actBusinessStatus = actBusinessStatusMapper.saveAndFlush(actBusinessStatus);
             if ( actBusinessStatus != null ){
                 ret = 1;
             }
