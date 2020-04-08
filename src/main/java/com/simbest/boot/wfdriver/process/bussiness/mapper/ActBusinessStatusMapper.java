@@ -364,7 +364,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
      * @date 2020/2/20 11:51
      * @auther ljw
      */
-    String sq26 = "update act_business_status t set RECEIPT_TITLE=:title WHERE ENABLED=1 and t.PROCESS_INST_ID = ?1";
+    String sq26 = "update act_business_status t set RECEIPT_TITLE=?2 WHERE ENABLED=1 and t.PROCESS_INST_ID = ?1";
     @Modifying
     @Query(value = sq26,nativeQuery = true)
     int updateTitleByProcessInstById(String processInstId,String title);
