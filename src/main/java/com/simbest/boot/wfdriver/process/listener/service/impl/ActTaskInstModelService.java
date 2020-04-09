@@ -74,6 +74,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
 	    int ret = 0;
 	    try {
             ActBusinessStatus actBusinessStatus = actBusinessStatusService.getByProcessInst( actTaskInstModel.getProcessInstId() );
+            log.warn( "ActTaskInstModelService>>>>>>>1>>>>【{}】",JacksonUtils.obj2json( actBusinessStatus ) );
             Map<String,Object> cacheStartMapParam = RedisUtil.getBean( actTaskInstModel.getBusinessKey().concat(ProcessConstants.PROCESS_START_REDIS_SUFFIX),Map.class);
             log.warn( "回调后打印流程启动提交的候选中文名称：【{}】", JacksonUtils.obj2json( cacheStartMapParam ) );
 	        String participantIdentity = actTaskInstModel.getParticipantIdentity();
@@ -121,11 +122,10 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
             actTaskInstModel.setModifier( actTaskInstModel.getAssignee() );
             actTaskInstModel = actTaskInstModelMapper.save(actTaskInstModel);
             //以下是推送统一待办
-            log.warn( "ActTaskInstModelService>>>>>>>【{}】",JacksonUtils.obj2json( actBusinessStatus ) );
             if ( StrUtil.isEmptyIfStr( actBusinessStatus ) ){
                 actBusinessStatus = RedisUtil.getBean( AppConstants.APP_CODE.concat( "_act" ),ActBusinessStatus.class );
             }
-            log.warn( "ActTaskInstModelService>>>>>>>【{}】",JacksonUtils.obj2json( actBusinessStatus ) );
+            log.warn( "ActTaskInstModelService>>>>>>>2>>>>【{}】",JacksonUtils.obj2json( actBusinessStatus ) );
             userTaskSubmit.submitTodoOpen( actBusinessStatus,actTaskInstModel, actTaskInstModel.getAssignee());
             ret = 1;
         }catch (Exception e){
