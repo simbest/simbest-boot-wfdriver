@@ -9,6 +9,7 @@ import com.simbest.boot.base.service.impl.LogicService;
 import com.simbest.boot.util.DateUtil;
 import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.util.redis.RedisUtil;
+import com.simbest.boot.wfdriver.constants.AppConstants;
 import com.simbest.boot.wfdriver.constants.ProcessConstants;
 import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
 import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
@@ -122,7 +123,7 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
             //以下是推送统一待办
             log.warn( "ActTaskInstModelService>>>>>>>【{}】",JacksonUtils.obj2json( actBusinessStatus ) );
             if ( StrUtil.isEmptyIfStr( actBusinessStatus ) ){
-                actBusinessStatus = RedisUtil.getBean( actTaskInstModel.getProcessInstId().concat( "_act" ),ActBusinessStatus.class );
+                actBusinessStatus = RedisUtil.getBean( AppConstants.APP_CODE.concat( "_act" ),ActBusinessStatus.class );
             }
             log.warn( "ActTaskInstModelService>>>>>>>【{}】",JacksonUtils.obj2json( actBusinessStatus ) );
             userTaskSubmit.submitTodoOpen( actBusinessStatus,actTaskInstModel, actTaskInstModel.getAssignee());

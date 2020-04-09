@@ -4,11 +4,16 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
+import com.simbest.boot.security.IOrg;
+import com.simbest.boot.security.IUser;
 import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.util.redis.RedisUtil;
+import com.simbest.boot.util.security.SecurityUtils;
 import com.simbest.boot.wf.process.service.IProcessInstanceService;
 import com.simbest.boot.wfdriver.api.CallFlowableProcessApi;
+import com.simbest.boot.wfdriver.constants.AppConstants;
 import com.simbest.boot.wfdriver.constants.ProcessConstants;
+import com.simbest.boot.wfdriver.enums.ProcessSateEnum;
 import com.simbest.boot.wfdriver.exceptions.FlowableDriverBusinessException;
 import com.simbest.boot.wfdriver.exceptions.WorkFlowBusinessRuntimeException;
 import com.simbest.boot.wfdriver.process.bussiness.model.ActBusinessStatus;
@@ -26,8 +31,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -91,6 +98,7 @@ public class WfProcessManager implements IProcessInstanceService {
      */
     @Override
     public Map<String,Object> startProcessAndDeployProcessAndNoSetRelativeData ( Map<String, Object> startParam ) {
+        getActDataObject(startParam);
         Map<String,Object> cacheStartMapParam = CollectionUtil.newHashMap();
         Map<String,Object> processInstanceDataMap = Maps.newConcurrentMap();
         String flowDirection = MapUtil.getStr( startParam,"flowDirection" );
@@ -165,6 +173,45 @@ public class WfProcessManager implements IProcessInstanceService {
             FlowableDriverBusinessException.printException( e );
             throw new WorkFlowBusinessRuntimeException("Exception Cause is submit workItem data failure,code:WF000001");
         }
+    }
+
+    private void getActDataObject(Map<String,Object>startMap){
+        ActBusinessStatus actBusinessStatus = new ActBusinessStatus();
+        String currentUserCode = MapUtil.getStr(startMap,"currentUserCode" );
+        String receipTitle = MapUtil.getStr(startMap, "receipTitle" );
+        Boolean iscg = MapUtil.getBool(startMap, "iscg" );
+        String processDefKey = MapUtil.getStr(startMap, "idValue" );
+        String orgCode = MapUtil.getStr(startMap, "orgCode" );
+        String postId = MapUtil.getStr(startMap, "postId" );
+        String businessKey = MapUtil.getStr( startMap, "businessKey" );
+        String receiptCode = MapUtil.getStr( startMap, "receiptCode" );
+        IUser user = SecurityUtils.getCurrentUser();
+        Optional<IOrg> orgOptional = ( Optional<IOrg> ) user.getAuthOrgs().stream().
+                filter( org -> org.getOrgCode().equals( orgCode ) ).findFirst();
+        String createOrgName = "";
+        if ( orgOptional.isPresent() ){//如果存在
+            createOrgName = orgOptional.get().getOrgName();
+        }
+        actBusinessStatus.setCreateUserId( currentUserCode );
+        actBusinessStatus.setCreateUserName( user.getTruename() );
+        actBusinessStatus.setPreviousAssistant(currentUserCode);
+        actBusinessStatus.setPreviousAssistantName(user.getTruename());
+        actBusinessStatus.setCreateUserId( currentUserCode );
+        actBusinessStatus.setCreateOrgCode( orgCode );
+        actBusinessStatus.setCreateOrgName( createOrgName );
+        actBusinessStatus.setEnabled(true);
+        actBusinessStatus.setRemoved(false);
+        actBusinessStatus.setReceiptTitle(receipTitle);
+        actBusinessStatus.setReceiptCode(receiptCode);
+        actBusinessStatus.setIscg(iscg);
+        actBusinessStatus.setBusinessKey(businessKey);
+        //actBusinessStatus.setProcessInstId(processInstanceId);
+        actBusinessStatus.setStartTime( LocalDateTime.now());
+        actBusinessStatus.setProcessDefKey( processDefKey );
+        actBusinessStatus.setCurrentState( ProcessSateEnum.RUNNING.getNum() );
+        actBusinessStatus.setPmInstType( StrUtil.sub( receiptCode,0,1 ) );
+        actBusinessStatus.setCreatorIdentity( currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ) );
+        RedisUtil.setBean( AppConstants.APP_CODE.concat( "_act" ),actBusinessStatus );
     }
 
     /**

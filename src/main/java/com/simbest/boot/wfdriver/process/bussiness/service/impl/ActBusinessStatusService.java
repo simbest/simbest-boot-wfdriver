@@ -104,7 +104,6 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             actBusinessStatus.setCreatorIdentity( currentUserCode.concat( "#" ).concat( orgCode ).concat( "#" ).concat( postId ) );
             actBusinessStatus = actBusinessStatusMapper.saveAndFlush(actBusinessStatus);
             if ( actBusinessStatus != null ){
-                RedisUtil.setBean( processInstanceId.concat( "_act" ),actBusinessStatus );
                 ret = 1;
             }
         }catch(Exception e){
@@ -134,8 +133,6 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             actBusinessStatus.setReceiptTitle( receipTitle );
             actBusinessStatus = actBusinessStatusMapper.saveAndFlush(actBusinessStatus);
             if ( actBusinessStatus != null ){
-                RedisUtil.delete( processInstanceId.concat( "_act" ) );
-                RedisUtil.setBean( processInstanceId.concat( "_act" ),actBusinessStatus );
                 ret = 1;
             }
         }catch(Exception e){
@@ -171,7 +168,7 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
             //actBusinessStatusMapper.updateBoProcessInstById( o.getBusinessKey(), BoProcessInstStateEnum.PROCESS_INST_STATE_END.getValue() );
             o = actBusinessStatusMapper.saveAndFlush(o);
             if ( o != null ){
-                RedisUtil.delete( o.getProcessInstId().concat( "_act" ) );
+                RedisUtil.delete( AppConstants.APP_CODE.concat( "_act" ) );
                 ret = 1;
             }
         }catch(Exception e){
