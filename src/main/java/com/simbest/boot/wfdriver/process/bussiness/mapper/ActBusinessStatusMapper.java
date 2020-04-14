@@ -173,6 +173,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "     on ubpd.id = ubi.bo_porcess_def_id" +
             "     and ubpd.enabled=1" +
             "     and ubi.enabled=1 " +
+            "     and ubi.CURRENT_STATE <> '100'" +
             "    join act_business_status act" +
             "     on ubi.id = act.business_key" +
             "     and act.enabled=1 " +
