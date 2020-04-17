@@ -160,7 +160,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join act_business_status act" +
             "     on ubi.id = act.business_key" +
             "     and act.enabled=1 " +
-            "    join (select * from FLOWABLE_TASK_INST_MODEL tk where tk.end_time in(select max(t.end_time) from FLOWABLE_TASK_INST_MODEL t where t.assignee=:participant and t.enabled=1 and t.end_time is not null group by t.process_inst_id))task" +
+            "    join flowable_task_inst_model task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     and task.enabled=1 " +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
@@ -177,7 +177,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join act_business_status act" +
             "     on ubi.id = act.business_key" +
             "     and act.enabled=1 " +
-            "    join (select * from FLOWABLE_TASK_INST_MODEL tk where tk.end_time in(select max(t.end_time) from FLOWABLE_TASK_INST_MODEL t where t.assignee=:participant and t.enabled=1 and t.end_time is not null group by t.process_inst_id))task" +
+            "    join flowable_task_inst_model task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     and task.enabled=1 " +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
@@ -251,9 +251,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
                     " act.*,task.task_Id as taskId," +
                     "task.name as taskName," +
                     "task.assignee as taskAssignee " +
-                    "FROM " +
-                    "act_business_status act, " +
-                    "flowable_task_inst_model task "+
+                    "FROM  act_business_status act, flowable_task_inst_model task "+
                     "WHERE act.process_inst_id = task.process_Inst_Id " +
                     "AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%') " +
                     "AND task.end_Time is not null " +
@@ -261,9 +259,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
                     "AND act.enabled = 1 " +
                     "ORDER BY task.end_time desc";
     String sql5Count = "SELECT count(1)" +
-                    "FROM " +
-                    "act_business_status act, " +
-                    "flowable_task_inst_model task "+
+                    "FROM  act_business_status act, flowable_task_inst_model task "+
                     "WHERE act.process_inst_id = task.process_Inst_Id " +
                     "AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%') " +
                     "AND task.end_Time is not null " +
@@ -292,7 +288,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join act_business_status act" +
             "     on ubi.id = act.business_key" +
             "     and act.enabled=1 " +
-            "    join flowable_task_inst_model task" +
+            "    join (select * from FLOWABLE_TASK_INST_MODEL tk where tk.end_time in(select max(t.end_time) from FLOWABLE_TASK_INST_MODEL t where t.assignee=:participant and t.enabled=1 and t.end_time is not null group by t.process_inst_id))task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     and task.enabled=1 " +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
@@ -309,7 +305,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join act_business_status act" +
             "     on ubi.id = act.business_key" +
             "     and act.enabled=1 " +
-            "    join flowable_task_inst_model task" +
+            "    join (select * from FLOWABLE_TASK_INST_MODEL tk where tk.end_time in(select max(t.end_time) from FLOWABLE_TASK_INST_MODEL t where t.assignee=:participant and t.enabled=1 and t.end_time is not null group by t.process_inst_id))task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     and task.enabled=1 " +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
