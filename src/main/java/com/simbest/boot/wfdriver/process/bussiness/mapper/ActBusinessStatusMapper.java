@@ -288,7 +288,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join act_business_status act" +
             "     on ubi.id = act.business_key" +
             "     and act.enabled=1 " +
-            "    join (select * from FLOWABLE_TASK_INST_MODEL tk where tk.end_time in(select max(t.end_time) from FLOWABLE_TASK_INST_MODEL t where t.assignee=:participant and t.enabled=1 and t.end_time is not null group by t.process_inst_id))task" +
+            "    join (select * from FLOWABLE_TASK_INST_MODEL tk where tk.end_time in(select max(t.end_time) from FLOWABLE_TASK_INST_MODEL t where t.assignee=:assistant and t.enabled=1 and t.end_time is not null group by t.process_inst_id))task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     and task.enabled=1 " +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
@@ -305,7 +305,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join act_business_status act" +
             "     on ubi.id = act.business_key" +
             "     and act.enabled=1 " +
-            "    join (select * from FLOWABLE_TASK_INST_MODEL tk where tk.end_time in(select max(t.end_time) from FLOWABLE_TASK_INST_MODEL t where t.assignee=:participant and t.enabled=1 and t.end_time is not null group by t.process_inst_id))task" +
+            "    join (select * from FLOWABLE_TASK_INST_MODEL tk where tk.end_time in(select max(t.end_time) from FLOWABLE_TASK_INST_MODEL t where t.assignee=:assistant and t.enabled=1 and t.end_time is not null group by t.process_inst_id))task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     and task.enabled=1 " +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
