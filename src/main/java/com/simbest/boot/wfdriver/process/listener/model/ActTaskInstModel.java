@@ -36,7 +36,8 @@ import java.util.Date;
          indexes = {
                     @Index(columnList = "processInstId",name = "IDX_TASK_INST_PROCESS_INST_ID"),
                     @Index(columnList = "taskId",name = "IDX_TASK_INST_TASK_ID"),
-                    @Index(columnList = "enabled",name = "IDX_TASK_INST_ENABLED")
+                    @Index(columnList = "enabled",name = "IDX_TASK_INST_ENABLED"),
+                    @Index(columnList = "endTime",name = "IDX_TASK_END_TIMIE"),
                   }
         )
 public class ActTaskInstModel extends LogicModel {
