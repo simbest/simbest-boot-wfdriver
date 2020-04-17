@@ -160,7 +160,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join act_business_status act" +
             "     on ubi.id = act.business_key" +
             "     and act.enabled=1 " +
-            "    join flowable_task_inst_model task" +
+            "    join (select * from FLOWABLE_TASK_INST_MODEL tk where tk.end_time in(select max(t.end_time) from FLOWABLE_TASK_INST_MODEL t where t.assignee=:participant and t.enabled=1 and t.end_time is not null group by t.process_inst_id))task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     and task.enabled=1 " +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
@@ -177,7 +177,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join act_business_status act" +
             "     on ubi.id = act.business_key" +
             "     and act.enabled=1 " +
-            "    join flowable_task_inst_model task" +
+            "    join (select * from FLOWABLE_TASK_INST_MODEL tk where tk.end_time in(select max(t.end_time) from FLOWABLE_TASK_INST_MODEL t where t.assignee=:participant and t.enabled=1 and t.end_time is not null group by t.process_inst_id))task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     and task.enabled=1 " +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
@@ -200,7 +200,7 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "    join act_business_status act" +
             "     on ubi.id = act.business_key" +
             "     and act.enabled=1 " +
-            "    join flowable_task_inst_model task" +
+            "    join (select * from FLOWABLE_TASK_INST_MODEL tk where tk.end_time in(select max(t.end_time) from FLOWABLE_TASK_INST_MODEL t where t.assignee=:participant and t.enabled=1 and t.end_time is not null group by t.process_inst_id))task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     and task.enabled=1 " +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
@@ -233,12 +233,11 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
             "     on ubi.id = act.business_key" +
             "     and act.enabled=1 " +
             "     AND act.receipt_title LIKE concat(concat('%', :dynamicWhere), '%')" +
-            "    join flowable_task_inst_model task" +
+            "    join (select * from FLOWABLE_TASK_INST_MODEL tk where tk.end_time in(select max(t.end_time) from FLOWABLE_TASK_INST_MODEL t where t.assignee=:participant and t.enabled=1 and t.end_time is not null group by t.process_inst_id))task" +
             "     on act.process_inst_id = task.process_Inst_Id" +
             "     and task.enabled=1 " +
             "     AND task.end_Time is not null" +
             "     AND task.assignee = :participant" +
-            //" ORDER BY ubpd.global_display_order asc,task.created_Time desc";
             " ORDER BY task.end_time desc";
     @Query(value = sq24,nativeQuery = true)
     List<Map<String,Object>> getByAreadyDoneAssistantNoPage(@Param(value = "participant") String participant, @Param(value = "dynamicWhere") String dynamicWhere);
