@@ -18,5 +18,6 @@ public class ConstansURL {
     public static final String DEFINITIONS_GETBY_KEY = "/app/provide/definitions/anonymous/definitionsGetByKey";	//根据key获得一个流程定义
     public static final String DELETE_PROCESS_INSTANCE = "/app/provide/instances/anonymous/deleteProcessInstance";	//	删除流程实例
     public static final String UPGRADE_PROCESS_INSTANCE_VERSION = "/app/provide/instances/anonymous/upgradeProcessInstanceVersion";	//升级流程实例
+    public static final String CHECK_IS_LAST_VERSION = "/app/provide/instances/anonymous/checkIsLastVersion";	//升级流程实例
 
 }

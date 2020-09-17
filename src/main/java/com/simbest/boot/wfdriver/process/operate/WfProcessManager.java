@@ -489,13 +489,24 @@ public class WfProcessManager implements IProcessInstanceService {
         boolean ret = Boolean.FALSE;
         try {
             //升级流程引擎库中的流程定义信息
-            callFlowableProcessApi.upgradeProcessInstanceVersion (processInstanceIds , null , null);
+            callFlowableProcessApi.upgradeProcessInstanceVersion (processInstanceIds , null , null , wfdriverConfig.getAppCode() );
             //升级业务库中的流程定义信息
             ret = callFlowableProcessApi.upgradeBusProcessInstanceVersion(processDefinitionKey , processInstanceIds ,wfdriverConfig.getAppCode());
         }catch (Exception e ) {
             Exceptions.printException(e);
         }
         return  ret;
-
     }
+
+    /**
+     * 根据流程定义id校验当前流程版本是否为最新版本
+     * @param processInstId  流程实例id
+     * @return
+     */
+    @Override
+    public Boolean checkIsLastVersion(String processInstId) {
+        return callFlowableProcessApi.checkIsLastVersion(processInstId , wfdriverConfig.getAppCode());
+    }
+
+
 }

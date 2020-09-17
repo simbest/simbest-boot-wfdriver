@@ -393,11 +393,12 @@ public class CallFlowableProcessApi {
      * @param processDefinitionId 流程定义ID
      * @param version 版本号
      */
-    public void upgradeProcessInstanceVersion(String processInstanceIds,String processDefinitionId,String version) {
+    public void upgradeProcessInstanceVersion(String processInstanceIds,String processDefinitionId,String version , String tenantId) {
         Map<String,String> para = new HashMap<String,String>();
         para.put("processInstanceIds",processInstanceIds);
         para.put("processDefinitionId",processDefinitionId);
         para.put("version",version);
+        para.put("tenantId",tenantId);
         MapRemoveNullUtil.removeNullEntry(para);
         wqqueryHttpService.callInterfaceString(ConstansURL.UPGRADE_PROCESS_INSTANCE_VERSION,para);
     }
@@ -470,5 +471,14 @@ public class CallFlowableProcessApi {
         return map;
     }
 
+    public Boolean checkIsLastVersion (String processInstanceId , String tenantId) {
+        Map<String,String> para = new HashMap<String,String>();
+        para.put("processInstanceId",processInstanceId);
+        para.put("tenantId",tenantId);
+        MapRemoveNullUtil.removeNullEntry(para);
+        Map<String,Object> map  = wqqueryHttpService.callInterfaceString(ConstansURL.CHECK_IS_LAST_VERSION , para);
+        Map data = MapUtil.get(map, "data", Map.class);
+        return MapUtil.getBool(data , "isLastVersion");
+    }
 
 }
