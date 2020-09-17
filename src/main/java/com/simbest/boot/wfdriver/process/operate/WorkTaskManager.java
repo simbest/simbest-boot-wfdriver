@@ -1,12 +1,10 @@
 package com.simbest.boot.wfdriver.process.operate;
 
-import cn.hutool.core.codec.Caesar;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Dict;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.github.wenhao.jpa.PredicateBuilder;
 import com.github.wenhao.jpa.Specifications;
 import com.google.common.collect.Maps;
 import com.simbest.boot.base.exception.Exceptions;
@@ -21,6 +19,7 @@ import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusSer
 import com.simbest.boot.wfdriver.process.listener.model.ActTaskInstModel;
 import com.simbest.boot.wfdriver.process.listener.service.IActCommentModelService;
 import com.simbest.boot.wfdriver.process.listener.service.IActTaskInstModelService;
+import com.simbest.boot.wfdriver.util.WfdriverConfig;
 import com.simbest.boot.wfdriver.util.ErrorDealUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.Lists;
@@ -28,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import sun.nio.cs.ext.TIS_620;
 
 import java.util.*;
 
@@ -54,6 +52,9 @@ public class WorkTaskManager implements IWorkItemService {
 
     @Autowired
     private IActTaskInstModelService actTaskInstModelService;
+
+    @Autowired
+    private WfdriverConfig anddocConfig;
 
     /**
      * 完成指定工作项并携带流程相关数据（提交下一步）
@@ -228,7 +229,7 @@ public class WorkTaskManager implements IWorkItemService {
                     tasksCompleteMap.clear( );
                     tasksCompleteMap.put( "outcome", outcome );
                     tasksCompleteMap.put( "fromTaskId", taskId );
-                    tasksCompleteMap.put( "tenantId", "anddoc" );
+                    tasksCompleteMap.put( "tenantId", anddocConfig.getAppCode() );
                     tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
                     tasksCompleteMap.put( inputUserParams[ 0 ], nextUsers[ 0 ] );
                     String participantIdentity = nextUsers[ 0 ].concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
@@ -243,7 +244,7 @@ public class WorkTaskManager implements IWorkItemService {
                         tasksCompleteMap.clear( );
                         tasksCompleteMap.put( "outcome", outcomes[i] );
                         tasksCompleteMap.put( "fromTaskId", taskId );
-                        tasksCompleteMap.put( "tenantId", "anddoc" );
+                        tasksCompleteMap.put( "tenantId", anddocConfig.getAppCode() );
                         tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
                         resMap = callFlowableProcessApi.tasksComplete( taskId, tasksCompleteMap );
                     }
@@ -254,7 +255,7 @@ public class WorkTaskManager implements IWorkItemService {
                         String participantIdentity = nextUsers[ i ].concat( "#" ).concat( nextUserOrgCode ).concat( "#" ).concat( nextUserPostId );
                         tasksCompleteMap.put( "participantIdentity", participantIdentity );
                         tasksCompleteMap.put( "fromTaskId", taskId );
-                        tasksCompleteMap.put( "tenantId", "anddoc" );
+                        tasksCompleteMap.put( "tenantId", anddocConfig.getAppCode() );
                         tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
                         resMap = callFlowableProcessApi.tasksComplete( taskId, tasksCompleteMap );
                     }
@@ -262,7 +263,7 @@ public class WorkTaskManager implements IWorkItemService {
                         tasksCompleteMap.clear( );
                         //先创建多实例的task
                         tasksCompleteMap.put( "fromTaskId", taskId );
-                        tasksCompleteMap.put( "tenantId", "anddoc" );
+                        tasksCompleteMap.put( "tenantId", anddocConfig.getAppCode() );
                         tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
 
                         List<String> nextUserItems = StrUtil.splitTrim( nextUsers[ i ], "," );
@@ -275,7 +276,7 @@ public class WorkTaskManager implements IWorkItemService {
                             participantIdentitys.add( map );
                         }
                         tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
-                        callFlowableProcessApi.createTaskEntityImpls( sourceTaskDefinitionKey,nextUserItems, nextActivityParamItems.get( 1 ), nextActivityParamItems.get( 0 ), processInstId, processDefinitionId,"anddoc",tasksCompleteMap );
+                        callFlowableProcessApi.createTaskEntityImpls( sourceTaskDefinitionKey,nextUserItems, nextActivityParamItems.get( 1 ), nextActivityParamItems.get( 0 ), processInstId, processDefinitionId,anddocConfig.getAppCode(),tasksCompleteMap );
 
                         //再完成当前task
                         if ( taskFlag && !StrUtil.containsIgnoreCase( nextActivityParam,"one" )) {
@@ -287,7 +288,7 @@ public class WorkTaskManager implements IWorkItemService {
                         tasksCompleteMap.clear( );
                         //先创建多实例的task
                         tasksCompleteMap.put( "fromTaskId", taskId );
-                        tasksCompleteMap.put( "tenantId", "anddoc" );
+                        tasksCompleteMap.put( "tenantId", anddocConfig.getAppCode() );
                         tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
 
                         List<String> nextUserItems = StrUtil.splitTrim( nextUsers[ i ], "," );
@@ -300,11 +301,11 @@ public class WorkTaskManager implements IWorkItemService {
                             participantIdentitys.add( map );
                         }
                         tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
-                        callFlowableProcessApi.createTaskEntityImpls( sourceTaskDefinitionKey,nextUserItems, nextActivityParamItems.get( 1 ), nextActivityParamItems.get( 0 ), processInstId, processDefinitionId,"anddoc",tasksCompleteMap );
+                        callFlowableProcessApi.createTaskEntityImpls( sourceTaskDefinitionKey,nextUserItems, nextActivityParamItems.get( 1 ), nextActivityParamItems.get( 0 ), processInstId, processDefinitionId,anddocConfig.getAppCode(),tasksCompleteMap );
                     }
                     if ( StrUtil.equals( nextActivityParamItems.get( 2 ), "sign" ) ) {    //流程会签
                         tasksCompleteMap.put( "fromTaskId", taskId );
-                        tasksCompleteMap.put( "tenantId", "anddoc" );
+                        tasksCompleteMap.put( "tenantId", anddocConfig.getAppCode() );
                         tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
                         tasksCompleteMap.put( "outcome", outcomes[i] );
 
@@ -323,7 +324,7 @@ public class WorkTaskManager implements IWorkItemService {
                     }
                     if ( StrUtil.equals( nextActivityParamItems.get( 2 ), "finish" ) ) {    //结束当前任务，不流程下一步
                         tasksCompleteMap.put( "fromTaskId", taskId );
-                        tasksCompleteMap.put( "tenantId", "anddoc" );
+                        tasksCompleteMap.put( "tenantId", anddocConfig.getAppCode() );
                         tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
 
                         callFlowableProcessApi.finshTask( taskId );
@@ -698,7 +699,7 @@ public class WorkTaskManager implements IWorkItemService {
             RedisUtil.setBean( processInstId.concat( ProcessConstants.PROCESS_SUBMIT_REDIS_SUFFIX ),cacheSubmitMapParam );
 
             tasksCompleteMap.put( "fromTaskId", taskId );
-            tasksCompleteMap.put( "tenantId", "anddoc" );
+            tasksCompleteMap.put( "tenantId", anddocConfig.getAppCode() );
             tasksCompleteMap.put( "processDefinitionId", processDefinitionId );
             List<String> nextUserItems = StrUtil.splitTrim( nextUsers, "," );
             String[] nextUserOrgCodeTmps = StrUtil.split( nextUserOrgCodes, "," );
@@ -712,7 +713,7 @@ public class WorkTaskManager implements IWorkItemService {
             }
             tasksCompleteMap.put( "participantIdentitys", JacksonUtils.obj2json( participantIdentitys ) );
             //进行分发
-            callFlowableProcessApi.createTaskEntityImpls( sourceTaskDefinitionKey,nextUserItems, nextActivityDefName, nextActivityDefId, processInstId, processDefinitionId,"anddoc",tasksCompleteMap );
+            callFlowableProcessApi.createTaskEntityImpls( sourceTaskDefinitionKey,nextUserItems, nextActivityDefName, nextActivityDefId, processInstId, processDefinitionId,anddocConfig.getAppCode(),tasksCompleteMap );
             i = 1 ;
         } catch (Exception e ) {
             Exceptions.printException(e);
@@ -720,10 +721,4 @@ public class WorkTaskManager implements IWorkItemService {
         return i;
     }
 
-    public static void main ( String[] args ) {
-        List<String> nextActivityParams = StrUtil.splitTrim( ",,one", '#' );
-        //下面会把空 空串去掉
-        List<String> nextActivityParamItems = StrUtil.splitTrim( nextActivityParams.get( 0 ), ',' );
-        System.out.println( nextActivityParamItems.size() );
-    }
 }

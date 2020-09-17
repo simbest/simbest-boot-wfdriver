@@ -474,5 +474,13 @@ public class WfProcessManager implements IProcessInstanceService {
         return false;
     }
 
-
+    /**
+     * 升级指定流程的流程定义（升级指定流程的流程定义,流程实例ID如果有多个，逗号分割；流程定义ID和版本号填一个就可以，如果都填写，以流程定义ID为准）
+     * 另外本地库中的实例表和任务表请在调用接口成功后更新流程定义ID
+     * @param processInstanceIds 实例ID
+     */
+    @Override
+    public void upgradeProcessInstanceVersion(String processInstanceIds) {
+        callFlowableProcessApi.upgradeProcessInstanceVersion (processInstanceIds , null , null);
+    }
 }

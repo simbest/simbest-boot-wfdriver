@@ -1,9 +1,9 @@
 package com.simbest.boot.wfdriver.http.utils;
 
-import com.mzlion.easyokhttp.HttpClient;
 import com.mzlion.easyokhttp.response.HttpResponse;
 import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.util.DateUtil;
+import com.simbest.boot.util.http.client.HttpClient;
 import com.simbest.boot.util.json.JacksonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,7 +136,7 @@ public class WqqueryHttpService {
 
         Map<String,Object> map = new HashMap<String,Object>();
         try {
-            JsonResponse jsonResponse = (JsonResponse)HttpClient
+            JsonResponse jsonResponse = (JsonResponse) com.mzlion.easyokhttp.HttpClient
                     .post(wfengineHost + url)
                     .param("SUBMITDATE",SUBMITDATE)
                     .param("SOURCESYSTEMID",SOURCESYSTEMID)
@@ -176,7 +176,7 @@ public class WqqueryHttpService {
         String ACCESSTOKEN = Md5Token.MD5(token+TIMESTAMP);
         HttpResponse httpResponse = null;
         try {
-            httpResponse = HttpClient.get(wfengineHost+url)
+            httpResponse = com.mzlion.easyokhttp.HttpClient.get(wfengineHost+url)
                     .header( "Content-type", MediaType.IMAGE_PNG_VALUE )
                     .header("TIMESTAMP",TIMESTAMP)
                     .header("ACCESSTOKEN",ACCESSTOKEN)
@@ -187,6 +187,7 @@ public class WqqueryHttpService {
                     .queryString("processDefinitionId",processDefinitionId)
                     .queryString("tenantId",SOURCESYSTEMID)
                     .queryString("key",processDefinitionId)
+                    //.asBean2(HttpResponse.class);
                     .execute();
 
         }catch(Exception e){
