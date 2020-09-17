@@ -74,4 +74,10 @@ public interface IActTaskInstModelService extends ILogicService<ActTaskInstModel
      * @return
      */
     boolean deleteAllByTaskIds(List<String > taskIds);
+
+    /**
+     * 流程实例实例ID更新流程定义信息
+     * @return
+     */
+    int updateProcessDefByProcessInstId(ActTaskInstModel actTaskInstModel);
 }

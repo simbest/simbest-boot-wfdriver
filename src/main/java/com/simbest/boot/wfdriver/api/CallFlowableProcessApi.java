@@ -1,17 +1,21 @@
-package com.simbest.boot.wfdriver.api;/**
- * @author Administrator
- * @create 2019/12/5 17:09.
- */
+package com.simbest.boot.wfdriver.api;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mzlion.easyokhttp.response.HttpResponse;
+import com.simbest.boot.base.exception.Exceptions;
+import com.simbest.boot.base.web.response.JsonResponse;
 import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.wfdriver.exceptions.WorkFlowBusinessRuntimeException;
 import com.simbest.boot.wfdriver.http.utils.ConstansURL;
 import com.simbest.boot.wfdriver.http.utils.ConstantsUtils;
 import com.simbest.boot.wfdriver.http.utils.HttpConfig;
 import com.simbest.boot.wfdriver.http.utils.WqqueryHttpService;
+import com.simbest.boot.wfdriver.process.bussiness.service.IActBusinessStatusService;
+import com.simbest.boot.wfdriver.process.listener.model.ActProcessInstModel;
+import com.simbest.boot.wfdriver.process.listener.model.ActTaskInstModel;
+import com.simbest.boot.wfdriver.process.listener.service.IActProcessInstModelService;
+import com.simbest.boot.wfdriver.process.listener.service.IActTaskInstModelService;
 import com.simbest.boot.wfdriver.util.MapRemoveNullUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -25,21 +29,39 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 /**
- *@ClassName CallFlowableProcessApi
- *@Description driver项目调用wfengine项目统一代码
- *@Author Administrator
- *@Date 2019/12/5 17:09
- *@Version 1.0
- **/
+ * <strong>Title : CallFlowableProcessApi</strong><br>
+ * <strong>Description : driver项目调用wfengine项目统一代码</strong><br>
+ * <strong>Create on : 2019/01/13</strong><br>
+ * <strong>Modify on : 2019/01/13</strong><br>
+ * <strong>Copyright (C) Ltd.</strong><br>
+ *
+ * @author LJW lijianwu@simbest.com.cn
+ * @version <strong>V1.0.0</strong><br>
+ * <strong>修改历史:</strong><br>
+ * 修改人 修改日期 修改描述<br>
+ * -------------------------------------------<br>
+ */
 @Slf4j
 @Component
+@SuppressWarnings("ALL")
 public class CallFlowableProcessApi {
+
     @Autowired
     private WqqueryHttpService wqqueryHttpService;
+
     @Autowired
     private HttpConfig httpConfig;
+
+    @Autowired
+    private IActBusinessStatusService actBusinessStatusService;
+
+    @Autowired
+    private IActProcessInstModelService actProcessInstModelService;
+
+    @Autowired
+    private IActTaskInstModelService actTaskInstModelService;
+
 
     /**
      * 1.自动部署流程定义
@@ -381,17 +403,69 @@ public class CallFlowableProcessApi {
     }
 
     /**
+     * 根据流程实例ID升级业务库中的流程版本
+     * @param processDefinitionKey    流程定义KEY
+     * @param processInstanceIds    流程实例ID
+     * @param tenantId              租户ID
+     */
+    public Boolean upgradeBusProcessInstanceVersion(String processDefinitionKey,String processInstanceIds,String tenantId){
+        Boolean flag = false;
+        try {
+            if (StrUtil.isBlank(tenantId)){
+                log.error("租户ID为空！");
+                return flag;
+            }
+            if (StrUtil.isBlank(processDefinitionKey)){
+                log.error("流程定义KEY为空！");
+                return flag;
+            }
+            if (StrUtil.isBlankIfStr(processInstanceIds)){
+                log.error("流程实例ID为空！");
+                return flag;
+            }
+            Map<String,Object> retMap = definitionsGetByKey(processDefinitionKey,null,tenantId);
+            Map<String,Object> data = MapUtil.get(retMap,"data",Map.class);
+            String processDefinitionId = MapUtil.getStr(data,"id");
+            String deploymentId = MapUtil.getStr(data,"deploymentId");
+            String [] processInstIdsArr = processInstanceIds.split(",");
+            for(String processInstId:processInstIdsArr){
+                //升级流程实例中的流程定义信息
+                ActProcessInstModel actProcessInstModel = actProcessInstModelService.getByProcessInstanceId(processInstId);
+                actProcessInstModel.setDeploymentId(deploymentId);
+                actProcessInstModel.setProcessDefinitionId(processDefinitionId);
+                actProcessInstModel = actProcessInstModelService.update(actProcessInstModel);
+
+                //升级流程环节实例中的流程定义信息
+                ActTaskInstModel actTaskInstModel = new ActTaskInstModel();
+                actTaskInstModel.setProcessDefinitionId(processDefinitionId);
+                actTaskInstModel.setProcessInstId(processInstId);
+                int ret = actTaskInstModelService.updateProcessDefByProcessInstId(actTaskInstModel);
+
+            }
+            flag = true;
+            return flag;
+        }catch (Exception e){
+            log.error("业务流程升级失败！");
+            Exceptions.printException( e );
+            return flag;
+        }
+    }
+
+    /**
      * 14.根据key获得一个流程定义 ,version可以不填，如果不填，获取最新的返回。
-     * @param key 流程定义Key
+     * @param processDefinitionKey 流程定义Key
      * @param version 版本号 （version可以不填，如果不填，获取最新的返回）
      * @param tenantId 租户ID
      */
-    public void definitionsGetByKey(String key,String version,String  tenantId) {
+    public Map<String,Object> definitionsGetByKey(String processDefinitionKey, String version, String tenantId) {
         Map<String,String> para = new HashMap<String,String>();
-        para.put("key",key);
+        para.put("key",processDefinitionKey);
         para.put("version",version);
         para.put("tenantId",tenantId);
         MapRemoveNullUtil.removeNullEntry(para);
-        wqqueryHttpService.callInterfaceString(ConstansURL.DEFINITIONS_GETBY_KEY,para);
+        Map<String,Object> map = wqqueryHttpService.callInterfaceString(ConstansURL.DEFINITIONS_GETBY_KEY,para);
+        return map;
     }
+
+
 }

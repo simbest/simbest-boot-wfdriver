@@ -52,6 +52,18 @@ public interface ActTaskInstModelMapper extends LogicRepository<ActTaskInstModel
     @Modifying
     int updateByTaskId(@Param("actTaskInstModel") ActTaskInstModel actTaskInstModel);
 
+    /**
+     * 流程实例实例ID更新流程定义信息
+     * @param actTaskInstModel
+     * @return
+     */
+    @Query(value = "update ActTaskInstModel  " +
+            "set processDefinitionId = :#{#actTaskInstModel.processDefinitionId} " +
+            "where processInstId = :#{#actTaskInstModel.processInstId} and enabled='1'" )
+    @Transactional
+    @Modifying
+    int updateProcessDefByProcessInstId(@Param("actTaskInstModel") ActTaskInstModel actTaskInstModel);
+
 
     /**
      * 根据工作项ID查询工作项信息

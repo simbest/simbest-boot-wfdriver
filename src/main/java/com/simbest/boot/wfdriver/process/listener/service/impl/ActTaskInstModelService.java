@@ -311,5 +311,21 @@ public class ActTaskInstModelService extends LogicService<ActTaskInstModel,Strin
         return ret;
     }
 
+    /**
+     * 流程实例实例ID更新流程定义信息
+     * @return
+     */
+    @Override
+    public int updateProcessDefByProcessInstId(ActTaskInstModel actTaskInstModel) {
+        int ret =  0;
+        try {
+            ret = actTaskInstModelMapper.updateProcessDefByProcessInstId(actTaskInstModel);
+            return ret;
+        }catch (Exception e){
+            Exceptions.printException( e );
+            return ret;
+        }
+    }
+
 
 }

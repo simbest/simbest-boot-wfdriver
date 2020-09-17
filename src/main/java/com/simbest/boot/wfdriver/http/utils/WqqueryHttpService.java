@@ -94,8 +94,7 @@ public class WqqueryHttpService {
             String SUBMITDATE = DateUtil.getTimestamp(date);
             String TIMESTAMP = String.valueOf(date.getTime()/1000);
             String ACCESSTOKEN = Md5Token.MD5(token+TIMESTAMP);
-
-        Map<String,Object> map = new HashMap<String,Object>();
+            Map<String,Object> map = new HashMap<String,Object>();
         try {
             JsonResponse jsonResponse = (JsonResponse)HttpClient
                     .post(wfengineHost + url)
