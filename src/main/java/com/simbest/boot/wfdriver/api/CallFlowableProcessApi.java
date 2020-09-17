@@ -409,19 +409,18 @@ public class CallFlowableProcessApi {
      * @param tenantId              租户ID
      */
     public Boolean upgradeBusProcessInstanceVersion(String processDefinitionKey,String processInstanceIds,String tenantId){
-        Boolean flag = false;
         try {
             if (StrUtil.isBlank(tenantId)){
                 log.error("租户ID为空！");
-                return flag;
+                return false;
             }
             if (StrUtil.isBlank(processDefinitionKey)){
                 log.error("流程定义KEY为空！");
-                return flag;
+                return false;
             }
             if (StrUtil.isBlankIfStr(processInstanceIds)){
                 log.error("流程实例ID为空！");
-                return flag;
+                return false;
             }
             Map<String,Object> retMap = definitionsGetByKey(processDefinitionKey,null,tenantId);
             Map<String,Object> data = MapUtil.get(retMap,"data",Map.class);
@@ -434,20 +433,24 @@ public class CallFlowableProcessApi {
                 actProcessInstModel.setDeploymentId(deploymentId);
                 actProcessInstModel.setProcessDefinitionId(processDefinitionId);
                 actProcessInstModel = actProcessInstModelService.update(actProcessInstModel);
+                if (StrUtil.isEmptyIfStr(actProcessInstModel)){
+                    return false;
+                }
 
                 //升级流程环节实例中的流程定义信息
                 ActTaskInstModel actTaskInstModel = new ActTaskInstModel();
                 actTaskInstModel.setProcessDefinitionId(processDefinitionId);
                 actTaskInstModel.setProcessInstId(processInstId);
                 int ret = actTaskInstModelService.updateProcessDefByProcessInstId(actTaskInstModel);
-
+                if (ret == 0){
+                    return false;
+                }
             }
-            flag = true;
-            return flag;
+            return true;
         }catch (Exception e){
             log.error("业务流程升级失败！");
             Exceptions.printException( e );
-            return flag;
+            return false;
         }
     }
 
