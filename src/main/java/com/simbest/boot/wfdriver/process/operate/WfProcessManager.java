@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
+import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.security.IOrg;
 import com.simbest.boot.security.IUser;
 import com.simbest.boot.util.json.JacksonUtils;
@@ -25,6 +26,7 @@ import com.simbest.boot.wfdriver.process.listener.service.IActCommentModelServic
 import com.simbest.boot.wfdriver.process.listener.service.IActProcessInstModelService;
 import com.simbest.boot.wfdriver.process.listener.service.IActTaskInstModelService;
 import com.simbest.boot.wfdriver.util.MapRemoveNullUtil;
+import com.simbest.boot.wfdriver.util.WfdriverConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +64,9 @@ public class WfProcessManager implements IProcessInstanceService {
 
     @Autowired
     private IActCommentModelService actCommentModelService;
+
+    @Autowired
+    private WfdriverConfig wfdriverConfig;
 
     /**
      * 启动流程并设置相关数据
@@ -480,7 +485,17 @@ public class WfProcessManager implements IProcessInstanceService {
      * @param processInstanceIds 实例ID
      */
     @Override
-    public void upgradeProcessInstanceVersion(String processInstanceIds) {
-        callFlowableProcessApi.upgradeProcessInstanceVersion (processInstanceIds , null , null);
+    public boolean upgradeProcessInstanceVersion(String processDefinitionKey, String processInstanceIds) {
+        boolean ret = Boolean.FALSE;
+        try {
+            //升级流程引擎库中的流程定义信息
+            callFlowableProcessApi.upgradeProcessInstanceVersion (processInstanceIds , null , null);
+            //升级业务库中的流程定义信息
+            ret = callFlowableProcessApi.upgradeBusProcessInstanceVersion(processDefinitionKey , processInstanceIds ,wfdriverConfig.getAppCode());
+        }catch (Exception e ) {
+            Exceptions.printException(e);
+        }
+        return  ret;
+
     }
 }
