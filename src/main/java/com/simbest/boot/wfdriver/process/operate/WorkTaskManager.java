@@ -38,6 +38,7 @@ import java.util.*;
  *@Version 1.0
  **/
 @Slf4j
+@SuppressWarnings("ALL")
 @Service(value = "workItemManager")
 public class WorkTaskManager implements IWorkItemService {
 
@@ -652,6 +653,23 @@ public class WorkTaskManager implements IWorkItemService {
             Exceptions.printException(e);
         }
         return map;
+    }
+
+    /**
+     * 获取当前环节出去的连线
+     * @param taskId    任务ID
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> getNextFlowNodes(String taskId) {
+        List<Map<String, Object>> curTaskOutLines = Lists.newArrayList();
+        try {
+            curTaskOutLines = callFlowableProcessApi.getNextFlowNodes( taskId );
+            return curTaskOutLines;
+        }catch (Exception e){
+            Exceptions.printException( e );
+        }
+        return null;
     }
 
     /**

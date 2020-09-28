@@ -2,6 +2,7 @@ package com.simbest.boot.wfdriver.api;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.Maps;
 import com.mzlion.easyokhttp.response.HttpResponse;
 import com.simbest.boot.base.exception.Exceptions;
 import com.simbest.boot.base.web.response.JsonResponse;
@@ -18,6 +19,7 @@ import com.simbest.boot.wfdriver.process.listener.service.IActProcessInstModelSe
 import com.simbest.boot.wfdriver.process.listener.service.IActTaskInstModelService;
 import com.simbest.boot.wfdriver.util.MapRemoveNullUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -481,4 +483,28 @@ public class CallFlowableProcessApi {
         return MapUtil.getBool(data , "isLastVersion");
     }
 
+    /**
+     * 获取当前环节出去的连线
+     * @param taskId    任务ID
+     * @return
+     */
+    public List<Map<String, Object>> getNextFlowNodes(String taskId) {
+        List<Map<String, Object>> curTaskOutLines = Lists.newArrayList();
+        try {
+            Map<String, String> stringParam = Maps.newConcurrentMap();
+            stringParam.put("taskId",taskId);
+            Map<String,Object> map = wqqueryHttpService.callInterfaceString(ConstansURL.QUERY_NEXT_NODES,stringParam);
+            if(StrUtil.isEmptyIfStr(map)){
+                if(map.get("state").equals(ConstantsUtils.FAILE)){
+                    log.error("Flowable-Engine接口异常:"+map.get("message") );
+                    throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:"+map.get("message") );
+                }
+                curTaskOutLines = (List<Map<String, Object>>) map.get("data");
+            }
+            return curTaskOutLines;
+        }catch (Exception e){
+            Exceptions.printException( e );
+        }
+        return null;
+    }
 }

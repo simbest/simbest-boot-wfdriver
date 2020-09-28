@@ -20,4 +20,6 @@ public class ConstansURL {
     public static final String UPGRADE_PROCESS_INSTANCE_VERSION = "/app/provide/instances/anonymous/upgradeProcessInstanceVersion";	//升级流程实例
     public static final String CHECK_IS_LAST_VERSION = "/app/provide/instances/anonymous/checkIsLastVersion";	//升级流程实例
 
+    public static final String QUERY_NEXT_NODES = "/app/provide/tasks/anonymous/getNextFlowNodes";	//获取当前环节出去的连线
+
 }
