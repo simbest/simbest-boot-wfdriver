@@ -1,11 +1,11 @@
 package com.simbest.boot.wfdriver.api;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Maps;
 import com.mzlion.easyokhttp.response.HttpResponse;
 import com.simbest.boot.base.exception.Exceptions;
-import com.simbest.boot.base.web.response.JsonResponse;
 import com.simbest.boot.util.json.JacksonUtils;
 import com.simbest.boot.wfdriver.exceptions.WorkFlowBusinessRuntimeException;
 import com.simbest.boot.wfdriver.http.utils.ConstansURL;
@@ -303,16 +303,29 @@ public class CallFlowableProcessApi {
      * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
      */
     public void createTaskEntityImpls(String sourceTaskDefinitionKey,List<String> assignees,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables) {
-        Map<String,Object> para = new HashMap<String,Object>();
+//        Map<String,Object> para = new HashMap<String,Object>();
+
+        Map<String,String> para = new HashMap<String,String>();
         para.put("sourceTaskDefinitionKey",sourceTaskDefinitionKey);
-        para.put("assignees",assignees);
+        StringBuffer assigneeStr = new StringBuffer();
+        if (CollectionUtil.isNotEmpty(assignees)) {
+            assignees.forEach(string -> assigneeStr.append(string).append(","));
+            para.put("assignees", assigneeStr.substring(0, assigneeStr.length() - 1));
+
+        } else {
+            para.put("assignees", "");
+        }
+//        para.put("assignees", assignees);
         para.put("taskName",taskName);
         para.put("taskDefinitionKey",taskDefinitionKey);
         para.put("processDefinitionId",processDefinitionId );
         para.put("processInstanceId",processInstanceId);
         para.put("tenantId",tenantId);
-        para.put("variables",variables);
-        wqqueryHttpService.callInterfaceJson(ConstansURL.CREATE_TASK_ENTITYIMPLS,JacksonUtils.obj2json(para));
+        para.put("fromTaskId",MapUtil.getStr(variables , "fromTaskId"));
+        para.put("participantIdentitys",MapUtil.getStr(variables , "participantIdentitys"));
+        //para.put("variables",variables);
+        wqqueryHttpService.callInterfaceString(ConstansURL.CREATE_TASK_ENTITYIMPLS,para);
+        /*wqqueryHttpService.callInterfaceJson(ConstansURL.CREATE_TASK_ENTITYIMPLS,JacksonUtils.obj2json(para));*/
     }
 
     /**
@@ -328,7 +341,7 @@ public class CallFlowableProcessApi {
      * @throws WorkFlowBusinessRuntimeException 接口调用失败，将错返回给客户端处理
      */
     public void createTaskEntityImpl(String sourceTaskDefinitionKey,String assignee,String taskName,String taskDefinitionKey,String processInstanceId,String processDefinitionId,String tenantId,Map<String,Object> variables) {
-        Map<String,Object> para = new HashMap<String,Object>();
+        Map<String,String> para = new HashMap<String,String>();
         para.put("sourceTaskDefinitionKey",sourceTaskDefinitionKey);
         para.put("assignee",assignee);
         para.put("taskName",taskName);
@@ -336,8 +349,11 @@ public class CallFlowableProcessApi {
         para.put("processInstanceId",processInstanceId);
         para.put("processDefinitionId",processDefinitionId);
         para.put("tenantId",tenantId);
-        para.put("variables",variables);
-        wqqueryHttpService.callInterfaceJson(ConstansURL.CREATE_TASK_ENTITYIMPL,JacksonUtils.obj2json(para));
+        para.put("fromTaskId",MapUtil.getStr(variables , "fromTaskId"));
+        para.put("participantIdentitys",MapUtil.getStr(variables , "participantIdentitys"));
+        wqqueryHttpService.callInterfaceString(ConstansURL.CREATE_TASK_ENTITYIMPL , para);
+        //para.put("variables",variables);
+        //wqqueryHttpService.callInterfaceJson(ConstansURL.CREATE_TASK_ENTITYIMPL,JacksonUtils.obj2json(para));
     }
 
     /**
