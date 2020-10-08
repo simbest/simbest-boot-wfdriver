@@ -510,12 +510,13 @@ public class CallFlowableProcessApi {
             Map<String, String> stringParam = Maps.newConcurrentMap();
             stringParam.put("taskId",taskId);
             Map<String,Object> map = wqqueryHttpService.callInterfaceString(ConstansURL.QUERY_NEXT_NODES,stringParam);
-            if(StrUtil.isEmptyIfStr(map)){
+            if(!StrUtil.isEmptyIfStr(map)){
                 if(map.get("state").equals(ConstantsUtils.FAILE)){
                     log.error("Flowable-Engine接口异常:"+map.get("message") );
                     throw new WorkFlowBusinessRuntimeException("Flowable-Engine接口异常:"+map.get("message") );
+                } else {
+                    curTaskOutLines.addAll((List<Map<String, Object>>) map.get("data"));
                 }
-                curTaskOutLines = (List<Map<String, Object>>) map.get("data");
             }
             return curTaskOutLines;
         }catch (Exception e){
