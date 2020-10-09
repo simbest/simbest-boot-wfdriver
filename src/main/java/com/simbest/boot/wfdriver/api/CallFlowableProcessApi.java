@@ -489,14 +489,14 @@ public class CallFlowableProcessApi {
         return map;
     }
 
-    public Boolean checkIsLastVersion (String processInstanceId , String tenantId) {
+    public Map<String , Object> checkIsLastVersion (String processInstanceId , String tenantId) {
         Map<String,String> para = new HashMap<String,String>();
         para.put("processInstanceId",processInstanceId);
         para.put("tenantId",tenantId);
         MapRemoveNullUtil.removeNullEntry(para);
         Map<String,Object> map  = wqqueryHttpService.callInterfaceString(ConstansURL.CHECK_IS_LAST_VERSION , para);
         Map data = MapUtil.get(map, "data", Map.class);
-        return MapUtil.getBool(data , "isLastVersion");
+        return  data;
     }
 
     /**

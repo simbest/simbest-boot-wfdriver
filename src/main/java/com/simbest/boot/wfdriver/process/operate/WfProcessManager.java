@@ -504,7 +504,7 @@ public class WfProcessManager implements IProcessInstanceService {
      * @return
      */
     @Override
-    public Boolean checkIsLastVersion(String processInstId) {
+    public Map<String, Object> checkIsLastVersion(String processInstId) {
         return callFlowableProcessApi.checkIsLastVersion(processInstId , wfdriverConfig.getAppCode());
     }
 
