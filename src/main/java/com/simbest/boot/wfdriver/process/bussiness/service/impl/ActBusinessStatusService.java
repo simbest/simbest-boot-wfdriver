@@ -219,9 +219,13 @@ public class ActBusinessStatusService extends GenericService<ActBusinessStatus,S
     @Override
     public int updatePorcessStateByProInstId ( String processInstId ) {
         try {
+            log.warn("流程实例id【{}】" , processInstId);
             ActBusinessStatus actBusinessStatus = new ActBusinessStatus();
             actBusinessStatus.setProcessInstId( processInstId );
-            actBusinessStatusMapper.updatePorcessStateByProInstId( actBusinessStatus );
+            //actBusinessStatusMapper.updatePorcessStateByProInstId( actBusinessStatus );
+            int i = actBusinessStatusMapper.updatePorcessStateByProInstId(processInstId);
+            ActBusinessStatus byProcessInst = this.getByProcessInst(processInstId);
+            log.warn("更新后的流程实例信息【{}】" , byProcessInst.toString());
         }catch (Exception e){
             FlowableDriverBusinessException.printException( e );
         }

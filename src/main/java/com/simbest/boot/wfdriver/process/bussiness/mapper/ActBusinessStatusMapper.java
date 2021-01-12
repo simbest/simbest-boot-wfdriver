@@ -394,10 +394,12 @@ public interface ActBusinessStatusMapper extends GenericRepository<ActBusinessSt
     /**
      * 根据流程实例ID更新流程状态
      */
-    String sq20 = "update act_business_status t set CURRENT_STATE=7 WHERE ENABLED=1 and t.END_TIME=sysdate and t.PROCESS_INST_ID = :#{#actBusinessStatus.processInstId}";
+    //String sq20 = "update act_business_status t set CURRENT_STATE=7 WHERE ENABLED=1 and t.END_TIME=sysdate and t.PROCESS_INST_ID = :#{#actBusinessStatus.processInstId}";
+    String sq20 = "update act_business_status t set CURRENT_STATE=7 WHERE ENABLED=1 and t.END_TIME=sysdate and t.PROCESS_INST_ID = :processInstId";
     @Modifying
     @Query(value = sq20,nativeQuery = true)
-    int updatePorcessStateByProInstId(ActBusinessStatus actBusinessStatus);
+    //int updatePorcessStateByProInstId(ActBusinessStatus actBusinessStatus);
+    int updatePorcessStateByProInstId(@Param("processInstId") String processInstId);
 
     /**
      * 功能描述: 更新根据ID更新主单据信息

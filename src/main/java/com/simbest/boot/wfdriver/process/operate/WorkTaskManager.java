@@ -672,6 +672,11 @@ public class WorkTaskManager implements IWorkItemService {
         return null;
     }
 
+    @Override
+    public List<?> queryWorkItemByProInstIdAndAcdefId(String activityDefId) {
+        return null;
+    }
+
     /**
      * 功能描述:查询正在运行中的任务实例
      *
